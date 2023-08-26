@@ -144,8 +144,8 @@ impl LilyNote {
                 _ => Ok("c"),
             },
             1 => match key {
-                AFlatMajor => Ok("des"),
-                DMajor => Ok("cis"),
+                AFlatMajor | DFlatMajor | GFlatMajor | CFlatMajor => Ok("des"),
+                DMajor | AMajor | EMajor | BMajor | FSharpMajor | CSharpMajor => Ok("cis"),
                 DMinor => Ok("cis"),
                 _ => Ok("cis"),
             },
@@ -155,8 +155,10 @@ impl LilyNote {
                 _ => Ok("d"),
             },
             3 => match key {
-                BFlatMajor => Ok("ees"),
-                EMajor => Ok("dis"),
+                BFlatMajor | EFlatMajor | AFlatMajor | DFlatMajor | GFlatMajor | CFlatMajor => {
+                    Ok("ees")
+                }
+                EMajor | BMajor | FSharpMajor | CSharpMajor => Ok("dis"),
                 EMinor => Ok("dis"),
                 _ => Ok("dis"),
             },
@@ -166,13 +168,13 @@ impl LilyNote {
                 _ => Ok("e"),
             },
             5 => match key {
-                FSharpMajor => Ok("eis"),
+                FSharpMajor | CSharpMajor => Ok("eis"),
                 FSharpMinor => Ok("eis"),
                 _ => Ok("f"),
             },
             6 => match key {
-                DFlatMajor => Ok("ges"),
-                GMajor => Ok("fis"),
+                DFlatMajor | GFlatMajor | CFlatMajor => Ok("ges"),
+                GMajor | DMajor | AMajor | EMajor | BMajor | FSharpMajor | CSharpMajor => Ok("fis"),
                 GMinor => Ok("fis"),
                 _ => Ok("fis"),
             },
@@ -182,8 +184,8 @@ impl LilyNote {
                 _ => Ok("g"),
             },
             8 => match key {
-                EFlatMajor => Ok("aes"),
-                AMajor => Ok("gis"),
+                EFlatMajor | AFlatMajor | DFlatMajor | GFlatMajor | CFlatMajor => Ok("aes"),
+                AMajor | EMajor | BMajor | FSharpMajor | CSharpMajor => Ok("gis"),
                 AMinor => Ok("gis"),
                 _ => Ok("gis"),
             },
@@ -193,13 +195,14 @@ impl LilyNote {
                 _ => Ok("a"),
             },
             10 => match key {
-                FMajor => Ok("bes"),
-                BMajor => Ok("ais"),
+                FMajor | BFlatMajor | EFlatMajor | AFlatMajor | DFlatMajor | GFlatMajor
+                | CFlatMajor => Ok("bes"),
+                BMajor | FSharpMajor | CSharpMajor => Ok("ais"),
                 BMinor => Ok("ais"),
                 _ => Ok("ais"),
             },
             11 => match key {
-                GFlatMajor => Ok("ces"),
+                GFlatMajor | CFlatMajor => Ok("ces"),
                 CMinor => Ok("b"),
                 _ => Ok("b"),
             },
