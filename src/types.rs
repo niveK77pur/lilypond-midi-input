@@ -11,7 +11,8 @@ pub enum MidiMessageType {
     PedalOn { pedal: u8, value: u8 },
     /// A piano pedal has been released
     ///
-    /// The `value` is omitted here, because it is back to 0 when the pedal was released.
+    /// The `value` is omitted here, because it is back to 0 when the pedal was
+    /// released.
     PedalOff { pedal: u8 },
     /// A midi message which has not been handled
     Unknown,
