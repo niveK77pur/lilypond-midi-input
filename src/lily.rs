@@ -127,7 +127,7 @@ pub struct LilyNote {
 }
 
 impl LilyNote {
-    pub fn new(value: u8, parameters: LilyParameters) -> Self {
+    pub fn new(value: u8, parameters: &LilyParameters) -> Self {
         LilyNote {
             letter: Self::note_name(value % 12, &parameters).expect("Note within octave"),
             octave: (value as i16 / 12) as i8 - 4,
