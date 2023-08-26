@@ -183,14 +183,34 @@ impl<'a> MidiInputPort<'a> {
         }
     }
 
-    /// Listen to MIDI events and execute callback function on the individual
-    /// events.
+    /// Listen to MIDI events and execute immutable callback function on the individual
+    /// events
+    ///
+    /// The callback takes an immutable receiver, and thus may not mutate any state. If you are
+    /// getting errors about borrowing mutable values due to an `Fn` closure, try the
+    /// [crate::midi::MidiInputPort::listen_mut] instead.
     ///
     /// # Errors
     ///
     /// This function will return an error if [`portmidi::InputPort::poll`]
     /// fails.
     pub fn listen(&self, event_callback: impl Fn(MidiEvent)) -> Result<(), portmidi::types::Error> {
+        self.listen_mut(event_callback)
+    }
+
+    /// Listen to MIDI events and execute mutable callback function on the individual
+    /// events
+    ///
+    /// The callback takes a mutable receiver and thus may mutate state.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if [`portmidi::InputPort::poll`]
+    /// fails.
+    pub fn listen_mut(
+        &self,
+        mut event_callback: impl FnMut(MidiEvent),
+    ) -> Result<(), portmidi::types::Error> {
         while self.port.poll().is_ok() {
             if let Ok(Some(events)) = self.port.read_n(self.buffer_size) {
                 for event in events {
