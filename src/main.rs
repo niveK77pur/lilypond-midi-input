@@ -1,4 +1,4 @@
-use pm::{InputPort, PortMidi, PortMidiDeviceId};
+use pm::{InputPort, MidiEvent, MidiMessage, PortMidi, PortMidiDeviceId};
 use portmidi as pm;
 
 use std::thread;
@@ -9,6 +9,7 @@ const BUFFER_SIZE: usize = 1024;
 #[derive(Debug)]
 enum Error {
     NamedDeviceNotFound(String),
+    UnknownMidiMessageType(MidiMessage),
 }
 
 fn list_devices(pm: &PortMidi) {
@@ -24,6 +25,56 @@ fn get_device_id_by_name(name: &str, pm: &PortMidi) -> Result<PortMidiDeviceId, 
         }
     }
     Err(Error::NamedDeviceNotFound(name.into()))
+}
+
+/// Explicity see the type of MIDI message
+#[derive(Debug)]
+enum MidiMessageType {
+    /// A note has been pressed.
+    NoteOn { note: u8, velocity: u8 },
+    /// A note has been released.
+    NoteOff { note: u8, velocity: u8 },
+    /// A piano pedal has been pressed.
+    PedalOn { pedal: u8, value: u8 },
+    /// A piano pedal has been released
+    ///
+    /// The `value` is omitted here, because it should be back to 0 when the pedal was released.
+    PedalOff { pedal: u8 },
+    /// A midi message which has not been handled.
+    Unknown,
+}
+
+impl From<MidiMessage> for MidiMessageType {
+    fn from(value: MidiMessage) -> Self {
+        if value.status == 144 {
+            MidiMessageType::NoteOn {
+                note: value.data1,
+                velocity: value.data2,
+            }
+        } else if value.status == 128 {
+            MidiMessageType::NoteOff {
+                note: value.data1,
+                velocity: value.data2,
+            }
+        } else if value.status == 176 {
+            match value.data2.cmp(&0) {
+                std::cmp::Ordering::Less => MidiMessageType::Unknown,
+                std::cmp::Ordering::Equal => MidiMessageType::PedalOff { pedal: value.data1 },
+                std::cmp::Ordering::Greater => MidiMessageType::PedalOn {
+                    pedal: value.data1,
+                    value: value.data2,
+                },
+            }
+        } else {
+            MidiMessageType::Unknown
+        }
+    }
+}
+
+impl From<MidiEvent> for MidiMessageType {
+    fn from(value: MidiEvent) -> Self {
+        value.message.into()
+    }
 }
 
 /// Function to clear all pending messages from the port.
@@ -124,10 +175,11 @@ fn main() {
     clear_port(&in_port);
 
     while in_port.poll().is_ok() {
-        if let Ok(Some(event)) = in_port.read_n(BUFFER_SIZE) {
-            println!("{:?}", event);
-        } else {
-            println!("No message");
+        if let Ok(Some(events)) = in_port.read_n(BUFFER_SIZE) {
+            // println!("{:?}", events);
+            for event in events {
+                println!("{:?}", MidiMessageType::from(event));
+            }
         }
         // there is no blocking receive method in PortMidi, therefore
         // we have to sleep some time to prevent a busy-wait loop
