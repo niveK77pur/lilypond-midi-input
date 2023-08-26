@@ -35,6 +35,7 @@ fn main() {
 
         let mut parameters = lily::LilyParameters::new(
             lily::LilyKeySignature::GMajor,
+            lily::LilyAccidental::Flats,
             alterations,
             global_alterations,
         );

@@ -5,6 +5,7 @@ type Alteration<'a> = HashMap<u8, &'a str>;
 #[derive(Debug)]
 pub struct LilyParameters<'a> {
     key: LilyKeySignature,
+    accidentals: LilyAccidental,
     /// custom alterations within an octave (0-11)
     alterations: Alteration<'a>,
     /// custom alterations over all notes
@@ -14,11 +15,13 @@ pub struct LilyParameters<'a> {
 impl<'a> LilyParameters<'a> {
     pub fn new(
         key: LilyKeySignature,
+        accidentals: LilyAccidental,
         alterations: Alteration<'a>,
         global_alterations: Alteration<'a>,
     ) -> Self {
         LilyParameters {
             key,
+            accidentals,
             alterations,
             global_alterations,
         }
@@ -120,6 +123,13 @@ impl TryFrom<&str> for LilyKeySignature {
     }
 }
 
+/// The accidentals to use for out of key notes.
+#[derive(Debug)]
+pub enum LilyAccidental {
+    Sharps,
+    Flats,
+}
+
 #[derive(Debug)]
 pub struct LilyNote<'a> {
     /// the LilyPond note string
@@ -148,7 +158,9 @@ impl<'a> LilyNote<'a> {
     }
 
     fn note_name(note: u8, parameters: &LilyParameters) -> Result<&'static str, LilypondNoteError> {
-        let LilyParameters { key, .. } = parameters;
+        let LilyParameters {
+            key, accidentals, ..
+        } = parameters;
         use LilyKeySignature::*;
         match note {
             0 => match key {
@@ -162,7 +174,10 @@ impl<'a> LilyNote<'a> {
                 DMajor | BMinor | AMajor | FSharpMinor | EMajor | CSharpMinor | BMajor
                 | GSharpMinor | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => Ok("cis"),
                 DMinor => Ok("cis"),
-                _ => Ok("cis"),
+                _ => match accidentals {
+                    LilyAccidental::Sharps => Ok("cis"),
+                    LilyAccidental::Flats => Ok("des"),
+                },
             },
             2 => match key {
                 EFlatMinor => Ok("d"),
@@ -175,7 +190,10 @@ impl<'a> LilyNote<'a> {
                 EMajor | CSharpMinor | BMajor | GSharpMinor | FSharpMajor | DSharpMinor
                 | CSharpMajor | ASharpMinor => Ok("dis"),
                 EMinor => Ok("dis"),
-                _ => Ok("dis"),
+                _ => match accidentals {
+                    LilyAccidental::Sharps => Ok("dis"),
+                    LilyAccidental::Flats => Ok("ees"),
+                },
             },
             4 => match key {
                 CFlatMajor | AFlatMinor => Ok("fes"),
@@ -196,7 +214,10 @@ impl<'a> LilyNote<'a> {
                     Ok("fis")
                 }
                 GMinor => Ok("fis"),
-                _ => Ok("fis"),
+                _ => match accidentals {
+                    LilyAccidental::Sharps => Ok("fis"),
+                    LilyAccidental::Flats => Ok("ges"),
+                },
             },
             7 => match key {
                 AFlatMinor => Ok("g"),
@@ -209,7 +230,10 @@ impl<'a> LilyNote<'a> {
                 AMajor | FSharpMinor | EMajor | CSharpMinor | BMajor | GSharpMinor
                 | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => Ok("gis"),
                 AMinor => Ok("gis"),
-                _ => Ok("gis"),
+                _ => match accidentals {
+                    LilyAccidental::Sharps => Ok("gis"),
+                    LilyAccidental::Flats => Ok("aes"),
+                },
             },
             9 => match key {
                 BFlatMinor => Ok("a"),
@@ -224,7 +248,10 @@ impl<'a> LilyNote<'a> {
                     Ok("ais")
                 }
                 BMinor => Ok("ais"),
-                _ => Ok("ais"),
+                _ => match accidentals {
+                    LilyAccidental::Sharps => Ok("ais"),
+                    LilyAccidental::Flats => Ok("bes"),
+                },
             },
             11 => match key {
                 GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => Ok("ces"),
