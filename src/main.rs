@@ -9,7 +9,8 @@ const BUFFER_SIZE: usize = 1024;
 
 fn main() {
     let (tx, rx) = mpsc::channel();
-    let channel_message_buffer = Arc::new(Mutex::new(VecDeque::new()));
+    let channel_message_buffer: Arc<Mutex<VecDeque<String>>> =
+        Arc::new(Mutex::new(VecDeque::new()));
 
     let message_buffer = Arc::clone(&channel_message_buffer);
     let lilypond_midi_input_handler = std::thread::spawn(move || {
@@ -25,17 +26,23 @@ fn main() {
         port.clear();
 
         port.listen(|event| {
+            let mut parameters =
+                lily::LilyParameters::new(lily::LilyKeySignature::GMajor, vec![], vec![]);
             if rx.try_recv().is_ok() {
                 while let Some(message) = message_buffer
                     .lock()
                     .expect("Received the mutex lock")
                     .pop_front()
                 {
-                    println!("MESSAGE RECEIVED: {:?}", message);
+                    match message.as_str().try_into() {
+                        Ok(key) => {
+                            parameters.set_key(key);
+                            println!("PARAMETER SET: {:?}", parameters);
+                        }
+                        Err(e) => println!("ERROR! {:?}", e),
+                    }
                 }
             }
-            let parameters =
-                lily::LilyParameters::new(lily::LilyKeySignature::GMajor, vec![], vec![]);
             if let midi::MidiMessageType::NoteOn { note, .. } = midi::MidiMessageType::from(event) {
                 println!("{:?}", lily::LilyNote::new(note, parameters))
             }
