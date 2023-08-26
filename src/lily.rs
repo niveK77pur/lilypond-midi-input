@@ -263,6 +263,18 @@ impl<'a> LilyNote<'a> {
     }
 }
 
+impl<'a> From<&LilyNote<'a>> for String {
+    fn from(value: &LilyNote) -> Self {
+        let LilyNote { letter, octave } = value;
+        let octave = match octave.cmp(&0) {
+            std::cmp::Ordering::Less => ",".repeat(octave.unsigned_abs() as usize),
+            std::cmp::Ordering::Equal => "".into(),
+            std::cmp::Ordering::Greater => "'".repeat(*octave as usize),
+        };
+        format!("{}{}", letter, octave)
+    }
+}
+
 #[derive(Debug)]
 pub enum LilypondNoteError {
     /// Some functions require the note to be within an octave (integer between 0 to 11)

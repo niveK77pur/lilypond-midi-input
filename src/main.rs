@@ -57,7 +57,8 @@ fn main() {
                 }
             }
             if let midi::MidiMessageType::NoteOn { note, .. } = midi::MidiMessageType::from(event) {
-                println!("{:?} {:?}", lily::LilyNote::new(note, &parameters), event)
+                let lilynote = lily::LilyNote::new(note, &parameters);
+                println!("{} {:?} {:?}", String::from(&lilynote), lilynote, event)
             }
         })
         .expect("Polling for new messages works.");
