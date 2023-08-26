@@ -1,10 +1,17 @@
+use std::{
+    collections::VecDeque,
+    sync::{mpsc, Arc, Mutex},
+};
+
 use lilypond_midi_input as lmi;
 
 const BUFFER_SIZE: usize = 1024;
 
 fn main() {
-    let (tx, rx) = std::sync::mpsc::channel();
+    let (tx, rx) = mpsc::channel();
+    let channel_message_buffer = Arc::new(Mutex::new(VecDeque::new()));
 
+    let message_buffer = Arc::clone(&channel_message_buffer);
     let lilypond_midi_input_handler = std::thread::spawn(move || {
         // initialize the PortMidi context.
         let context = portmidi::PortMidi::new().expect("At least one MIDI device available.");
@@ -18,16 +25,31 @@ fn main() {
         port.clear();
 
         port.listen(|event| {
-            // TODO: buffer unreceived lines
-            let message = rx.try_recv();
-            println!("{:?} ({:?})", lmi::MidiMessageType::from(event), message)
-        }).expect("Polling for new messages works.");
+            if rx.try_recv().is_ok() {
+                while let Some(message) = message_buffer
+                    .lock()
+                    .expect("Received the mutex lock")
+                    .pop_front()
+                {
+                    println!("MESSAGE RECEIVED: {:?}", message);
+                }
+            }
+            println!("{:?}", lmi::MidiMessageType::from(event),)
+        })
+        .expect("Polling for new messages works.");
     });
 
+    let message_buffer = Arc::clone(&channel_message_buffer);
     let user_input_handler = std::thread::spawn(move || {
-        for line in std::io::stdin().lines() {
-            println!(">> GOT LINE: {:?}", line);
-            tx.send(line).expect("Receiver is alive");
+        for line in std::io::stdin()
+            .lines()
+            .map(|l| l.expect("Managed to read stdin line"))
+        {
+            message_buffer
+                .lock()
+                .expect("Received the mutex lock")
+                .push_back(line);
+            tx.send(()).expect("Receiver is alive");
         }
     });
 
