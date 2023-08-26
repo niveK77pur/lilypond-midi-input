@@ -15,7 +15,7 @@ fn main() {
     let lilypond_midi_input_handler = std::thread::spawn(move || {
         // initialize the PortMidi context.
         let context = portmidi::PortMidi::new().expect("At least one MIDI device available.");
-        let name = "USB-MIDI MIDI 1";
+        let name = "out"; // let name = "USB-MIDI MIDI 1";
 
         lmi::list_devices(&context);
 
@@ -40,7 +40,7 @@ fn main() {
     });
 
     let message_buffer = Arc::clone(&channel_message_buffer);
-    let user_input_handler = std::thread::spawn(move || {
+    let _user_input_handler = std::thread::spawn(move || {
         for line in std::io::stdin()
             .lines()
             .map(|l| l.expect("Managed to read stdin line"))
