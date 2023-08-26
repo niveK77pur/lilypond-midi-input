@@ -3,7 +3,7 @@ use std::{
     sync::{mpsc, Arc, Mutex},
 };
 
-use lilypond_midi_input as lmi;
+use lilypond_midi_input::midi;
 
 const BUFFER_SIZE: usize = 1024;
 
@@ -17,9 +17,9 @@ fn main() {
         let context = portmidi::PortMidi::new().expect("At least one MIDI device available.");
         let name = "out"; // let name = "USB-MIDI MIDI 1";
 
-        lmi::list_devices(&context);
+        midi::list_devices(&context);
 
-        let port = lmi::MidiInputPort::new(name, &context, BUFFER_SIZE)
+        let port = midi::MidiInputPort::new(name, &context, BUFFER_SIZE)
             .expect("Port name matches an existing port");
 
         port.clear();
@@ -34,7 +34,7 @@ fn main() {
                     println!("MESSAGE RECEIVED: {:?}", message);
                 }
             }
-            println!("{:?}", lmi::MidiMessageType::from(event),)
+            println!("{:?}", midi::MidiMessageType::from(event),)
         })
         .expect("Polling for new messages works.");
     });
