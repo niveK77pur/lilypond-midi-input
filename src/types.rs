@@ -3,17 +3,17 @@ use portmidi::{MidiEvent, MidiMessage};
 /// Explicity see the type of MIDI message
 #[derive(Debug)]
 pub enum MidiMessageType {
-    /// A note has been pressed.
+    /// A note has been pressed
     NoteOn { note: u8, velocity: u8 },
-    /// A note has been released.
+    /// A note has been released
     NoteOff { note: u8, velocity: u8 },
-    /// A piano pedal has been pressed.
+    /// A piano pedal has been pressed
     PedalOn { pedal: u8, value: u8 },
     /// A piano pedal has been released
     ///
-    /// The `value` is omitted here, because it should be back to 0 when the pedal was released.
+    /// The `value` is omitted here, because it is back to 0 when the pedal was released.
     PedalOff { pedal: u8 },
-    /// A midi message which has not been handled.
+    /// A midi message which has not been handled
     Unknown,
 }
 

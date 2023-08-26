@@ -6,6 +6,39 @@ mod types;
 pub use errors::*;
 pub use types::*;
 
+/// An input port with which to read MIDI events
+///
+/// # Minimum working example
+///
+/// The following demonstrates how to use this struct. At the very core it is used to read MIDI
+/// events from an input port. The `portmidi` context needs to be manually created due to lifetime
+/// handling of that crate. Next, the [`crate::list_devices`] helper function lists all available
+/// devices, which the name can be used to to create a [`crate::MidiInputPort`]. One should ideally
+/// also clear the port, as there may be pending messages which will be output right upon starting
+/// the program. Finally, we listen to the port, and can execute a callback function on each single
+/// event that is received; in this case we simple print it encoded as a [`crate::MidiMessageType`].
+///
+/// ```
+/// use lilypond_midi_input as lmi;
+///
+/// const BUFFER_SIZE: usize = 1024;
+///
+/// fn main() {
+///     // initialize the PortMidi context.
+///     let context = portmidi::PortMidi::new().expect("At least one MIDI device available.");
+///     let name = "USB-MIDI MIDI 1";
+///
+///     lmi::list_devices(&context);
+///
+///     let port = lmi::MidiInputPort::new(name, &context, BUFFER_SIZE)
+///         .expect("Port name matches an existing port");
+///
+///     port.clear();
+///
+///     port.listen(|event| println!("{:?}", lmi::MidiMessageType::from(event)))
+///         .expect("Polling for new messages works.");
+/// }
+/// ```
 pub struct MidiInputPort<'a> {
     _name: &'a str,
     _context: &'a PortMidi, // Used for lifetime pinning
@@ -41,6 +74,23 @@ impl<'a> MidiInputPort<'a> {
         })
     }
 
+    /// Get [PortMidiDeviceId] using the port's name
+    ///
+    /// [portmidi] only allows setting up a port using the [PortMidiDeviceId], which is cumbersome
+    /// at best for an end user. Also, it is not as robust, as there is no guarantee that the same
+    /// MIDI controller will have the same ID.
+    ///
+    /// Creating ports using a named reference makes this more resilient and nicer to work with for
+    /// users of the library.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the list of devices cannot be obtained.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the given name does not EXACTLY match the name of an
+    /// available port.
     fn get_device_id_by_name(
         name: &str,
         context: &PortMidi,
@@ -129,6 +179,11 @@ impl<'a> MidiInputPort<'a> {
         }
     }
 
+    /// Listen to MIDI events and execute callback function on the individual events.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if [`portmidi::InputPort::poll`] fails.
     pub fn listen(&self, event_callback: fn(MidiEvent)) -> Result<(), portmidi::types::Error> {
         while self.port.poll().is_ok() {
             if let Ok(Some(events)) = self.port.read_n(self.buffer_size) {
@@ -145,8 +200,13 @@ impl<'a> MidiInputPort<'a> {
     }
 }
 
+/// List all available MIDI devices.
+///
+/// # Panics
+///
+/// Panics if the list of devices cannot be obtained.
 pub fn list_devices(context: &PortMidi) {
-    for dev in context.devices().unwrap() {
+    for dev in context.devices().expect("Can read info for all devices") {
         println!("{}", dev);
     }
 }
