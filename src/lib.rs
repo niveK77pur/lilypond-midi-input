@@ -11,8 +11,8 @@ pub use types::*;
 /// # Minimum working example
 ///
 /// The following demonstrates how to use this struct. At the very core it is
-/// used to read MIDI events from an input port. The `portmidi` context needs to
-/// be manually created due to lifetime handling of that crate. Next, the
+/// used to read MIDI events from an input port. The [`portmidi`] context needs
+/// to be manually created due to lifetime handling of that crate. Next, the
 /// [`crate::list_devices`] helper function lists all available devices, which
 /// the name can be used to to create a [`crate::MidiInputPort`]. One should
 /// ideally also clear the port, as there may be pending messages which will be
