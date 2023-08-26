@@ -3,11 +3,34 @@ use std::{
     sync::{mpsc, Arc, Mutex},
 };
 
-use lilypond_midi_input::{lily, midi};
+use clap::Parser;
+use lilypond_midi_input::{
+    lily::{self, LilyAccidental},
+    midi,
+};
+use regex::Regex;
 
 const BUFFER_SIZE: usize = 1024;
 
+#[derive(Parser, Debug)]
+struct InputArgs {
+    // #[arg(required(true))]
+    device: String,
+    #[arg(short, long)]
+    list_devices: bool,
+    #[arg(short, long, default_value_t = String::from("cM"))]
+    key: String,
+    #[arg(short, long, default_value_t = String::from("sharps"))]
+    accidentals: String,
+    #[arg(long, visible_alias("alt"), default_value_t = String::new())]
+    alterations: String,
+    #[arg(long, visible_alias("galt"), default_value_t = String::new())]
+    global_alterations: String,
+}
+
 fn main() {
+    let input_args = InputArgs::parse();
+
     let (tx, rx) = mpsc::channel();
     let channel_message_buffer: Arc<Mutex<VecDeque<String>>> =
         Arc::new(Mutex::new(VecDeque::new()));
@@ -66,10 +89,27 @@ fn main() {
 
     let message_buffer = Arc::clone(&channel_message_buffer);
     let _user_input_handler = std::thread::spawn(move || {
+        let re_keyval = Regex::new(r"(?<key>\w+)=(?<value>[^[:space:]]+)").expect("Regex is valid");
+        let re_subkeyval = Regex::new(r"(?<key>\w+):(?<value>[^,]+)").expect("Regex is valid");
         for line in std::io::stdin()
             .lines()
             .map(|l| l.expect("Managed to read stdin line"))
         {
+            let mut commands: HashMap<&str, HashMap<&str, &str>> = HashMap::new();
+            for cap in re_keyval.captures_iter(line.as_str()) {
+                let key = cap.name("key").expect("Valid named group").as_str();
+                let value = cap.name("value").expect("Valid named group").as_str();
+                let mut subvalues = HashMap::new();
+                for subcap in re_subkeyval.captures_iter(value) {
+                    subvalues.insert(
+                        subcap.name("key").expect("Valid named group").as_str(),
+                        subcap.name("value").expect("Valid named group").as_str(),
+                    );
+                }
+                commands.insert(key, subvalues);
+            }
+
+            println!("{:?}", commands);
             message_buffer
                 .lock()
                 .expect("Received the mutex lock")
