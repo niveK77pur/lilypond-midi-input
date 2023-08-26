@@ -20,7 +20,7 @@ pub use types::*;
 /// can execute a callback function on each single event that is received; in
 /// this case we simple print it encoded as a [`crate::MidiMessageType`].
 ///
-/// ```
+/// ```no_run
 /// use lilypond_midi_input as lmi;
 ///
 /// const BUFFER_SIZE: usize = 1024;
