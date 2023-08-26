@@ -19,27 +19,24 @@ pub enum MidiMessageType {
 
 impl From<MidiMessage> for MidiMessageType {
     fn from(value: MidiMessage) -> Self {
-        if value.status == 144 {
-            MidiMessageType::NoteOn {
+        match value.status {
+            144 => MidiMessageType::NoteOn {
                 note: value.data1,
                 velocity: value.data2,
-            }
-        } else if value.status == 128 {
-            MidiMessageType::NoteOff {
+            },
+            128 => MidiMessageType::NoteOff {
                 note: value.data1,
                 velocity: value.data2,
-            }
-        } else if value.status == 176 {
-            match value.data2.cmp(&0) {
+            },
+            176 => match value.data2.cmp(&0) {
                 std::cmp::Ordering::Less => MidiMessageType::Unknown,
                 std::cmp::Ordering::Equal => MidiMessageType::PedalOff { pedal: value.data1 },
                 std::cmp::Ordering::Greater => MidiMessageType::PedalOn {
                     pedal: value.data1,
                     value: value.data2,
                 },
-            }
-        } else {
-            MidiMessageType::Unknown
+            },
+            _ => MidiMessageType::Unknown,
         }
     }
 }
