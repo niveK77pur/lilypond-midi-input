@@ -190,7 +190,7 @@ impl<'a> MidiInputPort<'a> {
     ///
     /// This function will return an error if [`portmidi::InputPort::poll`]
     /// fails.
-    pub fn listen(&self, event_callback: fn(MidiEvent)) -> Result<(), portmidi::types::Error> {
+    pub fn listen(&self, event_callback: impl Fn(MidiEvent)) -> Result<(), portmidi::types::Error> {
         while self.port.poll().is_ok() {
             if let Ok(Some(events)) = self.port.read_n(self.buffer_size) {
                 for event in events {
