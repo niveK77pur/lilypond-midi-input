@@ -21,14 +21,25 @@ impl<'a> LilyParameters<'a> {
             global_alterations,
         }
     }
+
     pub fn key(&self) -> &LilyKeySignature {
         &self.key
     }
+    pub fn set_key(&mut self, key: LilyKeySignature) {
+        self.key = key
+    }
+
     pub fn alterations(&self) -> &Vec<Alteration<'a>> {
         &self.alterations
     }
+    pub fn set_alterations(&mut self, alterations: Vec<Alteration<'a>>) {
+        self.alterations = alterations
+    }
     pub fn global_alterations(&self) -> &Vec<Alteration<'a>> {
         &self.global_alterations
+    }
+    pub fn set_global_alterations(&mut self, global_alterations: Vec<Alteration<'a>>) {
+        self.global_alterations = global_alterations
     }
 }
 
@@ -65,6 +76,46 @@ pub enum LilyKeySignature {
     GSharpMinor, // 5 sharps
     DSharpMinor, // 6 sharps
     ASharpMinor, // 7 sharps
+}
+
+impl TryFrom<&str> for LilyKeySignature {
+    type Error = LilypondNoteError;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value {
+            "cesM" => Ok(LilyKeySignature::CFlatMajor),
+            "gesM" => Ok(LilyKeySignature::GFlatMajor),
+            "desM" => Ok(LilyKeySignature::DFlatMajor),
+            "aesM" => Ok(LilyKeySignature::AFlatMajor),
+            "eesM" => Ok(LilyKeySignature::EFlatMajor),
+            "besM" => Ok(LilyKeySignature::BFlatMajor),
+            "fM" => Ok(LilyKeySignature::FMajor),
+            "cM" => Ok(LilyKeySignature::CMajor),
+            "gM" => Ok(LilyKeySignature::GMajor),
+            "dM" => Ok(LilyKeySignature::DMajor),
+            "aM" => Ok(LilyKeySignature::AMajor),
+            "eM" => Ok(LilyKeySignature::EMajor),
+            "bM" => Ok(LilyKeySignature::BMajor),
+            "fisM" => Ok(LilyKeySignature::FSharpMajor),
+            "cisM" => Ok(LilyKeySignature::CSharpMajor),
+            "dm" => Ok(LilyKeySignature::AFlatMinor),
+            "gm" => Ok(LilyKeySignature::EFlatMinor),
+            "cm" => Ok(LilyKeySignature::BFlatMinor),
+            "fm" => Ok(LilyKeySignature::FMinor),
+            "besm" => Ok(LilyKeySignature::CMinor),
+            "eesm" => Ok(LilyKeySignature::GMinor),
+            "aesm" => Ok(LilyKeySignature::DMinor),
+            "am" => Ok(LilyKeySignature::AMinor),
+            "em" => Ok(LilyKeySignature::EMinor),
+            "bm" => Ok(LilyKeySignature::BMinor),
+            "fism" => Ok(LilyKeySignature::FSharpMinor),
+            "cism" => Ok(LilyKeySignature::CSharpMinor),
+            "gism" => Ok(LilyKeySignature::GSharpMinor),
+            "dism" => Ok(LilyKeySignature::DSharpMinor),
+            "aism" => Ok(LilyKeySignature::ASharpMinor),
+            _ => Err(LilypondNoteError::InvalidKeyString),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -160,4 +211,6 @@ impl LilyNote {
 pub enum LilypondNoteError {
     /// Some functions require the note to be within an octave (integer between 0 to 11)
     OutsideOctave,
+    ///
+    InvalidKeyString,
 }
