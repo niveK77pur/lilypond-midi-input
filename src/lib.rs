@@ -140,9 +140,9 @@ impl<'a> MidiInputPort<'a> {
     /// If this function does not clear all pending messages, try inspecting the
     /// output of the port by using the following code inside the loop:
     ///
-    /// ```
+    /// ```ignore
     /// match port.read_n(self.buffer_size) {
-    ///     Ok(events) => println!(events),
+    ///     Ok(events) => println!("{:?}", events),
     ///     Err(e) => panic!("Error {e}"),
     /// }
     /// ```
