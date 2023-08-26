@@ -1,5 +1,5 @@
 use std::{
-    collections::VecDeque,
+    collections::{HashMap, VecDeque},
     sync::{mpsc, Arc, Mutex},
 };
 
@@ -25,9 +25,21 @@ fn main() {
 
         port.clear();
 
-        port.listen(|event| {
-            let mut parameters =
-                lily::LilyParameters::new(lily::LilyKeySignature::GMajor, vec![], vec![]);
+        let mut alterations = HashMap::new();
+        alterations.insert(0, "hello");
+        alterations.insert(10, "world");
+
+        let mut global_alterations = HashMap::new();
+        global_alterations.insert(48, "HELLO");
+        global_alterations.insert(50, "BYE");
+
+        let mut parameters = lily::LilyParameters::new(
+            lily::LilyKeySignature::GMajor,
+            alterations,
+            global_alterations,
+        );
+
+        port.listen_mut(|event| {
             if rx.try_recv().is_ok() {
                 while let Some(message) = message_buffer
                     .lock()
@@ -44,7 +56,7 @@ fn main() {
                 }
             }
             if let midi::MidiMessageType::NoteOn { note, .. } = midi::MidiMessageType::from(event) {
-                println!("{:?}", lily::LilyNote::new(note, &parameters))
+                println!("{:?} {:?}", lily::LilyNote::new(note, &parameters), event)
             }
         })
         .expect("Polling for new messages works.");

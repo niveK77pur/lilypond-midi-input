@@ -1,19 +1,21 @@
-type Alteration<'a> = (u8, &'a str);
+use std::collections::HashMap;
+
+type Alteration<'a> = HashMap<u8, &'a str>;
 
 #[derive(Debug)]
 pub struct LilyParameters<'a> {
     key: LilyKeySignature,
     /// custom alterations within an octave (0-11)
-    alterations: Vec<Alteration<'a>>,
+    alterations: Alteration<'a>,
     /// custom alterations over all notes
-    global_alterations: Vec<Alteration<'a>>,
+    global_alterations: Alteration<'a>,
 }
 
 impl<'a> LilyParameters<'a> {
     pub fn new(
         key: LilyKeySignature,
-        alterations: Vec<Alteration<'a>>,
-        global_alterations: Vec<Alteration<'a>>,
+        alterations: Alteration<'a>,
+        global_alterations: Alteration<'a>,
     ) -> Self {
         LilyParameters {
             key,
@@ -29,16 +31,16 @@ impl<'a> LilyParameters<'a> {
         self.key = key
     }
 
-    pub fn alterations(&self) -> &Vec<Alteration<'a>> {
+    pub fn alterations(&self) -> &Alteration<'a> {
         &self.alterations
     }
-    pub fn set_alterations(&mut self, alterations: Vec<Alteration<'a>>) {
+    pub fn set_alterations(&mut self, alterations: Alteration<'a>) {
         self.alterations = alterations
     }
-    pub fn global_alterations(&self) -> &Vec<Alteration<'a>> {
+    pub fn global_alterations(&self) -> &Alteration<'a> {
         &self.global_alterations
     }
-    pub fn set_global_alterations(&mut self, global_alterations: Vec<Alteration<'a>>) {
+    pub fn set_global_alterations(&mut self, global_alterations: Alteration<'a>) {
         self.global_alterations = global_alterations
     }
 }
@@ -119,17 +121,28 @@ impl TryFrom<&str> for LilyKeySignature {
 }
 
 #[derive(Debug)]
-pub struct LilyNote {
+pub struct LilyNote<'a> {
     /// the LilyPond note string
-    letter: &'static str,
+    letter: &'a str,
     /// octave indication is very small, we do not need a large integer
     octave: i8,
 }
 
-impl LilyNote {
-    pub fn new(value: u8, parameters: &LilyParameters) -> Self {
+impl<'a> LilyNote<'a> {
+    pub fn new(value: u8, parameters: &'a LilyParameters) -> Self {
+        let LilyParameters {
+            alterations,
+            global_alterations,
+            ..
+        } = parameters;
         LilyNote {
-            letter: Self::note_name(value % 12, &parameters).expect("Note within octave"),
+            letter: match global_alterations.get(&value) {
+                Some(text) => text,
+                None => match alterations.get(&(value % 12)) {
+                    Some(text) => text,
+                    None => Self::note_name(value % 12, parameters).expect("Note within octave"),
+                },
+            },
             octave: (value as i16 / 12) as i8 - 4,
         }
     }
