@@ -30,8 +30,8 @@ fn main() {
         alterations.insert(10, "world");
 
         let mut global_alterations = HashMap::new();
-        global_alterations.insert(48, "HELLO");
-        global_alterations.insert(50, "BYE");
+        global_alterations.insert(60, "HELLO");
+        global_alterations.insert(62, "BYE");
 
         let mut parameters = lily::LilyParameters::new(
             lily::LilyKeySignature::GMajor,

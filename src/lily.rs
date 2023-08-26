@@ -145,15 +145,19 @@ impl<'a> LilyNote<'a> {
             global_alterations,
             ..
         } = parameters;
+        let mut octave = (value as i16 / 12) as i8 - 4;
         LilyNote {
             letter: match global_alterations.get(&value) {
-                Some(text) => text,
+                Some(text) => {
+                    octave = 0; // we do not want octaves for global custom alterations
+                    text
+                }
                 None => match alterations.get(&(value % 12)) {
                     Some(text) => text,
                     None => Self::note_name(value % 12, parameters).expect("Note within octave"),
                 },
             },
-            octave: (value as i16 / 12) as i8 - 4,
+            octave,
         }
     }
 
