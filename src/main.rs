@@ -3,7 +3,7 @@ use std::{
     sync::{mpsc, Arc, Mutex},
 };
 
-use lilypond_midi_input::midi;
+use lilypond_midi_input::{lily, midi};
 
 const BUFFER_SIZE: usize = 1024;
 
@@ -34,7 +34,11 @@ fn main() {
                     println!("MESSAGE RECEIVED: {:?}", message);
                 }
             }
-            println!("{:?}", midi::MidiMessageType::from(event),)
+            let parameters =
+                lily::LilyParameters::new(lily::LilyKeySignature::GMajor, vec![], vec![]);
+            if let midi::MidiMessageType::NoteOn { note, .. } = midi::MidiMessageType::from(event) {
+                println!("{:?}", lily::LilyNote::new(note, parameters))
+            }
         })
         .expect("Polling for new messages works.");
     });
