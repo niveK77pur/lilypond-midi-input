@@ -139,13 +139,15 @@ impl LilyNote {
         use LilyKeySignature::*;
         match note {
             0 => match key {
-                CSharpMajor => Ok("bis"),
+                CSharpMajor | ASharpMinor => Ok("bis"),
                 CSharpMinor => Ok("bis"),
                 _ => Ok("c"),
             },
             1 => match key {
-                AFlatMajor | DFlatMajor | GFlatMajor | CFlatMajor => Ok("des"),
-                DMajor | AMajor | EMajor | BMajor | FSharpMajor | CSharpMajor => Ok("cis"),
+                AFlatMajor | FMinor | DFlatMajor | BFlatMinor | GFlatMajor | EFlatMinor
+                | CFlatMajor | AFlatMinor => Ok("des"),
+                DMajor | BMinor | AMajor | FSharpMinor | EMajor | CSharpMinor | BMajor
+                | GSharpMinor | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => Ok("cis"),
                 DMinor => Ok("cis"),
                 _ => Ok("cis"),
             },
@@ -155,26 +157,31 @@ impl LilyNote {
                 _ => Ok("d"),
             },
             3 => match key {
-                BFlatMajor | EFlatMajor | AFlatMajor | DFlatMajor | GFlatMajor | CFlatMajor => {
-                    Ok("ees")
-                }
-                EMajor | BMajor | FSharpMajor | CSharpMajor => Ok("dis"),
+                BFlatMajor | GMinor | EFlatMajor | CMinor | AFlatMajor | FMinor | DFlatMajor
+                | BFlatMinor | GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => Ok("ees"),
+                EMajor | CSharpMinor | BMajor | GSharpMinor | FSharpMajor | DSharpMinor
+                | CSharpMajor | ASharpMinor => Ok("dis"),
                 EMinor => Ok("dis"),
                 _ => Ok("dis"),
             },
             4 => match key {
-                CFlatMajor => Ok("fes"),
+                CFlatMajor | AFlatMinor => Ok("fes"),
                 FMinor => Ok("e"),
                 _ => Ok("e"),
             },
             5 => match key {
-                FSharpMajor | CSharpMajor => Ok("eis"),
+                FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => Ok("eis"),
                 FSharpMinor => Ok("eis"),
                 _ => Ok("f"),
             },
             6 => match key {
-                DFlatMajor | GFlatMajor | CFlatMajor => Ok("ges"),
-                GMajor | DMajor | AMajor | EMajor | BMajor | FSharpMajor | CSharpMajor => Ok("fis"),
+                DFlatMajor | BFlatMinor | GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => {
+                    Ok("ges")
+                }
+                GMajor | EMinor | DMajor | BMinor | AMajor | FSharpMinor | EMajor | CSharpMinor
+                | BMajor | GSharpMinor | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => {
+                    Ok("fis")
+                }
                 GMinor => Ok("fis"),
                 _ => Ok("fis"),
             },
@@ -184,8 +191,10 @@ impl LilyNote {
                 _ => Ok("g"),
             },
             8 => match key {
-                EFlatMajor | AFlatMajor | DFlatMajor | GFlatMajor | CFlatMajor => Ok("aes"),
-                AMajor | EMajor | BMajor | FSharpMajor | CSharpMajor => Ok("gis"),
+                EFlatMajor | CMinor | AFlatMajor | FMinor | DFlatMajor | BFlatMinor
+                | GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => Ok("aes"),
+                AMajor | FSharpMinor | EMajor | CSharpMinor | BMajor | GSharpMinor
+                | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => Ok("gis"),
                 AMinor => Ok("gis"),
                 _ => Ok("gis"),
             },
@@ -195,14 +204,17 @@ impl LilyNote {
                 _ => Ok("a"),
             },
             10 => match key {
-                FMajor | BFlatMajor | EFlatMajor | AFlatMajor | DFlatMajor | GFlatMajor
-                | CFlatMajor => Ok("bes"),
-                BMajor | FSharpMajor | CSharpMajor => Ok("ais"),
+                FMajor | DMinor | BFlatMajor | GMinor | EFlatMajor | CMinor | AFlatMajor
+                | FMinor | DFlatMajor | BFlatMinor | GFlatMajor | EFlatMinor | CFlatMajor
+                | AFlatMinor => Ok("bes"),
+                BMajor | GSharpMinor | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => {
+                    Ok("ais")
+                }
                 BMinor => Ok("ais"),
                 _ => Ok("ais"),
             },
             11 => match key {
-                GFlatMajor | CFlatMajor => Ok("ces"),
+                GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => Ok("ces"),
                 CMinor => Ok("b"),
                 _ => Ok("b"),
             },
