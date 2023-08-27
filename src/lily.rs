@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use clap::builder::PossibleValue;
 
@@ -89,7 +89,15 @@ impl TryFrom<&str> for LilyKeySignature {
     type Error = LilypondNoteError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value {
+        Self::from_str(value)
+    }
+}
+
+impl FromStr for LilyKeySignature {
+    type Err = LilypondNoteError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
             "cesM" => Ok(LilyKeySignature::CFlatMajor),
             "gesM" => Ok(LilyKeySignature::GFlatMajor),
             "desM" => Ok(LilyKeySignature::DFlatMajor),
