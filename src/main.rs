@@ -3,33 +3,46 @@ use std::{
     sync::{mpsc, Arc, Mutex},
 };
 
-use clap::Parser;
+use clap::{arg, command, value_parser, ArgAction, ArgGroup};
 use lilypond_midi_input::{
-    lily::{self, LilyAccidental},
+    lily::{self, LilyAccidental, LilyKeySignature},
     midi,
 };
 use regex::Regex;
 
 const BUFFER_SIZE: usize = 1024;
 
-#[derive(Parser, Debug)]
-struct InputArgs {
-    // #[arg(required(true))]
-    device: String,
-    #[arg(short, long)]
-    list_devices: bool,
-    #[arg(short, long, default_value_t = String::from("cM"))]
-    key: String,
-    #[arg(short, long, default_value_t = String::from("sharps"))]
-    accidentals: String,
-    #[arg(long, visible_alias("alt"), default_value_t = String::new())]
-    alterations: String,
-    #[arg(long, visible_alias("galt"), default_value_t = String::new())]
-    global_alterations: String,
-}
-
 fn main() {
-    let input_args = InputArgs::parse();
+    // let input_args = InputArgs::parse();
+    // let matches = clap::Command::new("LilyPond MIDI Input")
+    let matches = command!()
+        .arg_required_else_help(true)
+        .next_line_help(false)
+        .args([
+            arg!(<DEVICE> "MIDI Input Device"),
+            arg!(-k --key "Specify musical key")
+                .action(ArgAction::Set)
+                // .value_parser(value_parser!(LilyKeySignature))
+                .default_value("cM"),
+            arg!(-a --accidentals "Accidental style to use for out-of-key notes")
+                .action(ArgAction::Set)
+                .value_parser(value_parser!(LilyAccidental))
+                .default_value("sharps"),
+            arg!(--alterations "Custom alterations within an octave").action(ArgAction::Set),
+            arg!(--"global-alterations" <alterations> "Global alterations over all notes")
+                .action(ArgAction::Set),
+        ])
+        .args([
+            arg!(-l --"list-devices" "List available MIDI input devices").exclusive(true),
+            arg!(--"list-keys" "List available musical keys").exclusive(true),
+        ])
+        .group(ArgGroup::new("lists").args(["list-devices", "list-keys"]))
+        .get_matches();
+
+    dbg!(matches.get_one::<String>("DEVICE"));
+    dbg!(matches.get_one::<String>("key"));
+    dbg!(matches.get_one::<String>("accidentals"));
+    dbg!(matches.get_one::<bool>("list-devices"));
 
     let (tx, rx) = mpsc::channel();
     let channel_message_buffer: Arc<Mutex<VecDeque<String>>> =

@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use clap::builder::PossibleValue;
+
 type Alteration<'a> = HashMap<u8, &'a str>;
 
 #[derive(Debug)]
@@ -48,7 +50,7 @@ impl<'a> LilyParameters<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// List of possible musical key signatures
 pub enum LilyKeySignature {
     CFlatMajor,  // 7 flats
@@ -123,11 +125,34 @@ impl TryFrom<&str> for LilyKeySignature {
     }
 }
 
+impl clap::ValueEnum for LilyKeySignature {
+    fn value_variants<'a>() -> &'a [Self] {
+        todo!()
+    }
+
+    fn to_possible_value(&self) -> Option<PossibleValue> {
+        todo!()
+    }
+}
+
 /// The accidentals to use for out of key notes.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum LilyAccidental {
     Sharps,
     Flats,
+}
+
+impl clap::ValueEnum for LilyAccidental {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[LilyAccidental::Sharps, LilyAccidental::Flats]
+    }
+
+    fn to_possible_value(&self) -> Option<PossibleValue> {
+        Some(match self {
+            LilyAccidental::Sharps => PossibleValue::new("sharps"),
+            LilyAccidental::Flats => PossibleValue::new("flats"),
+        })
+    }
 }
 
 #[derive(Debug)]
