@@ -44,14 +44,6 @@ fn main() {
         return;
     }
 
-    let mut alterations = HashMap::new();
-    alterations.insert(0, "hello");
-    alterations.insert(10, "world");
-
-    let mut global_alterations = HashMap::new();
-    global_alterations.insert(60, "HELLO");
-    global_alterations.insert(62, "BYE");
-
     let lily_parameters = Arc::new(Mutex::new(lily::LilyParameters::new(
         matches
             .get_one::<LilyKeySignature>("key")
@@ -61,8 +53,8 @@ fn main() {
             .get_one::<LilyAccidental>("accidentals")
             .expect("accidental style is given and valid")
             .clone(),
-        alterations,
-        global_alterations,
+        HashMap::new(),
+        HashMap::new(),
     )));
 
     let parameters = Arc::clone(&lily_parameters);
@@ -122,14 +114,60 @@ fn main() {
                             }
                         },
                     }),
+                    "alterations" | "alt" => match value {
+                        "clear" => params.clear_alterations(),
+                        _ => {
+                            for subcap in re_subkeyval.captures_iter(value) {
+                                let subkey: u8 = match subcap
+                                    .name("key")
+                                    .expect("Valid named group")
+                                    .as_str()
+                                    .parse()
+                                {
+                                    Ok(n) => n,
+                                    Err(e) => {
+                                        eprintln!("Key is not a number: {e}");
+                                        continue;
+                                    }
+                                };
+                                let subvalue = subcap
+                                    .name("value")
+                                    .expect("Valid named group")
+                                    .as_str()
+                                    .into();
+                                eprintln!(">> subkey={:?} subvalue={:?}", subkey, subvalue);
+                                params.add_alteration(subkey, subvalue);
+                            }
+                        }
+                    },
+                    "global-alterations" | "galt" => match value {
+                        "clear" => params.clear_global_alterations(),
+                        _ => {
+                            for subcap in re_subkeyval.captures_iter(value) {
+                                let subkey: u8 = match subcap
+                                    .name("key")
+                                    .expect("Valid named group")
+                                    .as_str()
+                                    .parse()
+                                {
+                                    Ok(n) => n,
+                                    Err(e) => {
+                                        eprintln!("Key is not a number: {e}");
+                                        continue;
+                                    }
+                                };
+                                let subvalue = subcap
+                                    .name("value")
+                                    .expect("Valid named group")
+                                    .as_str()
+                                    .into();
+                                eprintln!(">> subkey={:?} subvalue={:?}", subkey, subvalue);
+                                params.add_global_alteration(subkey, subvalue);
+                            }
+                        }
+                    },
                     _ => todo!("match keys using args keys"),
                 }
-                for subcap in re_subkeyval.captures_iter(value) {
-                    let subkey = subcap.name("key").expect("Valid named group").as_str();
-                    let subvalue = subcap.name("value").expect("Valid named group").as_str();
-                    eprintln!(">> subkey={:?} subvalue={:?}", subkey, subvalue);
-                }
-                eprintln!(">> key={:?} value={:?}", key, value);
             }
         }
     });
