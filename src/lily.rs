@@ -2,24 +2,24 @@ use std::collections::HashMap;
 
 use clap::builder::PossibleValue;
 
-type Alteration<'a> = HashMap<u8, &'a str>;
+type Alteration = HashMap<u8, String>;
 
 #[derive(Debug)]
-pub struct LilyParameters<'a> {
+pub struct LilyParameters {
     key: LilyKeySignature,
     accidentals: LilyAccidental,
     /// custom alterations within an octave (0-11)
-    alterations: Alteration<'a>,
+    alterations: Alteration,
     /// custom alterations over all notes
-    global_alterations: Alteration<'a>,
+    global_alterations: Alteration,
 }
 
-impl<'a> LilyParameters<'a> {
+impl LilyParameters {
     pub fn new(
         key: LilyKeySignature,
         accidentals: LilyAccidental,
-        alterations: Alteration<'a>,
-        global_alterations: Alteration<'a>,
+        alterations: Alteration,
+        global_alterations: Alteration,
     ) -> Self {
         LilyParameters {
             key,
@@ -41,16 +41,22 @@ impl<'a> LilyParameters<'a> {
     pub fn set_accidentals(&mut self, accidentals: LilyAccidental) {
         self.accidentals = accidentals
     }
-    pub fn alterations(&self) -> &Alteration<'a> {
+    pub fn alterations(&self) -> &Alteration {
         &self.alterations
     }
-    pub fn set_alterations(&mut self, alterations: Alteration<'a>) {
+    pub fn set_alterations(&mut self, alterations: Alteration) {
         self.alterations = alterations
     }
-    pub fn global_alterations(&self) -> &Alteration<'a> {
+    pub fn add_alteration(&mut self, note: u8, value: String) {
+        self.alterations.insert(note, value);
+    }
+    pub fn clear_alterations(&mut self) {
+        self.set_alterations(HashMap::new());
+    }
+    pub fn global_alterations(&self) -> &Alteration {
         &self.global_alterations
     }
-    pub fn set_global_alterations(&mut self, global_alterations: Alteration<'a>) {
+    pub fn set_global_alterations(&mut self, global_alterations: Alteration) {
         self.global_alterations = global_alterations
     }
     pub fn add_global_alteration(&mut self, note: u8, value: String) {
