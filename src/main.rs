@@ -3,7 +3,7 @@ use std::{
     sync::{mpsc, Arc, Mutex},
 };
 
-use clap::{arg, command, value_parser, ArgAction, ArgGroup};
+use clap::{arg, command, value_parser, ArgAction};
 use lilypond_midi_input::{
     lily::{self, LilyAccidental, LilyKeySignature},
     midi::{self, list_input_devices},
@@ -34,9 +34,8 @@ fn main() {
         ])
         .args([
             arg!(-l --"list-devices" "List available MIDI input devices").exclusive(true),
-            arg!(--"list-keys" "List available musical keys").exclusive(true),
+            // arg!(--"list-keys" "List available musical keys").exclusive(true),
         ])
-        .group(ArgGroup::new("lists").args(["list-devices", "list-keys"]))
         .get_matches();
 
     // initialize the PortMidi context.
