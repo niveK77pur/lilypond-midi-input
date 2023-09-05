@@ -1,6 +1,6 @@
 use std::{
-    collections::{HashMap, VecDeque},
-    sync::{mpsc, Arc, Mutex},
+    collections::HashMap,
+    sync::{Arc, Mutex},
 };
 
 use clap::{arg, command, value_parser, ArgAction};
@@ -46,11 +46,28 @@ fn main() {
         return;
     }
 
-    let (tx, rx) = mpsc::channel();
-    let channel_message_buffer: Arc<Mutex<VecDeque<String>>> =
-        Arc::new(Mutex::new(VecDeque::new()));
+    let mut alterations = HashMap::new();
+    alterations.insert(0, "hello");
+    alterations.insert(10, "world");
 
-    let message_buffer = Arc::clone(&channel_message_buffer);
+    let mut global_alterations = HashMap::new();
+    global_alterations.insert(60, "HELLO");
+    global_alterations.insert(62, "BYE");
+
+    let lily_parameters = Arc::new(Mutex::new(lily::LilyParameters::new(
+        matches
+            .get_one::<LilyKeySignature>("key")
+            .expect("key is given and valid")
+            .clone(),
+        matches
+            .get_one::<LilyAccidental>("accidentals")
+            .expect("accidental style is given and valid")
+            .clone(),
+        alterations,
+        global_alterations,
+    )));
+
+    let parameters = Arc::clone(&lily_parameters);
     let lilypond_midi_input_handler = std::thread::spawn(move || {
         let name = matches
             .get_one::<String>("DEVICE")
@@ -63,52 +80,17 @@ fn main() {
 
         port.clear();
 
-        let mut alterations = HashMap::new();
-        alterations.insert(0, "hello");
-        alterations.insert(10, "world");
-
-        let mut global_alterations = HashMap::new();
-        global_alterations.insert(60, "HELLO");
-        global_alterations.insert(62, "BYE");
-
-        let mut parameters = lily::LilyParameters::new(
-            matches
-                .get_one::<LilyKeySignature>("key")
-                .expect("key is given and valid")
-                .clone(),
-            matches
-                .get_one::<LilyAccidental>("accidentals")
-                .expect("accidental style is given and valid")
-                .clone(),
-            alterations,
-            global_alterations,
-        );
-
         port.listen_mut(|event| {
-            if rx.try_recv().is_ok() {
-                while let Some(message) = message_buffer
-                    .lock()
-                    .expect("Received the mutex lock")
-                    .pop_front()
-                {
-                    match message.as_str().try_into() {
-                        Ok(key) => {
-                            parameters.set_key(key);
-                            println!("PARAMETER SET: {:?}", parameters);
-                        }
-                        Err(e) => println!("ERROR! {:?}", e),
-                    }
-                }
-            }
             if let midi::MidiMessageType::NoteOn { note, .. } = midi::MidiMessageType::from(event) {
-                let lilynote = lily::LilyNote::new(note, &parameters);
+                let params = parameters.lock().expect("Received the mutex lock");
+                let lilynote = lily::LilyNote::new(note, &params);
                 println!("{} {:?} {:?}", String::from(&lilynote), lilynote, event)
             }
         })
         .expect("Polling for new messages works.");
     });
 
-    let message_buffer = Arc::clone(&channel_message_buffer);
+    let parameters = Arc::clone(&lily_parameters);
     let _user_input_handler = std::thread::spawn(move || {
         let re_keyval = Regex::new(r"(?<key>\w+)=(?<value>[^[:space:]]+)").expect("Regex is valid");
         let re_subkeyval = Regex::new(r"(?<key>\w+):(?<value>[^,]+)").expect("Regex is valid");
@@ -116,27 +98,40 @@ fn main() {
             .lines()
             .map(|l| l.expect("Managed to read stdin line"))
         {
-            let mut commands: HashMap<&str, HashMap<&str, &str>> = HashMap::new();
+            let mut params = parameters.lock().expect("Received the mutex lock");
             for cap in re_keyval.captures_iter(line.as_str()) {
                 let key = cap.name("key").expect("Valid named group").as_str();
                 let value = cap.name("value").expect("Valid named group").as_str();
-                let mut subvalues = HashMap::new();
-                for subcap in re_subkeyval.captures_iter(value) {
-                    subvalues.insert(
-                        subcap.name("key").expect("Valid named group").as_str(),
-                        subcap.name("value").expect("Valid named group").as_str(),
-                    );
+                match key {
+                    "key" | "k" => params.set_key(match value.try_into() {
+                        Ok(v) => v,
+                        Err(e) => match e {
+                            lily::LilypondNoteError::OutsideOctave => {
+                                panic!("This error will not occur here.")
+                            }
+                            lily::LilypondNoteError::InvalidKeyString => {
+                                eprintln!("Invalid key provided.");
+                                continue;
+                            }
+                        },
+                    }),
+                    _ => todo!("match keys using args keys"),
                 }
-                commands.insert(key, subvalues);
+                for subcap in re_subkeyval.captures_iter(value) {
+                    let subkey = subcap.name("key").expect("Valid named group").as_str();
+                    let subvalue = subcap.name("value").expect("Valid named group").as_str();
+                    println!(">> subkey={:?} subvalue={:?}", subkey, subvalue);
+                }
+                println!(">> key={:?} value={:?}", key, value);
             }
-
-            println!("{:?}", commands);
-            message_buffer
-                .lock()
-                .expect("Received the mutex lock")
-                .push_back(line);
-            tx.send(()).expect("Receiver is alive");
         }
+        // match message.as_str().try_into() {
+        //     Ok(key) => {
+        //         parameters.set_key(key);
+        //         println!("PARAMETER SET: {:?}", parameters);
+        //     }
+        //     Err(e) => println!("ERROR! {:?}", e),
+        // }
     });
 
     match lilypond_midi_input_handler.join() {
