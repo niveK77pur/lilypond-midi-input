@@ -35,7 +35,7 @@ impl<'a> LilyParameters<'a> {
     pub fn set_key(&mut self, key: LilyKeySignature) {
         self.key = key
     }
-    pub fn accidentals(&self) -> & LilyAccidental {
+    pub fn accidentals(&self) -> &LilyAccidental {
         &self.accidentals
     }
     pub fn set_accidentals(&mut self, accidentals: LilyAccidental) {
@@ -148,25 +148,12 @@ make_lilykey_str_map!(
     ASharpMinor, "aism" ; // 7 sharps
 );
 
-/// The accidentals to use for out of key notes.
-#[derive(Debug, Clone)]
-pub enum LilyAccidental {
-    Sharps,
-    Flats,
-}
-
-impl clap::ValueEnum for LilyAccidental {
-    fn value_variants<'a>() -> &'a [Self] {
-        &[LilyAccidental::Sharps, LilyAccidental::Flats]
-    }
-
-    fn to_possible_value(&self) -> Option<PossibleValue> {
-        Some(match self {
-            LilyAccidental::Sharps => PossibleValue::new("sharps"),
-            LilyAccidental::Flats => PossibleValue::new("flats"),
-        })
-    }
-}
+make_lilykey_str_map!(
+    /// The accidentals to use for out of key notes.
+    LilyAccidental;
+    Sharps, "sharps";
+    Flats, "flats";
+);
 
 #[derive(Debug)]
 pub struct LilyNote<'a> {
