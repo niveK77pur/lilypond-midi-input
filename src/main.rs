@@ -22,7 +22,7 @@ fn main() {
             arg!(<DEVICE> "MIDI Input Device"),
             arg!(-k --key "Specify musical key")
                 .action(ArgAction::Set)
-                // .value_parser(value_parser!(LilyKeySignature))
+                .value_parser(value_parser!(LilyKeySignature))
                 .default_value("cM"),
             arg!(-a --accidentals "Accidental style to use for out-of-key notes")
                 .action(ArgAction::Set)
