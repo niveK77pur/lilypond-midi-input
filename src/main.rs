@@ -13,8 +13,6 @@ use regex::Regex;
 const BUFFER_SIZE: usize = 1024;
 
 fn main() {
-    // let input_args = InputArgs::parse();
-    // let matches = clap::Command::new("LilyPond MIDI Input")
     let matches = command!()
         .arg_required_else_help(true)
         .next_line_help(false)
@@ -134,13 +132,6 @@ fn main() {
                 eprintln!(">> key={:?} value={:?}", key, value);
             }
         }
-        // match message.as_str().try_into() {
-        //     Ok(key) => {
-        //         parameters.set_key(key);
-        //         eprintln!("PARAMETER SET: {:?}", parameters);
-        //     }
-        //     Err(e) => eprintln!("ERROR! {:?}", e),
-        // }
     });
 
     match lilypond_midi_input_handler.join() {
