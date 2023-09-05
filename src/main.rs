@@ -6,7 +6,7 @@ use std::{
 use clap::{arg, command, value_parser, ArgAction, ArgGroup};
 use lilypond_midi_input::{
     lily::{self, LilyAccidental, LilyKeySignature},
-    midi,
+    midi::{self, list_devices},
 };
 use regex::Regex;
 
@@ -39,10 +39,13 @@ fn main() {
         .group(ArgGroup::new("lists").args(["list-devices", "list-keys"]))
         .get_matches();
 
-    dbg!(matches.get_one::<String>("DEVICE"));
-    dbg!(matches.get_one::<String>("key"));
-    dbg!(matches.get_one::<String>("accidentals"));
-    dbg!(matches.get_one::<bool>("list-devices"));
+    // initialize the PortMidi context.
+    let context = portmidi::PortMidi::new().expect("At least one MIDI device available.");
+
+    if *matches.get_one::<bool>("list-devices").unwrap_or(&false) {
+        list_devices(&context);
+        return;
+    }
 
     let (tx, rx) = mpsc::channel();
     let channel_message_buffer: Arc<Mutex<VecDeque<String>>> =
@@ -50,9 +53,9 @@ fn main() {
 
     let message_buffer = Arc::clone(&channel_message_buffer);
     let lilypond_midi_input_handler = std::thread::spawn(move || {
-        // initialize the PortMidi context.
-        let context = portmidi::PortMidi::new().expect("At least one MIDI device available.");
-        let name = "out"; // let name = "USB-MIDI MIDI 1";
+        let name = matches
+            .get_one::<String>("DEVICE")
+            .expect("Device was given");
 
         midi::list_devices(&context);
 
@@ -70,8 +73,14 @@ fn main() {
         global_alterations.insert(62, "BYE");
 
         let mut parameters = lily::LilyParameters::new(
-            lily::LilyKeySignature::GMajor,
-            lily::LilyAccidental::Flats,
+            matches
+                .get_one::<LilyKeySignature>("key")
+                .expect("key is given")
+                .clone(),
+            matches
+                .get_one::<LilyAccidental>("accidentals")
+                .expect("accidental style is given")
+                .clone(),
             alterations,
             global_alterations,
         );
