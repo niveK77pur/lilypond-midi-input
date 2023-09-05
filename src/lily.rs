@@ -1,4 +1,4 @@
-use std::{collections::HashMap, str::FromStr};
+use std::collections::HashMap;
 
 use clap::builder::PossibleValue;
 
@@ -50,98 +50,92 @@ impl<'a> LilyParameters<'a> {
     }
 }
 
-#[derive(Debug, Clone)]
-/// List of possible musical key signatures
-pub enum LilyKeySignature {
-    CFlatMajor,  // 7 flats
-    GFlatMajor,  // 6 flats
-    DFlatMajor,  // 5 flats
-    AFlatMajor,  // 4 flats
-    EFlatMajor,  // 3 flats
-    BFlatMajor,  // 2 flats
-    FMajor,      // 1 flat
-    CMajor,      // 0 flats/sharps
-    GMajor,      // 1 sharp
-    DMajor,      // 2 sharps
-    AMajor,      // 3 sharps
-    EMajor,      // 4 sharps
-    BMajor,      // 5 sharps
-    FSharpMajor, // 6 sharps
-    CSharpMajor, // 7 sharps
-    AFlatMinor,  // 7 flats
-    EFlatMinor,  // 6 flats
-    BFlatMinor,  // 5 flats
-    FMinor,      // 4 flats
-    CMinor,      // 3 flats
-    GMinor,      // 2 flats
-    DMinor,      // 1 flat
-    AMinor,      // 0 flats/sharps
-    EMinor,      // 1 sharp
-    BMinor,      // 2 sharps
-    FSharpMinor, // 3 sharps
-    CSharpMinor, // 4 sharps
-    GSharpMinor, // 5 sharps
-    DSharpMinor, // 6 sharps
-    ASharpMinor, // 7 sharps
-}
-
-impl TryFrom<&str> for LilyKeySignature {
-    type Error = LilypondNoteError;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        Self::from_str(value)
-    }
-}
-
-impl FromStr for LilyKeySignature {
-    type Err = LilypondNoteError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "cesM" => Ok(LilyKeySignature::CFlatMajor),
-            "gesM" => Ok(LilyKeySignature::GFlatMajor),
-            "desM" => Ok(LilyKeySignature::DFlatMajor),
-            "aesM" => Ok(LilyKeySignature::AFlatMajor),
-            "eesM" => Ok(LilyKeySignature::EFlatMajor),
-            "besM" => Ok(LilyKeySignature::BFlatMajor),
-            "fM" => Ok(LilyKeySignature::FMajor),
-            "cM" => Ok(LilyKeySignature::CMajor),
-            "gM" => Ok(LilyKeySignature::GMajor),
-            "dM" => Ok(LilyKeySignature::DMajor),
-            "aM" => Ok(LilyKeySignature::AMajor),
-            "eM" => Ok(LilyKeySignature::EMajor),
-            "bM" => Ok(LilyKeySignature::BMajor),
-            "fisM" => Ok(LilyKeySignature::FSharpMajor),
-            "cisM" => Ok(LilyKeySignature::CSharpMajor),
-            "dm" => Ok(LilyKeySignature::AFlatMinor),
-            "gm" => Ok(LilyKeySignature::EFlatMinor),
-            "cm" => Ok(LilyKeySignature::BFlatMinor),
-            "fm" => Ok(LilyKeySignature::FMinor),
-            "besm" => Ok(LilyKeySignature::CMinor),
-            "eesm" => Ok(LilyKeySignature::GMinor),
-            "aesm" => Ok(LilyKeySignature::DMinor),
-            "am" => Ok(LilyKeySignature::AMinor),
-            "em" => Ok(LilyKeySignature::EMinor),
-            "bm" => Ok(LilyKeySignature::BMinor),
-            "fism" => Ok(LilyKeySignature::FSharpMinor),
-            "cism" => Ok(LilyKeySignature::CSharpMinor),
-            "gism" => Ok(LilyKeySignature::GSharpMinor),
-            "dism" => Ok(LilyKeySignature::DSharpMinor),
-            "aism" => Ok(LilyKeySignature::ASharpMinor),
-            _ => Err(LilypondNoteError::InvalidKeyString),
+macro_rules! make_lilykey_str_map {
+    ($(#[$outer:meta])* $name:ident;
+     $($key:ident, $main:literal $(, $string:literal)*);*;
+    ) => {
+        #[derive(Debug, Clone, PartialEq, Eq)]
+        pub enum $name {
+            $($key),*
         }
-    }
+
+        impl std::str::FromStr for $name {
+            type Err = LilypondNoteError;
+
+            fn from_str(s: &str) -> Result<Self, Self::Err> {
+                match s {
+                    $($main | stringify!($key) $(|$string)* => Ok($name::$key),)*
+                    _ => Err(LilypondNoteError::InvalidKeyString),
+                }
+            }
+        }
+
+        impl std::convert::TryFrom<&str> for $name {
+            type Error = LilypondNoteError;
+
+            fn try_from(value: &str) -> Result<Self, Self::Error> {
+                <Self as std::str::FromStr>::from_str(value)
+            }
+        }
+
+        impl TryFrom<$name> for &str {
+            type Error = String;
+
+            fn try_from(value: $name) -> Result<Self, Self::Error> {
+                match value {
+                    $($name::$key => Ok($main)),*
+                }
+            }
+        }
+
+        impl clap::ValueEnum for $name {
+            fn value_variants<'a>() -> &'a [Self] {
+                &[$($name::$key),*]
+            }
+
+            fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
+                Some(match self {
+                    $($name::$key => clap::builder::PossibleValue::new($main).help(stringify!($key))),*
+                })
+            }
+        }
+    };
 }
 
-impl clap::ValueEnum for LilyKeySignature {
-    fn value_variants<'a>() -> &'a [Self] {
-        todo!()
-    }
-
-    fn to_possible_value(&self) -> Option<PossibleValue> {
-        todo!()
-    }
-}
+make_lilykey_str_map!(
+    /// List of possible musical key signatures
+    LilyKeySignature;
+    CFlatMajor,  "cesM" ; // 7 flats
+    GFlatMajor,  "gesM" ; // 6 flats
+    DFlatMajor,  "desM" ; // 5 flats
+    AFlatMajor,  "aesM" ; // 4 flats
+    EFlatMajor,  "eesM" ; // 3 flats
+    BFlatMajor,  "besM" ; // 2 flats
+    FMajor,      "fM"   ; // 1 flat
+    CMajor,      "cM"   ; // 0 flats/sharps
+    GMajor,      "gM"   ; // 1 sharp
+    DMajor,      "dM"   ; // 2 sharps
+    AMajor,      "aM"   ; // 3 sharps
+    EMajor,      "eM"   ; // 4 sharps
+    BMajor,      "bM"   ; // 5 sharps
+    FSharpMajor, "fisM" ; // 6 sharps
+    CSharpMajor, "cisM" ; // 7 sharps
+    AFlatMinor,  "dm"   ; // 7 flats
+    EFlatMinor,  "gm"   ; // 6 flats
+    BFlatMinor,  "cm"   ; // 5 flats
+    FMinor,      "fm"   ; // 4 flats
+    CMinor,      "besm" ; // 3 flats
+    GMinor,      "eesm" ; // 2 flats
+    DMinor,      "aesm" ; // 1 flat
+    AMinor,      "am"   ; // 0 flats/sharps
+    EMinor,      "em"   ; // 1 sharp
+    BMinor,      "bm"   ; // 2 sharps
+    FSharpMinor, "fism" ; // 3 sharps
+    CSharpMinor, "cism" ; // 4 sharps
+    GSharpMinor, "gism" ; // 5 sharps
+    DSharpMinor, "dism" ; // 6 sharps
+    ASharpMinor, "aism" ; // 7 sharps
+);
 
 /// The accidentals to use for out of key notes.
 #[derive(Debug, Clone)]
