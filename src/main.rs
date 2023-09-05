@@ -55,8 +55,32 @@ fn main() {
             .get_one::<LilyAccidental>("accidentals")
             .expect("accidental style is given and valid")
             .clone(),
-        HashMap::new(),
-        HashMap::new(),
+        match matches.get_one::<String>("alterations") {
+            Some(alts) => {
+                let mut result = HashMap::new();
+                for alt in
+                    parse_subkeys(&re_subkeyval, alts).expect("All of the subkeys are numbers")
+                {
+                    let (note, value) = alt;
+                    result.insert(note, value);
+                }
+                result
+            }
+            None => HashMap::new(),
+        },
+        match matches.get_one::<String>("global-alterations") {
+            Some(alts) => {
+                let mut result = HashMap::new();
+                for alt in
+                    parse_subkeys(&re_subkeyval, alts).expect("All of the subkeys are numbers")
+                {
+                    let (note, value) = alt;
+                    result.insert(note, value);
+                }
+                result
+            }
+            None => HashMap::new(),
+        },
     )));
 
     let parameters = Arc::clone(&lily_parameters);
