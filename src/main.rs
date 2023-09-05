@@ -115,6 +115,15 @@ fn main() {
                             }
                         },
                     }),
+                    "accidentals" | "a" => params.set_accidentals(match value.try_into() {
+                        Ok(v) => v,
+                        Err(e) => match e {
+                            lily::LilypondAccidentalError::InvalidAccidentalString => {
+                                eprintln!("Invalid accidental provided");
+                                continue;
+                            }
+                        },
+                    }),
                     _ => todo!("match keys using args keys"),
                 }
                 for subcap in re_subkeyval.captures_iter(value) {
