@@ -61,7 +61,8 @@ impl<'a> LilyParameters<'a> {
     }
 }
 
-macro_rules! make_lilykey_str_map {
+/// Create mappings for enum variants and corresponding string representations
+macro_rules! make_lily_str_map {
     ($(#[$outer:meta])* $name:ident;
      $($key:ident, $main:literal $(, $string:literal)*);*;
     ) => {
@@ -113,7 +114,7 @@ macro_rules! make_lilykey_str_map {
     };
 }
 
-make_lilykey_str_map!(
+make_lily_str_map!(
     /// List of possible musical key signatures
     LilyKeySignature;
     CFlatMajor,  "cesM" ; // 7 flats
@@ -148,7 +149,7 @@ make_lilykey_str_map!(
     ASharpMinor, "aism" ; // 7 sharps
 );
 
-make_lilykey_str_map!(
+make_lily_str_map!(
     /// The accidentals to use for out of key notes.
     LilyAccidental;
     Sharps, "sharps";
