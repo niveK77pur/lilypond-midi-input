@@ -183,12 +183,13 @@ impl<'a> MidiInputPort<'a> {
         }
     }
 
-    /// Listen to MIDI events and execute immutable callback function on the individual
-    /// events
+    /// Listen to MIDI events and execute immutable callback function on the
+    /// individual events
     ///
-    /// The callback takes an immutable receiver, and thus may not mutate any state. If you are
-    /// getting errors about borrowing mutable values due to an `Fn` closure, try the
-    /// [crate::midi::MidiInputPort::listen_mut] instead.
+    /// The callback takes an immutable receiver, and thus may not mutate any
+    /// state. If you are getting errors about borrowing mutable values due
+    /// to an `Fn` closure, try the [crate::midi::MidiInputPort::listen_mut]
+    /// instead.
     ///
     /// # Errors
     ///
@@ -198,8 +199,8 @@ impl<'a> MidiInputPort<'a> {
         self.listen_mut(event_callback)
     }
 
-    /// Listen to MIDI events and execute mutable callback function on the individual
-    /// events
+    /// Listen to MIDI events and execute mutable callback function on the
+    /// individual events
     ///
     /// The callback takes a mutable receiver and thus may mutate state.
     ///

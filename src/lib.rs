@@ -1,2 +1,2 @@
-pub mod midi;
 pub mod lily;
+pub mod midi;
