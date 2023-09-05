@@ -162,7 +162,7 @@ fn main() {
                             None => eprintln!("One of the keys is not a number"),
                         },
                     },
-                    _ => todo!("match keys using args keys"),
+                    _ => eprintln!("An invalid/unknown key was specified"),
                 }
             }
         }
