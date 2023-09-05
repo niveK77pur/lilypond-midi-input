@@ -120,22 +120,22 @@ fn main() {
                 for subcap in re_subkeyval.captures_iter(value) {
                     let subkey = subcap.name("key").expect("Valid named group").as_str();
                     let subvalue = subcap.name("value").expect("Valid named group").as_str();
-                    println!(">> subkey={:?} subvalue={:?}", subkey, subvalue);
+                    eprintln!(">> subkey={:?} subvalue={:?}", subkey, subvalue);
                 }
-                println!(">> key={:?} value={:?}", key, value);
+                eprintln!(">> key={:?} value={:?}", key, value);
             }
         }
         // match message.as_str().try_into() {
         //     Ok(key) => {
         //         parameters.set_key(key);
-        //         println!("PARAMETER SET: {:?}", parameters);
+        //         eprintln!("PARAMETER SET: {:?}", parameters);
         //     }
-        //     Err(e) => println!("ERROR! {:?}", e),
+        //     Err(e) => eprintln!("ERROR! {:?}", e),
         // }
     });
 
     match lilypond_midi_input_handler.join() {
-        Ok(_) => println!("Lilypond MIDI input handling thread finished."),
+        Ok(_) => eprintln!("Lilypond MIDI input handling thread finished."),
         Err(e) => panic!("Lilypond MIDI input handling panicked: {:#?}", e),
     };
 }
