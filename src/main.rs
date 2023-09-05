@@ -6,7 +6,7 @@ use std::{
 use clap::{arg, command, value_parser, ArgAction, ArgGroup};
 use lilypond_midi_input::{
     lily::{self, LilyAccidental, LilyKeySignature},
-    midi::{self, list_devices},
+    midi::{self, list_input_devices},
 };
 use regex::Regex;
 
@@ -43,7 +43,7 @@ fn main() {
     let context = portmidi::PortMidi::new().expect("At least one MIDI device available.");
 
     if *matches.get_one::<bool>("list-devices").unwrap_or(&false) {
-        list_devices(&context);
+        list_input_devices(&context);
         return;
     }
 
@@ -57,7 +57,7 @@ fn main() {
             .get_one::<String>("DEVICE")
             .expect("Device was given");
 
-        midi::list_devices(&context);
+        midi::list_input_devices(&context);
 
         let port = midi::MidiInputPort::new(name, &context, BUFFER_SIZE)
             .expect("Port name matches an existing port");

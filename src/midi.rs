@@ -226,22 +226,24 @@ impl<'a> MidiInputPort<'a> {
     }
 }
 
-/// List all available MIDI devices.
+/// List all available MIDI input devices.
 ///
 /// See [`crate::MidiInputPort`] for an example on how to use this. The
 /// [portmidi::PortMidi] context must already exist beforehand.
 ///
 /// ```
 /// use lilypond_midi_input as lmi;
-/// let context = portmidi::PortMidi::new().expect("At least one MIDI device available.");
+/// let context = portmidi::PortMidi::new().unwrap();
 /// lmi::list_devices(&context);
 /// ```
 ///
 /// # Panics
 ///
 /// Panics if the list of devices cannot be obtained.
-pub fn list_devices(context: &PortMidi) {
+pub fn list_input_devices(context: &PortMidi) {
     for dev in context.devices().expect("Can read info for all devices") {
-        println!("{}", dev);
+        if dev.is_input() {
+            println!("{}", dev);
+        }
     }
 }
