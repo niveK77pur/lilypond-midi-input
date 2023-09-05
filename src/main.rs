@@ -35,6 +35,8 @@ fn main() {
             // arg!(--"list-keys" "List available musical keys").exclusive(true),
         ])
         .get_matches();
+    let re_keyval = Regex::new(r"(?<key>\w+)=(?<value>[^[:space:]]+)").expect("Regex is valid");
+    let re_subkeyval = Regex::new(r"(?<key>\w+):(?<value>[^,]+)").expect("Regex is valid");
 
     // initialize the PortMidi context.
     let context = portmidi::PortMidi::new().expect("At least one MIDI device available.");
@@ -82,8 +84,6 @@ fn main() {
 
     let parameters = Arc::clone(&lily_parameters);
     let _user_input_handler = std::thread::spawn(move || {
-        let re_keyval = Regex::new(r"(?<key>\w+)=(?<value>[^[:space:]]+)").expect("Regex is valid");
-        let re_subkeyval = Regex::new(r"(?<key>\w+):(?<value>[^,]+)").expect("Regex is valid");
         for line in std::io::stdin()
             .lines()
             .map(|l| l.expect("Managed to read stdin line"))
@@ -116,55 +116,27 @@ fn main() {
                     }),
                     "alterations" | "alt" => match value {
                         "clear" => params.clear_alterations(),
-                        _ => {
-                            for subcap in re_subkeyval.captures_iter(value) {
-                                let subkey: u8 = match subcap
-                                    .name("key")
-                                    .expect("Valid named group")
-                                    .as_str()
-                                    .parse()
-                                {
-                                    Ok(n) => n,
-                                    Err(e) => {
-                                        eprintln!("Key is not a number: {e}");
-                                        continue;
-                                    }
-                                };
-                                let subvalue = subcap
-                                    .name("value")
-                                    .expect("Valid named group")
-                                    .as_str()
-                                    .into();
-                                eprintln!(">> subkey={:?} subvalue={:?}", subkey, subvalue);
-                                params.add_alteration(subkey, subvalue);
+                        _ => match parse_subkeys(&re_subkeyval, value) {
+                            Some(alts) => {
+                                for alt in alts {
+                                    let (note, value) = alt;
+                                    params.add_alteration(note, value);
+                                }
                             }
-                        }
+                            None => eprintln!("One of the keys is not a number"),
+                        },
                     },
                     "global-alterations" | "galt" => match value {
                         "clear" => params.clear_global_alterations(),
-                        _ => {
-                            for subcap in re_subkeyval.captures_iter(value) {
-                                let subkey: u8 = match subcap
-                                    .name("key")
-                                    .expect("Valid named group")
-                                    .as_str()
-                                    .parse()
-                                {
-                                    Ok(n) => n,
-                                    Err(e) => {
-                                        eprintln!("Key is not a number: {e}");
-                                        continue;
-                                    }
-                                };
-                                let subvalue = subcap
-                                    .name("value")
-                                    .expect("Valid named group")
-                                    .as_str()
-                                    .into();
-                                eprintln!(">> subkey={:?} subvalue={:?}", subkey, subvalue);
-                                params.add_global_alteration(subkey, subvalue);
+                        _ => match parse_subkeys(&re_subkeyval, value) {
+                            Some(galts) => {
+                                for galt in galts {
+                                    let (note, value) = galt;
+                                    params.add_global_alteration(note, value);
+                                }
                             }
-                        }
+                            None => eprintln!("One of the keys is not a number"),
+                        },
                     },
                     _ => todo!("match keys using args keys"),
                 }
@@ -176,4 +148,36 @@ fn main() {
         Ok(_) => eprintln!("Lilypond MIDI input handling thread finished."),
         Err(e) => panic!("Lilypond MIDI input handling panicked: {:#?}", e),
     };
+}
+
+/// Parse subkeys for an input argument
+///
+/// Returns a vector of (`note,` `value`), where the `note` is a number and the
+/// `value` is an arbitrary string with which to replace said `note`.
+///
+/// If any of the given `note`s cannot be parsed into a [u8], then the function
+/// will return `None`.
+fn parse_subkeys(regex: &Regex, s: &str) -> Option<Vec<(u8, String)>> {
+    let mut result = Vec::new();
+    for subcap in regex.captures_iter(s) {
+        let subkey: u8 = match subcap
+            .name("key")
+            .expect("Valid named group")
+            .as_str()
+            .parse()
+        {
+            Ok(n) => n,
+            Err(e) => {
+                eprintln!("Key is not a number: {e}");
+                return None;
+            }
+        };
+        let subvalue = subcap
+            .name("value")
+            .expect("Valid named group")
+            .as_str()
+            .into();
+        result.push((subkey, subvalue))
+    }
+    Some(result)
 }
