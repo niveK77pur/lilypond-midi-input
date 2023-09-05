@@ -1,5 +1,5 @@
 #[macro_use]
-mod macros;
+pub mod macros;
 
 mod accidentals;
 mod keysignature;
