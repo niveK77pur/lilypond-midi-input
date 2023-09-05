@@ -75,11 +75,11 @@ fn main() {
         let mut parameters = lily::LilyParameters::new(
             matches
                 .get_one::<LilyKeySignature>("key")
-                .expect("key is given")
+                .expect("key is given and valid")
                 .clone(),
             matches
                 .get_one::<LilyAccidental>("accidentals")
-                .expect("accidental style is given")
+                .expect("accidental style is given and valid")
                 .clone(),
             alterations,
             global_alterations,
