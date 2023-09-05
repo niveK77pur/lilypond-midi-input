@@ -1,12 +1,14 @@
 /// Create mappings for enum variants and corresponding string representations
+#[macro_export]
 macro_rules! make_lily_str_map {
     ($(#[$outer:meta])* $name:ident;
      $err:ident::$err_variant:ident;
-     $($key:ident, $main:literal $(, $string:literal)*);*;
+     $($(#[$inner:meta])* $key:ident, $main:literal $(, $string:literal)*);*;
     ) => {
         #[derive(Debug, Clone, PartialEq, Eq)]
+        $(#[$outer])*
         pub enum $name {
-            $($key),*
+            $($(#[$inner])* $key),*
         }
 
         impl std::str::FromStr for $name {
