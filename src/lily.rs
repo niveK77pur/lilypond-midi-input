@@ -64,6 +64,7 @@ impl<'a> LilyParameters<'a> {
 /// Create mappings for enum variants and corresponding string representations
 macro_rules! make_lily_str_map {
     ($(#[$outer:meta])* $name:ident;
+     $err:ident::$err_variant:ident;
      $($key:ident, $main:literal $(, $string:literal)*);*;
     ) => {
         #[derive(Debug, Clone, PartialEq, Eq)]
@@ -72,18 +73,18 @@ macro_rules! make_lily_str_map {
         }
 
         impl std::str::FromStr for $name {
-            type Err = LilypondNoteError;
+            type Err = $err;
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
                 match s {
                     $($main | stringify!($key) $(|$string)* => Ok($name::$key),)*
-                    _ => Err(LilypondNoteError::InvalidKeyString),
+                    _ => Err($err::$err_variant),
                 }
             }
         }
 
         impl std::convert::TryFrom<&str> for $name {
-            type Error = LilypondNoteError;
+            type Error = $err;
 
             fn try_from(value: &str) -> Result<Self, Self::Error> {
                 <Self as std::str::FromStr>::from_str(value)
@@ -117,6 +118,7 @@ macro_rules! make_lily_str_map {
 make_lily_str_map!(
     /// List of possible musical key signatures
     LilyKeySignature;
+    LilypondNoteError::InvalidKeyString;
     CFlatMajor,  "cesM" ; // 7 flats
     GFlatMajor,  "gesM" ; // 6 flats
     DFlatMajor,  "desM" ; // 5 flats
@@ -152,6 +154,7 @@ make_lily_str_map!(
 make_lily_str_map!(
     /// The accidentals to use for out of key notes.
     LilyAccidental;
+    LilypondAccidentalError::InvalidAccidentalString;
     Sharps, "sharps";
     Flats, "flats";
 );
@@ -311,4 +314,10 @@ pub enum LilypondNoteError {
     OutsideOctave,
     ///
     InvalidKeyString,
+}
+
+#[derive(Debug)]
+pub enum LilypondAccidentalError {
+    /// The string was not recognized for accidentals
+    InvalidAccidentalString,
 }
