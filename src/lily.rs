@@ -35,7 +35,12 @@ impl<'a> LilyParameters<'a> {
     pub fn set_key(&mut self, key: LilyKeySignature) {
         self.key = key
     }
-
+    pub fn accidentals(&self) -> & LilyAccidental {
+        &self.accidentals
+    }
+    pub fn set_accidentals(&mut self, accidentals: LilyAccidental) {
+        self.accidentals = accidentals
+    }
     pub fn alterations(&self) -> &Alteration<'a> {
         &self.alterations
     }
@@ -47,6 +52,12 @@ impl<'a> LilyParameters<'a> {
     }
     pub fn set_global_alterations(&mut self, global_alterations: Alteration<'a>) {
         self.global_alterations = global_alterations
+    }
+    pub fn add_global_alteration(&mut self, note: u8, value: String) {
+        self.global_alterations.insert(note, value);
+    }
+    pub fn clear_global_alterations(&mut self) {
+        self.set_global_alterations(HashMap::new());
     }
 }
 
