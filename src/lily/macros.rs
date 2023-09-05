@@ -1,0 +1,53 @@
+/// Create mappings for enum variants and corresponding string representations
+macro_rules! make_lily_str_map {
+    ($(#[$outer:meta])* $name:ident;
+     $err:ident::$err_variant:ident;
+     $($key:ident, $main:literal $(, $string:literal)*);*;
+    ) => {
+        #[derive(Debug, Clone, PartialEq, Eq)]
+        pub enum $name {
+            $($key),*
+        }
+
+        impl std::str::FromStr for $name {
+            type Err = $err;
+
+            fn from_str(s: &str) -> Result<Self, Self::Err> {
+                match s {
+                    $($main | stringify!($key) $(|$string)* => Ok($name::$key),)*
+                    _ => Err($err::$err_variant),
+                }
+            }
+        }
+
+        impl std::convert::TryFrom<&str> for $name {
+            type Error = $err;
+
+            fn try_from(value: &str) -> Result<Self, Self::Error> {
+                <Self as std::str::FromStr>::from_str(value)
+            }
+        }
+
+        impl TryFrom<$name> for &str {
+            type Error = String;
+
+            fn try_from(value: $name) -> Result<Self, Self::Error> {
+                match value {
+                    $($name::$key => Ok($main)),*
+                }
+            }
+        }
+
+        impl clap::ValueEnum for $name {
+            fn value_variants<'a>() -> &'a [Self] {
+                &[$($name::$key),*]
+            }
+
+            fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
+                Some(match self {
+                    $($name::$key => clap::builder::PossibleValue::new($main).help(stringify!($key))),*
+                })
+            }
+        }
+    };
+}
