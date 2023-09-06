@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::{BTreeSet, HashMap},
     sync::{Arc, Mutex},
 };
 
@@ -96,11 +96,72 @@ fn main() {
 
         port.clear();
 
+        let mode = InputMode::Pedal;
+        // track notes to be put into a chord
+        let mut notes: BTreeSet<u8> = BTreeSet::new();
+        // track notes being pressed to know when everything was released
+        let mut pressed: BTreeSet<u8> = BTreeSet::new();
+        // track pedals being pressed to know when everything was released
+        let mut pedals: BTreeSet<u8> = BTreeSet::new();
         port.listen_mut(|event| {
-            if let midi::MidiMessageType::NoteOn { note, .. } = midi::MidiMessageType::from(event) {
-                let params = parameters.lock().expect("Received the mutex lock");
-                let lilynote = lily::LilyNote::new(note, &params);
-                println!("{}", String::from(&lilynote))
+            let use_chords: bool = match mode {
+                InputMode::Single => false,
+                InputMode::Chord => true,
+                InputMode::Pedal => !pedals.is_empty(),
+            };
+            match midi::MidiMessageType::from(event) {
+                midi::MidiMessageType::NoteOn { note, .. } => {
+                    pressed.insert(note);
+                    notes.insert(note);
+                }
+                midi::MidiMessageType::NoteOff { note, .. } => {
+                    pressed.remove(&note);
+                }
+                midi::MidiMessageType::PedalOn { pedal, .. } => {
+                    pedals.insert(pedal);
+                    return;
+                }
+                midi::MidiMessageType::PedalOff { pedal } => {
+                    pedals.remove(&pedal);
+                    return;
+                }
+                midi::MidiMessageType::Unknown => todo!(),
+            }
+            dbg!(&notes, &pressed, &pedals);
+            let params = parameters.lock().expect("Received the mutex lock");
+            match use_chords {
+                true => {
+                    if pressed.is_empty() {
+                        match notes.len().cmp(&1) {
+                            std::cmp::Ordering::Less => (),
+                            std::cmp::Ordering::Equal => {
+                                let lilynote = lily::LilyNote::new(
+                                    notes.pop_first().expect("A note was pressed"),
+                                    &params,
+                                );
+                                println!("{}", String::from(&lilynote))
+                            }
+                            std::cmp::Ordering::Greater => {
+                                let chord: String = notes
+                                    .iter()
+                                    .map(|note| lily::LilyNote::new(*note, &params).to_string())
+                                    .collect::<Vec<String>>()
+                                    .join(" ");
+                                notes.clear();
+                                println!("<{}>", chord);
+                            }
+                        }
+                    }
+                }
+                false => {
+                    if !notes.is_empty() {
+                        let lilynote = lily::LilyNote::new(
+                            notes.pop_first().expect("A note was pressed"),
+                            &params,
+                        );
+                        println!("{}", String::from(&lilynote))
+                    }
+                }
             }
         })
         .expect("Polling for new messages works.");
@@ -204,4 +265,23 @@ fn parse_subkeys(regex: &Regex, s: &str) -> Option<Vec<(u8, String)>> {
         result.push((subkey, subvalue))
     }
     Some(result)
+}
+
+use lilypond_midi_input::make_lily_str_map;
+make_lily_str_map!(
+    InputMode;
+    InputModeError::InvalidModeString;
+    /// Enter one note at a time
+    Single, "single", "s";
+    /// Enter notes as chords
+    ///
+    /// Holding down multiple notes will aggregate them into a chord. Once everything was released,
+    /// a chord with the given notes is created.
+    Chord, "chord", "c";
+    /// Behave like [Mode::Chord] when the pedal is pressed, otherwise behave like [Mode::Single]
+    Pedal, "pedal", "p";
+);
+
+pub enum InputModeError {
+    InvalidModeString,
 }
