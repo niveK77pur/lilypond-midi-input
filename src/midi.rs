@@ -54,9 +54,6 @@ impl<'a> MidiInputPort<'a> {
         context: &'a PortMidi,
         buffer_size: usize,
     ) -> Result<Self, LilypondMidiDeviceError> {
-        // initialize the PortMidi context.
-        // let context = PortMidi::new().expect("At least one MIDI device available.");
-
         let id = Self::get_device_id_by_name(name, context)?;
 
         // get the device info for the given id

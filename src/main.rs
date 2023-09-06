@@ -37,7 +37,6 @@ fn main() {
         ])
         .args([
             arg!(-l --"list-devices" "List available MIDI input devices").exclusive(true),
-            // arg!(--"list-keys" "List available musical keys").exclusive(true),
         ])
         .get_matches();
     let re_keyval = Regex::new(r"(?<key>\w+)=(?<value>[^[:space:]]+)").expect("Regex is valid");
@@ -97,8 +96,6 @@ fn main() {
         let name = matches
             .get_one::<String>("DEVICE")
             .expect("Device was given");
-
-        midi::list_input_devices(&context);
 
         let port = match midi::MidiInputPort::new(name, &context, BUFFER_SIZE) {
             Ok(p) => p,
