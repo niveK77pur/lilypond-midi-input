@@ -100,7 +100,7 @@ fn main() {
             if let midi::MidiMessageType::NoteOn { note, .. } = midi::MidiMessageType::from(event) {
                 let params = parameters.lock().expect("Received the mutex lock");
                 let lilynote = lily::LilyNote::new(note, &params);
-                println!("{} {:?} {:?}", String::from(&lilynote), lilynote, event)
+                println!("{}", String::from(&lilynote))
             }
         })
         .expect("Polling for new messages works.");
