@@ -113,7 +113,6 @@ fn main() {
 
         port.clear();
 
-        let mode = InputMode::Pedal;
         // track notes to be put into a chord
         let mut notes: BTreeSet<u8> = BTreeSet::new();
         // track notes being pressed to know when everything was released
@@ -121,7 +120,8 @@ fn main() {
         // track pedals being pressed to know when everything was released
         let mut pedals: BTreeSet<u8> = BTreeSet::new();
         port.listen_mut(|event| {
-            let use_chords: bool = match mode {
+            let params = parameters.lock().expect("Received the mutex lock");
+            let use_chords: bool = match params.mode() {
                 InputMode::Single => false,
                 InputMode::Chord => true,
                 InputMode::Pedal => !pedals.is_empty(),
@@ -144,7 +144,6 @@ fn main() {
                 }
                 midi::MidiMessageType::Unknown => todo!(),
             }
-            let params = parameters.lock().expect("Received the mutex lock");
             match use_chords {
                 true => {
                     if pressed.is_empty() {
@@ -211,6 +210,15 @@ fn main() {
                         Err(e) => match e {
                             lily::LilypondAccidentalError::InvalidAccidentalString => {
                                 eprintln!("Invalid accidental provided");
+                                continue;
+                            }
+                        },
+                    }),
+                    "mode" | "m" => params.set_mode(match value.try_into() {
+                        Ok(m) => m,
+                        Err(e) => match e {
+                            lilypond_midi_input::InputModeError::InvalidModeString => {
+                                eprintln!("Invalid mode provided");
                                 continue;
                             }
                         },
