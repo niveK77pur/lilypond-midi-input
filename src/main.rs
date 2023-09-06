@@ -100,8 +100,13 @@ fn main() {
 
         midi::list_input_devices(&context);
 
-        let port = midi::MidiInputPort::new(name, &context, BUFFER_SIZE)
-            .expect("Port name matches an existing port");
+        let port = match midi::MidiInputPort::new(name, &context, BUFFER_SIZE) {
+            Ok(p) => p,
+            Err(e) => {
+                eprintln!("Given port name does not exist: {:?}", e);
+                return;
+            }
+        };
 
         port.clear();
 
