@@ -281,8 +281,11 @@ fn parse_subkeys(regex: &Regex, s: &str) -> Option<Vec<(u8, String)>> {
             .parse()
         {
             Ok(n) => n,
-            Err(e) => {
-                eprintln!("Key is not a number: {e}");
+            Err(_) => {
+                eprintln!(
+                    "Key is not an unsigned number: {}",
+                    subcap.name("key").unwrap().as_str()
+                );
                 return None;
             }
         };
