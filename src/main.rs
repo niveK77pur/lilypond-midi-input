@@ -144,7 +144,6 @@ fn main() {
                 }
                 midi::MidiMessageType::Unknown => todo!(),
             }
-            dbg!(&notes, &pressed, &pedals);
             let params = parameters.lock().expect("Received the mutex lock");
             match use_chords {
                 true => {
