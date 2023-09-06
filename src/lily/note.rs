@@ -148,3 +148,9 @@ impl<'a> From<&LilyNote<'a>> for String {
         format!("{}{}", letter, octave)
     }
 }
+
+impl<'a> ToString for LilyNote<'a> {
+    fn to_string(&self) -> String {
+        self.into()
+    }
+}
