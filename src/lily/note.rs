@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use super::{LilyAccidental, LilyKeySignature, LilyParameters, LilypondNoteError};
 
 #[derive(Debug)]
@@ -149,8 +151,8 @@ impl<'a> From<&LilyNote<'a>> for String {
     }
 }
 
-impl<'a> ToString for LilyNote<'a> {
-    fn to_string(&self) -> String {
-        self.into()
+impl<'a> Display for LilyNote<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", String::from(self))
     }
 }

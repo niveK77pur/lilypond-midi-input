@@ -139,7 +139,7 @@ fn main() {
                                     notes.pop_first().expect("A note was pressed"),
                                     &params,
                                 );
-                                println!("{}", String::from(&lilynote))
+                                println!("{lilynote}")
                             }
                             std::cmp::Ordering::Greater => {
                                 let chord: String = notes
@@ -159,7 +159,7 @@ fn main() {
                             notes.pop_first().expect("A note was pressed"),
                             &params,
                         );
-                        println!("{}", String::from(&lilynote))
+                        println!("{lilynote}")
                     }
                 }
             }
