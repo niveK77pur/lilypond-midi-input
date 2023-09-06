@@ -196,7 +196,7 @@ fn main() {
                     "key" | "k" => params.set_key(match value.try_into() {
                         Ok(v) => v,
                         Err(e) => match e {
-                            lily::LilypondNoteError::OutsideOctave => {
+                            lily::LilypondNoteError::OutsideOctave(_) => {
                                 panic!("This error will not occur here.")
                             }
                             lily::LilypondNoteError::InvalidKeyString => {

@@ -134,7 +134,7 @@ impl<'a> LilyNote<'a> {
                 CMinor => Ok("b"),
                 _ => Ok("b"),
             },
-            _ => Err(LilypondNoteError::OutsideOctave),
+            _ => Err(LilypondNoteError::OutsideOctave(note)),
         }
     }
 }

@@ -86,7 +86,7 @@ impl LilyParameters {
         if (&0..=&11).contains(&note) {
             Ok(())
         } else {
-            Err(LilypondNoteError::OutsideOctave)
+            Err(LilypondNoteError::OutsideOctave(*note))
         }
     }
     pub fn global_alterations(&self) -> &Alteration {
