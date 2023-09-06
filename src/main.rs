@@ -7,6 +7,7 @@ use clap::{arg, command, value_parser, ArgAction};
 use lilypond_midi_input::{
     lily::{self, LilyAccidental, LilyKeySignature},
     midi::{self, list_input_devices},
+    InputMode,
 };
 use regex::Regex;
 
