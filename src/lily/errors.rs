@@ -4,11 +4,11 @@ pub enum LilypondNoteError {
     /// 0 to 11)
     OutsideOctave(u8),
     /// The string was not recognized for key signatures
-    InvalidKeyString,
+    InvalidKeyString(String),
 }
 
 #[derive(Debug)]
 pub enum LilypondAccidentalError {
     /// The string was not recognized for accidentals
-    InvalidAccidentalString,
+    InvalidAccidentalString(String),
 }

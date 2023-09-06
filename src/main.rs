@@ -201,8 +201,8 @@ fn main() {
                             lily::LilypondNoteError::OutsideOctave(_) => {
                                 panic!("This error will not occur here.")
                             }
-                            lily::LilypondNoteError::InvalidKeyString => {
-                                eprintln!("Invalid key provided.");
+                            lily::LilypondNoteError::InvalidKeyString(key) => {
+                                eprintln!("Invalid key provided: {key}");
                                 continue;
                             }
                         },
@@ -210,8 +210,8 @@ fn main() {
                     "accidentals" | "a" => params.set_accidentals(match value.try_into() {
                         Ok(v) => v,
                         Err(e) => match e {
-                            lily::LilypondAccidentalError::InvalidAccidentalString => {
-                                eprintln!("Invalid accidental provided");
+                            lily::LilypondAccidentalError::InvalidAccidentalString(a) => {
+                                eprintln!("Invalid accidental provided: {a}");
                                 continue;
                             }
                         },
@@ -219,8 +219,8 @@ fn main() {
                     "mode" | "m" => params.set_mode(match value.try_into() {
                         Ok(m) => m,
                         Err(e) => match e {
-                            lilypond_midi_input::InputModeError::InvalidModeString => {
-                                eprintln!("Invalid mode provided");
+                            lilypond_midi_input::InputModeError::InvalidModeString(mode) => {
+                                eprintln!("Invalid mode provided: {mode}");
                                 continue;
                             }
                         },
@@ -254,7 +254,7 @@ fn main() {
                             None => eprintln!("One of the keys is not a number"),
                         },
                     },
-                    _ => eprintln!("An invalid/unknown key was specified"),
+                    _ => eprintln!("An invalid/unknown key was specified: {key}"),
                 }
             }
         }

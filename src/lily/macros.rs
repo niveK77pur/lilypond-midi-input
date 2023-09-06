@@ -17,7 +17,7 @@ macro_rules! make_lily_str_map {
             fn from_str(s: &str) -> Result<Self, Self::Err> {
                 match s {
                     $($main | stringify!($key) $(|$string)* => Ok($name::$key),)*
-                    _ => Err($err::$err_variant),
+                    _ => Err($err::$err_variant(s.into())),
                 }
             }
         }

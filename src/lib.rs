@@ -17,5 +17,5 @@ make_lily_str_map!(
 );
 
 pub enum InputModeError {
-    InvalidModeString,
+    InvalidModeString(String),
 }
