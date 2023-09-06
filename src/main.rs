@@ -37,8 +37,10 @@ fn main() {
         ])
         .args([arg!(-l --"list-devices" "List available MIDI input devices").exclusive(true)])
         .get_matches();
-    let re_keyval = Regex::new(r"(?<key>\w+)=(?<value>[^[:space:]]+)").expect("Regex is valid");
-    let re_subkeyval = Regex::new(r"(?<key>\w+):(?<value>[^,]+)").expect("Regex is valid");
+    let re_keyval =
+        Regex::new(r"(?<key>[[:alnum:]-]+)=(?<value>[^[:space:]]+)").expect("Regex is valid");
+    let re_subkeyval =
+        Regex::new(r"(?<key>[[:alnum:]-]+):(?<value>[^,]+)").expect("Regex is valid");
 
     // initialize the PortMidi context.
     let context = portmidi::PortMidi::new().expect("At least one MIDI device available.");
