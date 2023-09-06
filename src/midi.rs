@@ -61,7 +61,7 @@ impl<'a> MidiInputPort<'a> {
 
         // get the device info for the given id
         let info = context.device(id).unwrap();
-        println!("Listening on: {}) {}", info.id(), info.name());
+        eprintln!("Listening on: {}) {}", info.id(), info.name());
 
         // get the device's input port
         let port = context
