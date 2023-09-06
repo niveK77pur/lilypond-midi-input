@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::InputMode;
+
 use super::{LilyAccidental, LilyKeySignature};
 
 type Alteration = HashMap<u8, String>;
@@ -8,6 +10,7 @@ type Alteration = HashMap<u8, String>;
 pub struct LilyParameters {
     pub(super) key: LilyKeySignature,
     pub(super) accidentals: LilyAccidental,
+    pub(super) mode: InputMode,
     /// custom alterations within an octave (0-11)
     pub(super) alterations: Alteration,
     /// custom alterations over all notes
@@ -18,12 +21,14 @@ impl LilyParameters {
     pub fn new(
         key: LilyKeySignature,
         accidentals: LilyAccidental,
+        mode: InputMode,
         alterations: Alteration,
         global_alterations: Alteration,
     ) -> Self {
         LilyParameters {
             key,
             accidentals,
+            mode,
             alterations,
             global_alterations,
         }
@@ -40,6 +45,12 @@ impl LilyParameters {
     }
     pub fn set_accidentals(&mut self, accidentals: LilyAccidental) {
         self.accidentals = accidentals
+    }
+    pub fn mode(&self) -> &InputMode {
+        &self.mode
+    }
+    pub fn set_mode(&mut self, mode: InputMode) {
+        self.mode = mode
     }
     pub fn alterations(&self) -> &Alteration {
         &self.alterations

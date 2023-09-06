@@ -27,6 +27,10 @@ fn main() {
                 .action(ArgAction::Set)
                 .value_parser(value_parser!(LilyAccidental))
                 .default_value("sharps"),
+            arg!(-m --mode "Input mode to use")
+                .action(ArgAction::Set)
+                .value_parser(value_parser!(InputMode))
+                .default_value("single"),
             arg!(--alterations "Custom alterations within an octave").action(ArgAction::Set),
             arg!(--"global-alterations" <alterations> "Global alterations over all notes")
                 .action(ArgAction::Set),
@@ -54,6 +58,10 @@ fn main() {
             .clone(),
         matches
             .get_one::<LilyAccidental>("accidentals")
+            .expect("accidental style is given and valid")
+            .clone(),
+        matches
+            .get_one::<InputMode>("mode")
             .expect("accidental style is given and valid")
             .clone(),
         match matches.get_one::<String>("alterations") {
@@ -266,23 +274,4 @@ fn parse_subkeys(regex: &Regex, s: &str) -> Option<Vec<(u8, String)>> {
         result.push((subkey, subvalue))
     }
     Some(result)
-}
-
-use lilypond_midi_input::make_lily_str_map;
-make_lily_str_map!(
-    InputMode;
-    InputModeError::InvalidModeString;
-    /// Enter one note at a time
-    Single, "single", "s";
-    /// Enter notes as chords
-    ///
-    /// Holding down multiple notes will aggregate them into a chord. Once everything was released,
-    /// a chord with the given notes is created.
-    Chord, "chord", "c";
-    /// Behave like [Mode::Chord] when the pedal is pressed, otherwise behave like [Mode::Single]
-    Pedal, "pedal", "p";
-);
-
-pub enum InputModeError {
-    InvalidModeString,
 }
