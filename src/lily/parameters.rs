@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::InputMode;
 
-use super::{LilyAccidental, LilyKeySignature};
+use super::{LilyAccidental, LilyKeySignature, LilypondNoteError};
 
 type Alteration = HashMap<u8, String>;
 
@@ -24,14 +24,19 @@ impl LilyParameters {
         mode: InputMode,
         alterations: Alteration,
         global_alterations: Alteration,
-    ) -> Self {
-        LilyParameters {
+    ) -> Result<Self, LilyParametersError> {
+        for alt in &alterations {
+            if let Err(error) = Self::verify_alteration(alt.0) {
+                return Err(LilyParametersError::NoteError(error));
+            }
+        }
+        Ok(LilyParameters {
             key,
             accidentals,
             mode,
             alterations,
             global_alterations,
-        }
+        })
     }
 
     pub fn key(&self) -> &LilyKeySignature {
@@ -55,14 +60,34 @@ impl LilyParameters {
     pub fn alterations(&self) -> &Alteration {
         &self.alterations
     }
-    pub fn set_alterations(&mut self, alterations: Alteration) {
-        self.alterations = alterations
+    pub fn set_alterations(&mut self, alterations: Alteration) -> Result<(), LilypondNoteError> {
+        for alt in &alterations {
+            Self::verify_alteration(alt.0)?;
+        }
+        self.alterations = alterations;
+        Ok(())
     }
-    pub fn add_alteration(&mut self, note: u8, value: String) {
+    pub fn add_alteration(&mut self, note: u8, value: String) -> Result<(), LilypondNoteError> {
+        Self::verify_alteration(&note)?;
         self.alterations.insert(note, value);
+        Ok(())
     }
     pub fn clear_alterations(&mut self) {
-        self.set_alterations(HashMap::new());
+        self.set_alterations(HashMap::new())
+            .expect("Empty map has no invalid alterations");
+    }
+    /// Verify if the alteration is within an octave
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the note is a value outside of an octave (i.e.
+    /// outside of the range 0 to 11 inclusive)
+    pub fn verify_alteration(note: &u8) -> Result<(), LilypondNoteError> {
+        if (&0..=&11).contains(&note) {
+            Ok(())
+        } else {
+            Err(LilypondNoteError::OutsideOctave)
+        }
     }
     pub fn global_alterations(&self) -> &Alteration {
         &self.global_alterations
@@ -76,4 +101,9 @@ impl LilyParameters {
     pub fn clear_global_alterations(&mut self) {
         self.set_global_alterations(HashMap::new());
     }
+}
+
+#[derive(Debug)]
+pub enum LilyParametersError {
+    NoteError(LilypondNoteError),
 }

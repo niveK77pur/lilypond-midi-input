@@ -35,9 +35,7 @@ fn main() {
             arg!(--"global-alterations" <alterations> "Global alterations over all notes")
                 .action(ArgAction::Set),
         ])
-        .args([
-            arg!(-l --"list-devices" "List available MIDI input devices").exclusive(true),
-        ])
+        .args([arg!(-l --"list-devices" "List available MIDI input devices").exclusive(true)])
         .get_matches();
     let re_keyval = Regex::new(r"(?<key>\w+)=(?<value>[^[:space:]]+)").expect("Regex is valid");
     let re_subkeyval = Regex::new(r"(?<key>\w+):(?<value>[^,]+)").expect("Regex is valid");
@@ -50,46 +48,54 @@ fn main() {
         return;
     }
 
-    let lily_parameters = Arc::new(Mutex::new(lily::LilyParameters::new(
-        matches
-            .get_one::<LilyKeySignature>("key")
-            .expect("key is given and valid")
-            .clone(),
-        matches
-            .get_one::<LilyAccidental>("accidentals")
-            .expect("accidental style is given and valid")
-            .clone(),
-        matches
-            .get_one::<InputMode>("mode")
-            .expect("accidental style is given and valid")
-            .clone(),
-        match matches.get_one::<String>("alterations") {
-            Some(alts) => {
-                let mut result = HashMap::new();
-                for alt in
-                    parse_subkeys(&re_subkeyval, alts).expect("All of the subkeys are numbers")
-                {
-                    let (note, value) = alt;
-                    result.insert(note, value);
+    let lily_parameters: Arc<Mutex<lily::LilyParameters>> = Arc::new(Mutex::new(
+        match lily::LilyParameters::new(
+            matches
+                .get_one::<LilyKeySignature>("key")
+                .expect("key is given and valid")
+                .clone(),
+            matches
+                .get_one::<LilyAccidental>("accidentals")
+                .expect("accidental style is given and valid")
+                .clone(),
+            matches
+                .get_one::<InputMode>("mode")
+                .expect("accidental style is given and valid")
+                .clone(),
+            match matches.get_one::<String>("alterations") {
+                Some(alts) => {
+                    let mut result = HashMap::new();
+                    for alt in
+                        parse_subkeys(&re_subkeyval, alts).expect("All of the subkeys are numbers")
+                    {
+                        let (note, value) = alt;
+                        result.insert(note, value);
+                    }
+                    result
                 }
-                result
-            }
-            None => HashMap::new(),
-        },
-        match matches.get_one::<String>("global-alterations") {
-            Some(alts) => {
-                let mut result = HashMap::new();
-                for alt in
-                    parse_subkeys(&re_subkeyval, alts).expect("All of the subkeys are numbers")
-                {
-                    let (note, value) = alt;
-                    result.insert(note, value);
+                None => HashMap::new(),
+            },
+            match matches.get_one::<String>("global-alterations") {
+                Some(alts) => {
+                    let mut result = HashMap::new();
+                    for alt in
+                        parse_subkeys(&re_subkeyval, alts).expect("All of the subkeys are numbers")
+                    {
+                        let (note, value) = alt;
+                        result.insert(note, value);
+                    }
+                    result
                 }
-                result
+                None => HashMap::new(),
+            },
+        ) {
+            Ok(p) => p,
+            Err(e) => {
+                eprintln!("An invalid parameter was given: {:?}", e);
+                return;
             }
-            None => HashMap::new(),
         },
-    )));
+    ));
 
     let parameters = Arc::clone(&lily_parameters);
     let lilypond_midi_input_handler = std::thread::spawn(move || {
@@ -216,7 +222,12 @@ fn main() {
                             Some(alts) => {
                                 for alt in alts {
                                     let (note, value) = alt;
-                                    params.add_alteration(note, value);
+                                    match params.add_alteration(note, value) {
+                                        Ok(_) => (),
+                                        Err(e) => {
+                                            eprintln!("Invalid alteration was given: {:?}", e)
+                                        }
+                                    };
                                 }
                             }
                             None => eprintln!("One of the keys is not a number"),
