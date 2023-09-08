@@ -5,9 +5,10 @@ use std::{
 
 use clap::{arg, command, value_parser, ArgAction};
 use lilypond_midi_input::{
+    echoerr, echoinfo,
     lily::{self, LilyAccidental, LilyKeySignature},
     midi::{self, list_input_devices},
-    output, InputMode, echoerr, echoinfo,
+    output, InputMode,
 };
 use regex::Regex;
 
@@ -196,7 +197,10 @@ fn main() {
                 let value = cap.name("value").expect("Valid named group").as_str();
                 match key {
                     "key" | "k" => params.set_key(match value.try_into() {
-                        Ok(v) => v,
+                        Ok(v) => {
+                            echoinfo!("Update key={:?}", v);
+                            v
+                        }
                         Err(e) => match e {
                             lily::LilypondNoteError::OutsideOctave(_) => {
                                 panic!("This error will not occur here.")
@@ -208,7 +212,10 @@ fn main() {
                         },
                     }),
                     "accidentals" | "a" => params.set_accidentals(match value.try_into() {
-                        Ok(v) => v,
+                        Ok(v) => {
+                            echoinfo!("Update accidentals={:?}", v);
+                            v
+                        }
                         Err(e) => match e {
                             lily::LilypondAccidentalError::InvalidAccidentalString(a) => {
                                 echoerr!("Invalid accidental provided: {a}");
@@ -217,7 +224,10 @@ fn main() {
                         },
                     }),
                     "mode" | "m" => params.set_mode(match value.try_into() {
-                        Ok(m) => m,
+                        Ok(m) => {
+                            echoinfo!("Update mode={:?}", m);
+                            m
+                        }
                         Err(e) => match e {
                             lilypond_midi_input::InputModeError::InvalidModeString(mode) => {
                                 echoerr!("Invalid mode provided: {mode}");
@@ -226,13 +236,21 @@ fn main() {
                         },
                     }),
                     "alterations" | "alt" => match value {
-                        "clear" => params.clear_alterations(),
+                        "clear" => {
+                            params.clear_alterations();
+                            echoinfo!("Cleared all alterations");
+                        }
                         _ => match parse_subkeys(&re_subkeyval, value) {
                             Some(alts) => {
+                                if alts.is_empty() {
+                                    echoinfo!("No alterations were parsed/given");
+                                }
                                 for alt in alts {
                                     let (note, value) = alt;
-                                    match params.add_alteration(note, value) {
-                                        Ok(_) => (),
+                                    match params.add_alteration(note, value.clone()) {
+                                        Ok(_) => {
+                                            echoinfo!("Update alteration={:?}:{:?}", note, value);
+                                        }
                                         Err(e) => {
                                             echoerr!("Invalid alteration was given: {:?}", e)
                                         }
@@ -243,11 +261,18 @@ fn main() {
                         },
                     },
                     "global-alterations" | "galt" => match value {
-                        "clear" => params.clear_global_alterations(),
+                        "clear" => {
+                            params.clear_global_alterations();
+                            echoinfo!("Cleared all global alterations");
+                        }
                         _ => match parse_subkeys(&re_subkeyval, value) {
                             Some(galts) => {
+                                if galts.is_empty() {
+                                    echoinfo!("No global alterations were parsed/given");
+                                }
                                 for galt in galts {
                                     let (note, value) = galt;
+                                    eprintln!(">> Update global-alteration={:?}:{:?}", note, value);
                                     params.add_global_alteration(note, value);
                                 }
                             }
