@@ -1,10 +1,4 @@
-# About
-
-This is a tool specifically targeted at writing [LilyPond][lilypond] scores. Entering notes using a MIDI keyboard is very handy and can greatly speed up the process, for which I always used [Frescobaldi][frescobaldi]. There was an issue however &mdash; I already had a fully personalized setup for writing LilyPond in my text editor of choice, yet always found myself going back to Frescobaldi for the MIDI input; as a result, I ended up writing my scores in Frescobaldi, even beyond the MIDI input. (Frescobaldi is great though!)
-
-`lilypond-midi-input` aims to bridge the gap between MIDI input for LilyPond notes, and any arbitrary text editor which supports async inputs. The idea is that this tool will listen for MIDI inputs from a device, and will transform them into corresponding LilyPond notes that can directly be inserted into your LilyPond files!
-
-This is a standalone program which does just that: Read MIDI inputs, and spit out LilyPond notes onto stdout. This will hopefully make integration into other editors easier. [Basic usage](#basic-usage) walks through how the program works. For those wishing to integrate this into their editors, please take a look at the [specifications](#specifications-for-integration-into-editors) on how to handle the input and output streams.
+Standalone tool reading input from a MIDI device and converting them into LilyPond notes, with integration into other tools as a strong focus.
 
 <!--toc:start-->
 - [About](#about)
@@ -23,6 +17,14 @@ This is a standalone program which does just that: Read MIDI inputs, and spit ou
 - [Integrations](#integrations)
 - [TODO](#todo)
 <!--toc:end-->
+
+# About
+
+This is a tool specifically targeted at writing [LilyPond][lilypond] scores. Entering notes using a MIDI keyboard is very handy and can greatly speed up the process, for which I always used [Frescobaldi][frescobaldi]. There was an issue however &mdash; I already had a fully personalized setup for writing LilyPond in my text editor of choice, yet always found myself going back to Frescobaldi for the MIDI input; as a result, I ended up writing my scores in Frescobaldi, even beyond the MIDI input. (Frescobaldi is great though!)
+
+`lilypond-midi-input` aims to bridge the gap between MIDI input for LilyPond notes, and any arbitrary text editor which supports async inputs. The idea is that this tool will listen for MIDI inputs from a device, and will transform them into corresponding LilyPond notes that can directly be inserted into your LilyPond files!
+
+This is a standalone program which does just that: Read MIDI inputs from a device, and spit out LilyPond notes onto stdout. This will hopefully make integration into other editors easier. [Basic usage](#basic-usage) walks through how the program works. For those wishing to integrate this into their editors, please take a look at the [specifications](#specifications-for-integration-into-editors) on how to handle the input and output streams.
 
 # Installation
 
