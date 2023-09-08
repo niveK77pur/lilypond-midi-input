@@ -143,9 +143,9 @@ The option keys are the exact same as the command line flags but with the leadin
     <tr>
         <td>key</td>
         <td>k</td>
-        <td>Can take all strings and enum variant names in the <a href="./src/lily/keysignature.rs">list of available keysignatures</a>. Example: <code>k=BFlatMajor</code> is equivalent to <code>key=besM</code>.</td>
-        <td>Affects how accidentals will be printed depending on the given key signature.</td>
-        <td>In GMajor, an F♯/G♭ will always be printed as <code>fis</code> no matter the value of <code>accidentals</code>. This can be overriden by alterations.</td>
+        <td>Can take all strings and enum variant names in the <a href="./src/lily/keysignature.rs">list of available keysignatures</a>.</td>
+        <td>Affects how accidentals will be printed depending on the given key signature. In GMajor, an F♯/G♭ will always be printed as <code>fis</code> no matter the value of <code>accidentals</code>. This can be overriden by alterations.</td>
+        <td><code>k=BFlatMajor</code> is equivalent to <code>key=besM</code>.</td>
     </tr>
     <tr>
         <td>accidentals</td>
