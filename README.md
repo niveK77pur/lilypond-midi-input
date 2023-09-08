@@ -143,21 +143,21 @@ The option keys are the exact same as the command line flags but with the leadin
     <tr>
         <td>key</td>
         <td>k</td>
-        <td>Can take all strings and enum variant names in the [list of available keysignatures](./src/lily/keysignature.rs). Example: <code>k=BFlatMajor</code> is equivalent to <code>key=besM</code>.</td>
+        <td>Can take all strings and enum variant names in the <a href="./src/lily/keysignature.rs">list of available keysignatures</a>. Example: <code>k=BFlatMajor</code> is equivalent to <code>key=besM</code>.</td>
         <td>Affects how accidentals will be printed depending on the given key signature.</td>
         <td>In GMajor, an F♯/G♭ will always be printed as <code>fis</code> no matter the value of <code>accidentals</code>. This can be overriden by alterations.</td>
     </tr>
     <tr>
         <td>accidentals</td>
         <td>a</td>
-        <td>Can take all strings and enum variant names in the [list of accidentals](./src/lily/accidentals.rs).</td>
+        <td>Can take all strings and enum variant names in the <a href="./src/lily/accidentals.rs">list of accidentals</a>.</td>
         <td>How to print accidentals that are not within the musical key? In the key of FMajor, <code>sharps</code> will print a G♯ (gis), whereas <code>flats</code> will print an A♭ (aes).</td>
         <td><code>a=sharps</code> is equivalent to <code>a=s</code></td>
     </tr>
     <tr>
         <td>mode</td>
         <td>m</td>
-        <td>Can take all strings and enum variant names in the [list of input modes](./src/lib.rs).</td>
+        <td>Can take all strings and enum variant names in the <a href="./src/lib.rs">list of input modes</a>.</td>
         <td>How to handle MIDI input? <code>Single</code> will only read one single note at a time as they are pressed. <code>Chord</code> will print a LilyPond chord after all notes were released. <code>Pedal</code> merges both, behaving like <code>Chord</code> when any of the three pedals are pressed, and behaving like <code>Single</code> when all pedals are released.</td>
         <td><code>mode=Pedal</code> is equivalent to <code>m=p</code></td>
     </tr>
