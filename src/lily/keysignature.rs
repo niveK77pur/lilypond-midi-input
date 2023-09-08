@@ -19,13 +19,13 @@ make_lily_str_map!(
     BMajor,      "bM"   ; // 5 sharps
     FSharpMajor, "fisM" ; // 6 sharps
     CSharpMajor, "cisM" ; // 7 sharps
-    AFlatMinor,  "dm"   ; // 7 flats
-    EFlatMinor,  "gm"   ; // 6 flats
-    BFlatMinor,  "cm"   ; // 5 flats
+    AFlatMinor,  "aesm" ; // 7 flats
+    EFlatMinor,  "eesm" ; // 6 flats
+    BFlatMinor,  "besm" ; // 5 flats
     FMinor,      "fm"   ; // 4 flats
-    CMinor,      "besm" ; // 3 flats
-    GMinor,      "eesm" ; // 2 flats
-    DMinor,      "aesm" ; // 1 flat
+    CMinor,      "cm"   ; // 3 flats
+    GMinor,      "gm"   ; // 2 flats
+    DMinor,      "dm"   ; // 1 flat
     AMinor,      "am"   ; // 0 flats/sharps
     EMinor,      "em"   ; // 1 sharp
     BMinor,      "bm"   ; // 2 sharps
