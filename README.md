@@ -3,6 +3,7 @@ Standalone tool reading input from a MIDI device and converting them into LilyPo
 <!--toc:start-->
 - [About](#about)
 - [Non-goals](#non-goals)
+- [Features](#features)
 - [Installation](#installation)
 - [Basic Usage](#basic-usage)
   - [Providing Options](#providing-options)
@@ -33,6 +34,25 @@ This is a standalone program which does just that: Read MIDI inputs from a devic
 Fully automate text input for LilyPond notes is not an objective for this tool. This means for example that adding note durations will not be handled here. Automatically detecting rhythm during playback is therefore also not an objective of this tool. Such features should be provided/created by wrappers.
 
 Again, the main goal here is to provide translation of MIDI notes into LilyPond notes, and as a result make MIDI input easier to integrate into other editors.
+
+# Features
+
+- All notes on a keyboard are translated to LilyPond notes with [absolute octave entry](https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#absolute-octave-entry)
+- Specify musical key signatures to influence how accidentals (black keys) are interpreted
+- Specify how to handle accidentals outside a key signature (fall back to sharps or flats)
+- Different input modes
+    - **Single**: Input one note at a time
+    - **Chord**: Allow inputting chords by holding down multiple keys at once
+    - **Pedal**: Behave like **Chord** when any piano pedal is pressed, otherwise behave like **Single**
+- Specify custom alterations for notes within a scale/octave
+- Specify custom alterations across all notes of the MIDI device
+- List all available MIDI devices
+- Handling of input/output for [integration into other editors](#specifications-for-integration-into-editors)
+    - stdout for relevant ouptut
+    - stderr for sharing messages from the tool
+    - stdin to asynchronously take options to change [settings](#options-for-stdin) on-the-fly
+
+See also points from [TODO](#todo).
 
 # Installation
 
