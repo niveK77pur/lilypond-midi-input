@@ -2,6 +2,7 @@ Standalone tool reading input from a MIDI device and converting them into LilyPo
 
 <!--toc:start-->
 - [About](#about)
+- [Non-goals](#non-goals)
 - [Installation](#installation)
 - [Basic Usage](#basic-usage)
   - [Providing Options](#providing-options)
@@ -26,6 +27,12 @@ This is a tool specifically targeted at writing [LilyPond][lilypond] scores. Ent
 `lilypond-midi-input` aims to bridge the gap between MIDI input for LilyPond notes, and any arbitrary text editor which supports async inputs. The idea is that this tool will listen for MIDI inputs from a device, and will transform them into corresponding LilyPond notes that can directly be inserted into your LilyPond files!
 
 This is a standalone program which does just that: Read MIDI inputs from a device, and spit out LilyPond notes onto stdout. This will hopefully make integration into other editors easier. [Basic usage](#basic-usage) walks through how the program works. For those wishing to integrate this into their editors, please take a look at the [specifications](#specifications-for-integration-into-editors) on how to handle the input and output streams.
+
+# Non-goals
+
+Fully automate text input for LilyPond notes is not an objective for this tool. This means for example that adding note durations will not be handled here. Automatically detecting rhythm during playback is therefore also not an objective of this tool. Such features should be provided/created by wrappers.
+
+Again, the main goal here is to provide translation of MIDI notes into LilyPond notes, and as a result make MIDI input easier to integrate into other editors.
 
 # Installation
 
