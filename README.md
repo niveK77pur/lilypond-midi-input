@@ -213,7 +213,8 @@ I have written my own [Neovim plugin][nvim-midi] which uses this tool to allow i
 
 # See also
 
-- <https://github.com/nicolodavis/lilypond-midi-input>
+- Another LilyPond MIDI input tool: <https://github.com/nicolodavis/lilypond-midi-input>
+- A proper CLI midi player: <https://gitlab.com/dajoha/midiplay>
 
 # TODO
 
