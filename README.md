@@ -46,7 +46,7 @@ Again, the main goal here is to provide translation of MIDI notes into LilyPond 
     - **Pedal**: Behave like **Chord** when any piano pedal is pressed, otherwise behave like **Single**
 - Specify custom alterations for notes within a scale/octave
 - Specify custom alterations across all notes of the MIDI device
-- List all available MIDI devices
+- List all available MIDI input devices
 - Specific handling of input/output for [integration into other editors](#specifications-for-integration-into-editors)
     - **stdout** for relevant ouptut
     - **stderr** for sharing messages from the tool
