@@ -7,7 +7,7 @@ use clap::{arg, command, value_parser, ArgAction};
 use lilypond_midi_input::{
     lily::{self, LilyAccidental, LilyKeySignature},
     midi::{self, list_input_devices},
-    InputMode,
+    output, InputMode, echoerr, echoinfo,
 };
 use regex::Regex;
 
@@ -93,7 +93,7 @@ fn main() {
         ) {
             Ok(p) => p,
             Err(e) => {
-                eprintln!("An invalid parameter was given: {:?}", e);
+                echoerr!("An invalid parameter was given: {:?}", e);
                 return;
             }
         },
@@ -108,7 +108,7 @@ fn main() {
         let port = match midi::MidiInputPort::new(name, &context, BUFFER_SIZE) {
             Ok(p) => p,
             Err(e) => {
-                eprintln!("Given port name does not exist: {:?}", e);
+                echoerr!("Given port name does not exist: {:?}", e);
                 return;
             }
         };
@@ -156,7 +156,7 @@ fn main() {
                                     notes.pop_first().expect("A note was pressed"),
                                     &params,
                                 );
-                                println!("{lilynote}")
+                                output!("{lilynote}")
                             }
                             std::cmp::Ordering::Greater => {
                                 let chord: String = notes
@@ -165,7 +165,7 @@ fn main() {
                                     .collect::<Vec<String>>()
                                     .join(" ");
                                 notes.clear();
-                                println!("<{}>", chord);
+                                output!("<{}>", chord);
                             }
                         }
                     }
@@ -176,7 +176,7 @@ fn main() {
                             notes.pop_first().expect("A note was pressed"),
                             &params,
                         );
-                        println!("{lilynote}")
+                        output!("{lilynote}")
                     }
                 }
             }
@@ -202,7 +202,7 @@ fn main() {
                                 panic!("This error will not occur here.")
                             }
                             lily::LilypondNoteError::InvalidKeyString(key) => {
-                                eprintln!("Invalid key provided: {key}");
+                                echoerr!("Invalid key provided: {key}");
                                 continue;
                             }
                         },
@@ -211,7 +211,7 @@ fn main() {
                         Ok(v) => v,
                         Err(e) => match e {
                             lily::LilypondAccidentalError::InvalidAccidentalString(a) => {
-                                eprintln!("Invalid accidental provided: {a}");
+                                echoerr!("Invalid accidental provided: {a}");
                                 continue;
                             }
                         },
@@ -220,7 +220,7 @@ fn main() {
                         Ok(m) => m,
                         Err(e) => match e {
                             lilypond_midi_input::InputModeError::InvalidModeString(mode) => {
-                                eprintln!("Invalid mode provided: {mode}");
+                                echoerr!("Invalid mode provided: {mode}");
                                 continue;
                             }
                         },
@@ -234,12 +234,12 @@ fn main() {
                                     match params.add_alteration(note, value) {
                                         Ok(_) => (),
                                         Err(e) => {
-                                            eprintln!("Invalid alteration was given: {:?}", e)
+                                            echoerr!("Invalid alteration was given: {:?}", e)
                                         }
                                     };
                                 }
                             }
-                            None => eprintln!("One of the keys is not a number"),
+                            None => echoerr!("One of the keys is not a number"),
                         },
                     },
                     "global-alterations" | "galt" => match value {
@@ -251,17 +251,17 @@ fn main() {
                                     params.add_global_alteration(note, value);
                                 }
                             }
-                            None => eprintln!("One of the keys is not a number"),
+                            None => echoerr!("One of the keys is not a number"),
                         },
                     },
-                    _ => eprintln!("An invalid/unknown key was specified: {key}"),
+                    _ => echoerr!("An invalid/unknown key was specified: {key}"),
                 }
             }
         }
     });
 
     match lilypond_midi_input_handler.join() {
-        Ok(_) => eprintln!("Lilypond MIDI input handling thread finished."),
+        Ok(_) => echoinfo!("Lilypond MIDI input handling thread finished."),
         Err(e) => panic!("Lilypond MIDI input handling panicked: {:#?}", e),
     };
 }
@@ -284,7 +284,7 @@ fn parse_subkeys(regex: &Regex, s: &str) -> Option<Vec<(u8, String)>> {
         {
             Ok(n) => n,
             Err(_) => {
-                eprintln!(
+                echoerr!(
                     "Key is not an unsigned number: {}",
                     subcap.name("key").unwrap().as_str()
                 );

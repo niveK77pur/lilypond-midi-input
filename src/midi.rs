@@ -6,6 +6,8 @@ mod types;
 pub use errors::*;
 pub use types::*;
 
+use crate::{echoinfo, output};
+
 /// An input port with which to read MIDI events
 ///
 /// # Minimum working example
@@ -58,7 +60,7 @@ impl<'a> MidiInputPort<'a> {
 
         // get the device info for the given id
         let info = context.device(id).unwrap();
-        eprintln!("Listening on: {}) {}", info.id(), info.name());
+        echoinfo!("Listening on: {}) {}", info.id(), info.name());
 
         // get the device's input port
         let port = context
@@ -241,7 +243,7 @@ impl<'a> MidiInputPort<'a> {
 pub fn list_input_devices(context: &PortMidi) {
     for dev in context.devices().expect("Can read info for all devices") {
         if dev.is_input() {
-            println!("{}", dev);
+            output!("{}", dev);
         }
     }
 }

@@ -53,3 +53,18 @@ macro_rules! make_lily_str_map {
         }
     };
 }
+
+#[macro_export]
+macro_rules! output {
+    ($($arg:tt)*) => { println!($($arg)*) };
+}
+
+#[macro_export]
+macro_rules! echoinfo {
+    ($($arg:tt)*) => { eprintln!(":: {}", format!($($arg)*)) };
+}
+
+#[macro_export]
+macro_rules! echoerr {
+    ($($arg:tt)*) => { eprintln!("!! {}", format!($($arg)*)) }
+}
