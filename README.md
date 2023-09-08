@@ -191,4 +191,4 @@ I have written my own [Neovim plugin][nvim-midi] which uses this tool to allow i
 
 [lilypond]: https://lilypond.org/
 [frescobaldi]: https://frescobaldi.org/
-[nvim-midi]: https://github.com/niveK77pur/nvim-midi-input
+[nvim-midi]: https://github.com/niveK77pur/midi-input.nvim
