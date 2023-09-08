@@ -47,10 +47,10 @@ Again, the main goal here is to provide translation of MIDI notes into LilyPond 
 - Specify custom alterations for notes within a scale/octave
 - Specify custom alterations across all notes of the MIDI device
 - List all available MIDI devices
-- Handling of input/output for [integration into other editors](#specifications-for-integration-into-editors)
-    - stdout for relevant ouptut
-    - stderr for sharing messages from the tool
-    - stdin to asynchronously take options to change [settings](#options-for-stdin) on-the-fly
+- Specific handling of input/output for [integration into other editors](#specifications-for-integration-into-editors)
+    - **stdout** for relevant ouptut
+    - **stderr** for sharing messages from the tool
+    - **stdin** to asynchronously take options to change [settings](#options-for-stdin) on-the-fly
 
 See also points from [TODO](#todo).
 
