@@ -15,6 +15,7 @@ Standalone tool reading input from a MIDI device and converting them into LilyPo
   - [Command Line Arguments](#command-line-arguments)
   - [Options for stdin](#options-for-stdin)
 - [Integrations](#integrations)
+- [See also](#see-also)
 - [TODO](#todo)
 <!--toc:end-->
 
@@ -182,6 +183,10 @@ The option keys are the exact same as the command line flags but with the leadin
 # Integrations
 
 I have written my own [Neovim plugin][nvim-midi] which uses this tool to allow inputting notes asynchronously using a MIDI keyboard in Neovim! It also follows Vim's modal philosophy and only inserts notes in *Insert mode*, and allows replacing notes in *Replace mode*!
+
+# See also
+
+- <https://github.com/nicolodavis/lilypond-midi-input>
 
 # TODO
 
