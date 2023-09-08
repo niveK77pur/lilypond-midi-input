@@ -164,16 +164,16 @@ The option keys are the exact same as the command line flags but with the leadin
     <tr>
         <td>alterations</td>
         <td>alt</td>
-        <td>Subkey-subvalue pairs. I.e. `key:value` or `key1:value1,key2:value2,...`. The key must be an integer between 0 and 11 inclusive, the value is considered a string (may not contain spaces).</td>
-        <td>Set custom alterations within an octave; overrides special considerations for `key` signatures. Ottavation marks are still being set here. The numbers indicate each note in an octave, starting from C=0, C♯=1, D=2, ..., B=11</td>
-        <td>`0:hello,10:world` will make every note C output `hello` and every B♭ output `world`, together with their LilyPond ottavations (`'` or `,`).</td>
+        <td>Subkey-subvalue pairs. I.e. <code>key:value</code> or <code>key1:value1,key2:value2,...</code>. The key must be an integer between 0 and 11 inclusive, the value is considered a string (may not contain spaces).</td>
+        <td>Set custom alterations within an octave; overrides special considerations for <code>key</code> signatures. Ottavation marks are still being set here. The numbers indicate each note in an octave, starting from C=0, C♯=1, D=2, ..., B=11</td>
+        <td><code>0:hello,10:world</code> will make every note C output <code>hello</code> and every B♭ output <code>world</code>, together with their LilyPond ottavations (<code>'</code> or <code>,</code>).</td>
     </tr>
     <tr>
         <td>global-alterations</td>
         <td>galt</td>
-        <td>Same as `alterations`, without the integer constraint.</td>
-        <td>Set custom alterations over all MIDI notes; further overrides `alterations` and key signatures. The numbers indicate the MIDI value attributed to said note. No ottavation marks (`'` or `,`) are applied.</td>
-        <td>`60:hello` will only make middle C print a `hello`.</td>
+        <td>Same as <code>alterations</code>, without the integer constraint.</td>
+        <td>Set custom alterations over all MIDI notes; further overrides <code>alterations</code> and key signatures. The numbers indicate the MIDI value attributed to said note. No ottavation marks (<code>'</code> or <code>,</code>) are applied.</td>
+        <td><code>60:hello</code> will only make middle C print a <code>hello</code>.</td>
     </tr>
 </table>
 
