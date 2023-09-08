@@ -120,7 +120,7 @@ Errors are printed using the `echoerr!` macro, while other information is printe
 
 All flags and the values they can take are shown when running the program with the `--help` flag. Thus, they will not be further discussed.
 
-Of importance to talk about are the values expected by `--alerations` and `--global-alterations`. Both of these take a list of comma-separated subkey-subvalue pairs.
+Of importance to point out are the values expected by `--alerations` and `--global-alterations`. Both of these take a list of comma-separated subkey-subvalue pairs, which are mentioed in [a previous section](#changing-options). More concrete details are given in [the table](#options-for-stdin).
 
 ## Options for stdin
 
