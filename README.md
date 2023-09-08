@@ -154,7 +154,7 @@ Of importance to point out are the values expected by `--alerations` and `--glob
 
 ## Options for stdin
 
-The option keys are the exact same as the command line flags but with the leading dashes removed. There are a few additional shorthands though. Also, the values it can take are a bit more broad compared to what the command line flags allow. Some of the values also allow shorthands. The following table describes the current options and their values.
+The option keys are the exact same as the command line flags but with the leading dashes removed. There are a few additional shorthands though. Also, the values it can take are a bit more broad compared to what the command line flags allow. Some of the values also allow shorthands. The following table describes the current options and their values. See also [the section on changing options](#changing-options) for examples on how to actually set them.
 
 <table>
     <tr>
