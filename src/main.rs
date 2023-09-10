@@ -8,7 +8,7 @@ use lilypond_midi_input::{
     echoerr, echoinfo,
     lily::{self, LilyAccidental, LilyKeySignature},
     midi::{self, list_input_devices},
-    output, InputMode,
+    output, InputMode, ListOptions,
 };
 use regex::Regex;
 
@@ -36,7 +36,13 @@ fn main() {
             arg!(--"global-alterations" <alterations> "Global alterations over all notes")
                 .action(ArgAction::Set),
         ])
-        .args([arg!(-l --"list-devices" "List available MIDI input devices").exclusive(true)])
+        .args([
+            arg!(-l --"list-devices" "List available MIDI input devices").exclusive(true),
+            arg!(--"list-options" <argument> "List available options for a given argument")
+                .exclusive(true)
+                .action(ArgAction::Set)
+                .value_parser(["key", "accidentals", "mode"]),
+        ])
         .get_matches();
     let re_keyval =
         Regex::new(r"(?<key>[[:alnum:]-]+)=(?<value>[^[:space:]]+)").expect("Regex is valid");
@@ -48,6 +54,14 @@ fn main() {
 
     if *matches.get_one::<bool>("list-devices").unwrap_or(&false) {
         list_input_devices(&context);
+        return;
+    } else if let Some(arg) = matches.get_one::<String>("list-options") {
+        match arg.as_str() {
+            "key" => LilyKeySignature::list_options(),
+            "accidentals" => LilyAccidental::list_options(),
+            "mode" => InputMode::list_options(),
+            _ => echoerr!("Invalid argument specified for listing."),
+        }
         return;
     }
 

@@ -144,6 +144,16 @@ Errors are printed using the `echoerr!` macro, while other information is printe
 
 [macros]: ./src/lily/macros.rs
 
+## Providing a list of options to the user
+
+The program also provides a `--list-options` flag, which list all available values for a given argument to stdout. The options are space separated, and no particular effort is made towards providing a well typeset output (i.e. as a tabular); the editors should decide how to treat the information.
+
+The first value in the line corresponds to the actual enum variant's name in the Rust code. The second value corresponds to the primary string from which the variant can be created. All following values are additional strings &mdash; usually shorthands &mdash; which can also be used to describe an enum variant. (See also [the table](#options-for-stdin)).
+
+All the string values (without any `"` or `'`) can be used as-is to set an option via stdin. The second string value can be used to set options via the command line arguments.
+
+Using this method to display choices to in the editor should be preferred as it avoids hardcoding the values. Further, if values should change, be added, or removed, it will require no intervention in the editor, as this tool can list its own options.
+
 # Options
 
 ## Command Line Arguments

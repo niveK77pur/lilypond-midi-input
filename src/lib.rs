@@ -19,3 +19,8 @@ make_lily_str_map!(
 pub enum InputModeError {
     InvalidModeString(String),
 }
+
+/// List all available options to stdout
+pub trait ListOptions {
+    fn list_options();
+}

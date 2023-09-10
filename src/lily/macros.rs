@@ -11,6 +11,12 @@ macro_rules! make_lily_str_map {
             $($(#[$inner])* $key),*
         }
 
+        impl $crate::ListOptions for $name {
+            fn list_options() {
+                $(output!("{} {} {}", stringify!($key), $main, stringify!($($string)*));)*
+            }
+        }
+
         impl std::str::FromStr for $name {
             type Err = $err;
 
