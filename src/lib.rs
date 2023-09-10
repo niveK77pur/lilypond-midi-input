@@ -13,7 +13,9 @@ make_lily_str_map!(
     /// a chord with the given notes is created.
     Chord, "chord", "c";
     /// Behave like [Mode::Chord] when the pedal is pressed, otherwise behave like [Mode::Single]
-    Pedal, "pedal", "p";
+    PedalChord, "pedal-chord", "pc";
+    /// Behave like [Mode::Single] when the pedal is pressed, otherwise behave like [Mode::Chord]
+    PedalSingle, "pedal-single", "ps";
 );
 
 pub enum InputModeError {

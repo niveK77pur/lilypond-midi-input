@@ -43,7 +43,8 @@ Again, the main goal here is to provide translation of MIDI notes into LilyPond 
 - Different input modes
     - **Single**: Input one note at a time
     - **Chord**: Allow inputting chords by holding down multiple keys at once
-    - **Pedal**: Behave like **Chord** when any piano pedal is pressed, otherwise behave like **Single**
+    - **PedalChord**: Behave like **Chord** when any piano pedal is pressed, otherwise behave like **Single**
+    - **PedalSingle**: Behave like **Single** when any piano pedal is pressed, otherwise behave like **Chord** (the opposite of how **Pedal** behaves)
 - Specify custom alterations for notes within a scale/octave
 - Specify custom alterations across all notes of the MIDI device
 - List all available MIDI input devices

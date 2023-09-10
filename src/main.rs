@@ -143,7 +143,8 @@ fn main() {
             let use_chords: bool = match params.mode() {
                 InputMode::Single => false,
                 InputMode::Chord => true,
-                InputMode::Pedal => !pedals.is_empty(),
+                InputMode::PedalChord => !pedals.is_empty(),
+                InputMode::PedalSingle => pedals.is_empty(),
             };
             match midi::MidiMessageType::from(event) {
                 midi::MidiMessageType::NoteOn { note, .. } => {
