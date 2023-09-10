@@ -122,6 +122,8 @@ fn main() {
         let mut pressed: BTreeSet<u8> = BTreeSet::new();
         // track pedals being pressed to know when everything was released
         let mut pedals: BTreeSet<u8> = BTreeSet::new();
+        // track last chord inserted (to insert a 'q' on repetition)
+        let mut last_chord: Option<String> = None;
         port.listen_mut(|event| {
             let params = parameters.lock().expect("Received the mutex lock");
             let use_chords: bool = match params.mode() {
@@ -166,7 +168,13 @@ fn main() {
                                     .collect::<Vec<String>>()
                                     .join(" ");
                                 notes.clear();
-                                output!("<{}>", chord);
+                                match last_chord.as_ref() == Some(&chord) {
+                                    true => output!("q"),
+                                    false => {
+                                        output!("<{}>", chord);
+                                        last_chord = Some(chord);
+                                    }
+                                }
                             }
                         }
                     }
