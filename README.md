@@ -221,6 +221,7 @@ I have written my own [Neovim plugin][nvim-midi] which uses this tool to allow i
 - [ ] Generate notes for [relative octave entry](https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#relative-octave-entry)
 - [x] [Repeated chords](https://lilypond.org/doc/v2.24/Documentation/notation/single-voice#chord-repetition) should return `q`
 - [ ] List all currently set (global) alterations
+- [ ] List all options for a setting (avoids hardcoding them into editors)
 - [ ] Simple screencast to show how this looks in action
 - [ ] Debug option/mode to see raw midi events
 
