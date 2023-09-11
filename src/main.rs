@@ -319,8 +319,8 @@ fn main() {
 /// Returns a vector of (`note,` `value`), where the `note` is a number and the
 /// `value` is an arbitrary string with which to replace said `note`.
 ///
-/// If any of the given `note`s cannot be parsed into a [MidiNote], then the function
-/// will return `None`.
+/// If any of the given `note`s cannot be parsed into a [MidiNote], then the
+/// function will return `None`.
 fn parse_subkeys(regex: &Regex, s: &str) -> Option<Vec<(MidiNote, String)>> {
     let mut result = Vec::new();
     for subcap in regex.captures_iter(s) {

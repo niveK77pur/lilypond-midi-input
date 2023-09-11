@@ -35,7 +35,10 @@ impl<'a> LilyNote<'a> {
         }
     }
 
-    fn note_name(note: MidiNote, parameters: &LilyParameters) -> Result<&'static str, LilypondNoteError> {
+    fn note_name(
+        note: MidiNote,
+        parameters: &LilyParameters,
+    ) -> Result<&'static str, LilypondNoteError> {
         let LilyParameters {
             key, accidentals, ..
         } = parameters;

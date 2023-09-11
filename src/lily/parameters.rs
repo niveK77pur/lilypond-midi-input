@@ -67,7 +67,11 @@ impl LilyParameters {
         self.alterations = alterations;
         Ok(())
     }
-    pub fn add_alteration(&mut self, note: MidiNote, value: String) -> Result<(), LilypondNoteError> {
+    pub fn add_alteration(
+        &mut self,
+        note: MidiNote,
+        value: String,
+    ) -> Result<(), LilypondNoteError> {
         Self::verify_alteration(&note)?;
         self.alterations.insert(note, value);
         Ok(())
@@ -80,8 +84,8 @@ impl LilyParameters {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the note is a value outside of an octave (i.e.
-    /// outside of the range 0 to 11 inclusive)
+    /// This function will return an error if the note is a value outside of an
+    /// octave (i.e. outside of the range 0 to 11 inclusive)
     pub fn verify_alteration(note: &MidiNote) -> Result<(), LilypondNoteError> {
         if (&0..=&11).contains(&note) {
             Ok(())
