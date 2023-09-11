@@ -1,6 +1,8 @@
 pub mod lily;
 pub mod midi;
 
+pub type MidiNote = u8;
+
 make_lily_str_map!(
     /// How should note inputs behave
     InputMode;

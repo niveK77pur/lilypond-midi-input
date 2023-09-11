@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use crate::MidiNote;
+
 use super::{LilyAccidental, LilyKeySignature, LilyParameters, LilypondNoteError};
 
 #[derive(Debug)]
@@ -11,7 +13,7 @@ pub struct LilyNote<'a> {
 }
 
 impl<'a> LilyNote<'a> {
-    pub fn new(value: u8, parameters: &'a LilyParameters) -> Self {
+    pub fn new(value: MidiNote, parameters: &'a LilyParameters) -> Self {
         let LilyParameters {
             alterations,
             global_alterations,
@@ -33,7 +35,7 @@ impl<'a> LilyNote<'a> {
         }
     }
 
-    fn note_name(note: u8, parameters: &LilyParameters) -> Result<&'static str, LilypondNoteError> {
+    fn note_name(note: MidiNote, parameters: &LilyParameters) -> Result<&'static str, LilypondNoteError> {
         let LilyParameters {
             key, accidentals, ..
         } = parameters;

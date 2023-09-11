@@ -2,7 +2,7 @@
 pub enum LilypondNoteError {
     /// Some functions require the note to be within an octave (integer between
     /// 0 to 11)
-    OutsideOctave(u8),
+    OutsideOctave(crate::MidiNote),
     /// The string was not recognized for key signatures
     InvalidKeyString(String),
 }

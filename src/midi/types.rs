@@ -1,19 +1,21 @@
 use portmidi::{MidiEvent, MidiMessage};
 
+use crate::MidiNote;
+
 /// Explicity see the type of MIDI message
 #[derive(Debug)]
 pub enum MidiMessageType {
     /// A note has been pressed
-    NoteOn { note: u8, velocity: u8 },
+    NoteOn { note: MidiNote, velocity: u8 },
     /// A note has been released
-    NoteOff { note: u8, velocity: u8 },
+    NoteOff { note: MidiNote, velocity: u8 },
     /// A piano pedal has been pressed
-    PedalOn { pedal: u8, value: u8 },
+    PedalOn { pedal: MidiNote, value: u8 },
     /// A piano pedal has been released
     ///
     /// The `value` is omitted here, because it is back to 0 when the pedal was
     /// released.
-    PedalOff { pedal: u8 },
+    PedalOff { pedal: MidiNote },
     /// A midi message which has not been handled
     Unknown,
 }

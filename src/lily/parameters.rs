@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 
-use crate::InputMode;
+use crate::{InputMode, MidiNote};
 
 use super::{LilyAccidental, LilyKeySignature, LilypondNoteError};
 
-type Alteration = HashMap<u8, String>;
+type Alteration = HashMap<MidiNote, String>;
 
 #[derive(Debug)]
 pub struct LilyParameters {
@@ -67,7 +67,7 @@ impl LilyParameters {
         self.alterations = alterations;
         Ok(())
     }
-    pub fn add_alteration(&mut self, note: u8, value: String) -> Result<(), LilypondNoteError> {
+    pub fn add_alteration(&mut self, note: MidiNote, value: String) -> Result<(), LilypondNoteError> {
         Self::verify_alteration(&note)?;
         self.alterations.insert(note, value);
         Ok(())
@@ -82,7 +82,7 @@ impl LilyParameters {
     ///
     /// This function will return an error if the note is a value outside of an octave (i.e.
     /// outside of the range 0 to 11 inclusive)
-    pub fn verify_alteration(note: &u8) -> Result<(), LilypondNoteError> {
+    pub fn verify_alteration(note: &MidiNote) -> Result<(), LilypondNoteError> {
         if (&0..=&11).contains(&note) {
             Ok(())
         } else {
@@ -95,7 +95,7 @@ impl LilyParameters {
     pub fn set_global_alterations(&mut self, global_alterations: Alteration) {
         self.global_alterations = global_alterations
     }
-    pub fn add_global_alteration(&mut self, note: u8, value: String) {
+    pub fn add_global_alteration(&mut self, note: MidiNote, value: String) {
         self.global_alterations.insert(note, value);
     }
     pub fn clear_global_alterations(&mut self) {

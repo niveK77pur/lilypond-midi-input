@@ -8,7 +8,7 @@ use lilypond_midi_input::{
     echoerr, echoinfo,
     lily::{self, LilyAccidental, LilyKeySignature},
     midi::{self, list_input_devices},
-    output, InputMode, ListOptions,
+    output, InputMode, ListOptions, MidiNote,
 };
 use regex::Regex;
 
@@ -131,11 +131,11 @@ fn main() {
         port.clear();
 
         // track notes to be put into a chord
-        let mut notes: BTreeSet<u8> = BTreeSet::new();
+        let mut notes: BTreeSet<MidiNote> = BTreeSet::new();
         // track notes being pressed to know when everything was released
-        let mut pressed: BTreeSet<u8> = BTreeSet::new();
+        let mut pressed: BTreeSet<MidiNote> = BTreeSet::new();
         // track pedals being pressed to know when everything was released
-        let mut pedals: BTreeSet<u8> = BTreeSet::new();
+        let mut pedals: BTreeSet<MidiNote> = BTreeSet::new();
         // track last chord inserted (to insert a 'q' on repetition)
         let mut last_chord: Option<String> = None;
         port.listen_mut(|event| {
@@ -319,12 +319,12 @@ fn main() {
 /// Returns a vector of (`note,` `value`), where the `note` is a number and the
 /// `value` is an arbitrary string with which to replace said `note`.
 ///
-/// If any of the given `note`s cannot be parsed into a [u8], then the function
+/// If any of the given `note`s cannot be parsed into a [MidiNote], then the function
 /// will return `None`.
-fn parse_subkeys(regex: &Regex, s: &str) -> Option<Vec<(u8, String)>> {
+fn parse_subkeys(regex: &Regex, s: &str) -> Option<Vec<(MidiNote, String)>> {
     let mut result = Vec::new();
     for subcap in regex.captures_iter(s) {
-        let subkey: u8 = match subcap
+        let subkey: MidiNote = match subcap
             .name("key")
             .expect("Valid named group")
             .as_str()
