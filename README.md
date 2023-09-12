@@ -219,9 +219,9 @@ The option keys are the exact same as the command line flags but with the leadin
     <tr>
         <td>previous-chord</td>
         <td>pc</td>
-        <td>Colon (<code>:</code>) separated list of <a href="https://lilypond.org/doc/v2.22/Documentation/notation/writing-pitches#absolute-octave-entry">absolute LilyPond notes</a> strings</td>
+        <td>Colon (<code>:</code>) separated list of <a href="https://lilypond.org/doc/v2.22/Documentation/notation/writing-pitches#absolute-octave-entry">absolute LilyPond note</a> strings. Or <code>clear</code> to unset the previous chord.</td>
         <td>Explicitely specify a chord which will yield <code>q</code> upon repeating. Useful when jumping around the file, and the tool does or does not return <code>q</code> appropriately.</td>
-        <td><code>pc=c,:eis':g</code> will set <code><c, g eis'></code> as the previous chord.</td>
+        <td><code>pc=c,:eis':g</code> will set <code><c, g eis'></code> as the previous chord. <code>pc=clear</code> will forget the previous chord.</td>
     </tr>
 </table>
 

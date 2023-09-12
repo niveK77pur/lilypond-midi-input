@@ -147,7 +147,10 @@ fn main() {
                 InputMode::PedalSingle => pedals.is_empty(),
             };
             if let Some(prev_chord) = params.take_previous_chord() {
-                last_chord = Some(prev_chord)
+                match prev_chord.is_empty() {
+                    true => last_chord = None,
+                    false => last_chord = Some(prev_chord),
+                }
             }
             match midi::MidiMessageType::from(event) {
                 midi::MidiMessageType::NoteOn { note, .. } => {
@@ -309,26 +312,31 @@ fn main() {
                         },
                     },
                     "previous-chord" | "pc" => {
-                        match params
-                            .set_previous_chord(value.split(':').map(String::from).collect())
-                        {
-                            Ok(_) => {
-                                echoinfo!(
-                                    "Previous chord set to {:?}",
-                                    params.previous_chord().unwrap()
-                                )
+                        match value {
+                            "clear" => params.set_previous_chord(Some(BTreeSet::new())),
+                            _ => {
+                                match params.set_previous_chord_lilypond_str(
+                                    value.split(':').map(String::from).collect(),
+                                ) {
+                                    Ok(_) => {
+                                        echoinfo!(
+                                            "Previous chord set to {:?}",
+                                            params.previous_chord().unwrap()
+                                        )
+                                    }
+                                    Err(e) => match e {
+                                        lily::LilypondNoteError::OutsideOctave(_) => {
+                                            panic!("This error should not occur here.")
+                                        }
+                                        lily::LilypondNoteError::InvalidKeyString(_) => {
+                                            panic!("This error should not occur here.")
+                                        }
+                                        lily::LilypondNoteError::InvalidNoteString(note) => {
+                                            echoerr!("Invalid/Unrecognized LilyPond note provided: {note}")
+                                        }
+                                    },
+                                }
                             }
-                            Err(e) => match e {
-                                lily::LilypondNoteError::OutsideOctave(_) => {
-                                    panic!("This error should not occur here.")
-                                }
-                                lily::LilypondNoteError::InvalidKeyString(_) => {
-                                    panic!("This error should not occur here.")
-                                }
-                                lily::LilypondNoteError::InvalidNoteString(note) => {
-                                    echoerr!("Invalid/Unrecognized LilyPond note provided: {note}")
-                                }
-                            },
                         }
                     }
                     _ => echoerr!("An invalid/unknown key was specified: {key}"),

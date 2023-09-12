@@ -114,7 +114,10 @@ impl LilyParameters {
     pub fn previous_chord(&mut self) -> Option<&BTreeSet<MidiNote>> {
         self.previous_chord.as_ref()
     }
-    pub fn set_previous_chord(
+    pub fn set_previous_chord(&mut self, previous_chord: Option<BTreeSet<MidiNote>>) {
+        self.previous_chord = previous_chord;
+    }
+    pub fn set_previous_chord_lilypond_str(
         &mut self,
         previous_chord: Vec<String>,
     ) -> Result<(), LilypondNoteError> {
