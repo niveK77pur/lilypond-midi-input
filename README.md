@@ -216,6 +216,13 @@ The option keys are the exact same as the command line flags but with the leadin
         <td>Set custom alterations over all MIDI notes; further overrides <code>alterations</code> and key signatures. The numbers indicate the MIDI value attributed to said note. No ottavation marks (<code>'</code> or <code>,</code>) are applied.</td>
         <td><code>60:hello</code> will only make middle C print a <code>hello</code>.</td>
     </tr>
+    <tr>
+        <td>previous-chord</td>
+        <td>pc</td>
+        <td>Colon (<code>:</code>) separated list of <a href="https://lilypond.org/doc/v2.22/Documentation/notation/writing-pitches#absolute-octave-entry">absolute LilyPond notes</a> strings</td>
+        <td>Explicitely specify a chord which will yield <code>q</code> upon repeating. Useful when jumping around the file, and the tool does or does not return <code>q</code> appropriately.</td>
+        <td><code>pc=c,:eis':g</code> will set <code><c, g eis'></code> as the previous chord.</td>
+    </tr>
 </table>
 
 # Integrations

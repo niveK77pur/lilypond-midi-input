@@ -139,13 +139,16 @@ fn main() {
         // track last chord inserted (to insert a 'q' on repetition)
         let mut last_chord: Option<BTreeSet<MidiNote>> = None;
         port.listen_mut(|event| {
-            let params = parameters.lock().expect("Received the mutex lock");
+            let mut params = parameters.lock().expect("Received the mutex lock");
             let use_chords: bool = match params.mode() {
                 InputMode::Single => false,
                 InputMode::Chord => true,
                 InputMode::PedalChord => !pedals.is_empty(),
                 InputMode::PedalSingle => pedals.is_empty(),
             };
+            if let Some(prev_chord) = params.take_previous_chord() {
+                last_chord = Some(prev_chord)
+            }
             match midi::MidiMessageType::from(event) {
                 midi::MidiMessageType::NoteOn { note, .. } => {
                     pressed.insert(note);
@@ -232,6 +235,9 @@ fn main() {
                                 echoerr!("Invalid key provided: {key}");
                                 continue;
                             }
+                            lily::LilypondNoteError::InvalidNoteString(_) => {
+                                panic!("This error should not occur here.")
+                            }
                         },
                     }),
                     "accidentals" | "a" => params.set_accidentals(match value.try_into() {
@@ -302,6 +308,29 @@ fn main() {
                             None => echoerr!("One of the keys is not a number"),
                         },
                     },
+                    "previous-chord" | "pc" => {
+                        match params
+                            .set_previous_chord(value.split(':').map(String::from).collect())
+                        {
+                            Ok(_) => {
+                                echoinfo!(
+                                    "Previous chord set to {:?}",
+                                    params.previous_chord().unwrap()
+                                )
+                            }
+                            Err(e) => match e {
+                                lily::LilypondNoteError::OutsideOctave(_) => {
+                                    panic!("This error should not occur here.")
+                                }
+                                lily::LilypondNoteError::InvalidKeyString(_) => {
+                                    panic!("This error should not occur here.")
+                                }
+                                lily::LilypondNoteError::InvalidNoteString(note) => {
+                                    echoerr!("Invalid/Unrecognized LilyPond note provided: {note}")
+                                }
+                            },
+                        }
+                    }
                     _ => echoerr!("An invalid/unknown key was specified: {key}"),
                 }
             }

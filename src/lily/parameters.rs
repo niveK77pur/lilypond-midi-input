@@ -1,8 +1,8 @@
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
 use crate::{InputMode, MidiNote};
 
-use super::{LilyAccidental, LilyKeySignature, LilypondNoteError};
+use super::{LilyAccidental, LilyKeySignature, LilyNote, LilypondNoteError};
 
 type Alteration = HashMap<MidiNote, String>;
 
@@ -15,6 +15,8 @@ pub struct LilyParameters {
     pub(super) alterations: Alteration,
     /// custom alterations over all notes
     pub(super) global_alterations: Alteration,
+    /// manually set the previous chord for generating a 'q' shorthand
+    pub(super) previous_chord: Option<BTreeSet<MidiNote>>,
 }
 
 impl LilyParameters {
@@ -36,6 +38,7 @@ impl LilyParameters {
             mode,
             alterations,
             global_alterations,
+            previous_chord: None,
         })
     }
 
@@ -104,6 +107,23 @@ impl LilyParameters {
     }
     pub fn clear_global_alterations(&mut self) {
         self.set_global_alterations(HashMap::new());
+    }
+    pub fn take_previous_chord(&mut self) -> Option<BTreeSet<MidiNote>> {
+        self.previous_chord.take()
+    }
+    pub fn previous_chord(&mut self) -> Option<&BTreeSet<MidiNote>> {
+        self.previous_chord.as_ref()
+    }
+    pub fn set_previous_chord(
+        &mut self,
+        previous_chord: Vec<String>,
+    ) -> Result<(), LilypondNoteError> {
+        let mut chord = BTreeSet::new();
+        for note in previous_chord.into_iter() {
+            chord.insert(*LilyNote::from_lilypond_str(note.as_str())?.note());
+        }
+        self.previous_chord = Some(chord);
+        Ok(())
     }
 }
 

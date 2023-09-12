@@ -5,6 +5,8 @@ pub enum LilypondNoteError {
     OutsideOctave(crate::MidiNote),
     /// The string was not recognized for key signatures
     InvalidKeyString(String),
+    /// The string was not recognized as a LilyPond note
+    InvalidNoteString(String),
 }
 
 #[derive(Debug)]

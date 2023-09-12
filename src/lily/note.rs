@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use regex::Regex;
+
 use crate::MidiNote;
 
 use super::{LilyAccidental, LilyKeySignature, LilyParameters, LilypondNoteError};
@@ -148,6 +150,46 @@ impl<'a> LilyNote<'a> {
 
     pub fn note(&self) -> &MidiNote {
         &self.note
+    }
+
+    pub fn from_lilypond_str(s: &'a str) -> Result<Self, LilypondNoteError> {
+        let re_lilypond_note =
+            Regex::new(r"(?<note>[abcdefg](?:[ie]?s)*)(?<octave>[',]+)?").expect("Regex is valid");
+        match re_lilypond_note.captures(s) {
+            Some(caps) => {
+                let letter = caps.name("note").unwrap().as_str();
+                let octave = match caps.name("octave") {
+                    Some(o) => match o.as_str().chars().next().expect("Octave is not empty") {
+                        ',' => -(o.len() as i8),
+                        '\'' => o.len() as i8,
+                        _ => panic!("This case should not happen. Octave should be `'` or `,`"),
+                    },
+                    None => 0,
+                };
+                let note: MidiNote = (octave + 4) as u8 * 12
+                    + match letter {
+                        "c" | "bis" | "deses" => 0,
+                        "cis" | "bisis" | "des" => 1,
+                        "d" | "cisis" | "eeses" => 2,
+                        "dis" | "ees" | "feses" => 3,
+                        "e" | "disis" | "fes" => 4,
+                        "f" | "eis" | "geses" => 5,
+                        "fis" | "eisis" | "ges" => 6,
+                        "g" | "fisis" | "aeses" => 7,
+                        "gis" | "aes" => 8,
+                        "a" | "gisis" | "beses" => 9,
+                        "ais" | "bes" | "ceses" => 10,
+                        "b" | "aisis" | "ces" => 11,
+                        _ => panic!("Unrecognized note letter: {letter}"),
+                    };
+                Ok(LilyNote {
+                    letter,
+                    octave,
+                    note,
+                })
+            }
+            None => Err(LilypondNoteError::InvalidNoteString(s.into())),
+        }
     }
 }
 
