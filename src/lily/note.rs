@@ -10,6 +10,8 @@ pub struct LilyNote<'a> {
     letter: &'a str,
     /// octave indication is very small, we do not need a large integer
     octave: i8,
+    /// original midi value
+    note: MidiNote,
 }
 
 impl<'a> LilyNote<'a> {
@@ -32,6 +34,7 @@ impl<'a> LilyNote<'a> {
                 },
             },
             octave,
+            note: value,
         }
     }
 
@@ -142,11 +145,15 @@ impl<'a> LilyNote<'a> {
             _ => Err(LilypondNoteError::OutsideOctave(note)),
         }
     }
+
+    pub fn note(&self) -> &MidiNote {
+        &self.note
+    }
 }
 
 impl<'a> From<&LilyNote<'a>> for String {
     fn from(value: &LilyNote) -> Self {
-        let LilyNote { letter, octave } = value;
+        let LilyNote { letter, octave, .. } = value;
         let octave = match octave.cmp(&0) {
             std::cmp::Ordering::Less => ",".repeat(octave.unsigned_abs() as usize),
             std::cmp::Ordering::Equal => "".into(),
