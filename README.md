@@ -57,10 +57,11 @@ See also points from [TODO](#todo).
 
 # Installation
 
-As of now, you have to clone this repository and install it manually using the following command. You will need [cargo installed](https://doc.rust-lang.org/cargo/getting-started/installation.html), nothing else should be required.
+As of now, you have to clone this repository and install it manually using the following command. You will need [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) and [PortMidi](https://github.com/PortMidi/PortMidi) installed, nothing else should be required.
 
 ```shell
-cargo install --path .
+pacman -S portmidi
+cargo install --path . # inside this repository
 ```
 
 # Basic Usage
