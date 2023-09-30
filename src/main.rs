@@ -339,6 +339,31 @@ fn main() {
                             }
                         }
                     }
+                    "list" => match value {
+                        "key" | "k" => echoinfo!("Key = {:?}", params.key()),
+                        "accidentals" | "a" => {
+                            echoinfo!("Accidentals = {:?}", params.accidentals())
+                        }
+                        "mode" | "m" => echoinfo!("Mode = {:?}", params.mode()),
+                        "alterations" | "alt" => {
+                            echoinfo!("Alterations = {:?}", params.alterations())
+                        }
+                        "global-alterations" | "galt" => {
+                            echoinfo!("Global alterations = {:?}", params.global_alterations())
+                        }
+                        "previous-chord" | "pc" => {
+                            echoinfo!("Previous chord = {:?}", params.previous_chord())
+                        }
+                        "all" => {
+                            echoinfo!("Key = {:?}", params.key());
+                            echoinfo!("Accidentals = {:?}", params.accidentals());
+                            echoinfo!("Mode = {:?}", params.mode());
+                            echoinfo!("Alterations = {:?}", params.alterations());
+                            echoinfo!("Global alterations = {:?}", params.global_alterations());
+                            echoinfo!("Previous chord = {:?}", params.previous_chord());
+                        }
+                        _ => echoerr!("Invalid argument for listing: {value}"),
+                    },
                     _ => echoerr!("An invalid/unknown key was specified: {key}"),
                 }
             }

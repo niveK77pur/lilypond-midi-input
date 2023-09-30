@@ -224,6 +224,13 @@ The option keys are the exact same as the command line flags but with the leadin
         <td>Explicitely specify a chord which will yield <code>q</code> upon repeating. Useful when jumping around the file, and the tool does or does not return <code>q</code> appropriately.</td>
         <td><code>pc=c,:eis':g</code> will set <code><c, g eis'></code> as the previous chord. <code>pc=clear</code> will forget the previous chord.</td>
     </tr>
+    <tr>
+        <td>list</td>
+        <td></td>
+        <td>Long or short version of all other options. Alternatively <code>all</code> will list the all values.</td>
+        <td>Not exactly an option, but allows listing values for options. Useful to see what the current state is.</td>
+        <td><code>list=k</code> or <code>list=key</code> list the currently set key signature. <code>list=all</code> will list the current values of all options.</td>
+    </tr>
 </table>
 
 # Integrations
@@ -239,7 +246,7 @@ I have written my own [Neovim plugin][nvim-midi] which uses this tool to allow i
 
 - [ ] Generate notes for [relative octave entry](https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#relative-octave-entry)
 - [x] [Repeated chords](https://lilypond.org/doc/v2.24/Documentation/notation/single-voice#chord-repetition) should return `q`
-- [ ] List all currently set (global) alterations
+- [x] List all currently set (global) alterations
 - [x] List all options for a setting (avoids hardcoding them into editors)
 - [ ] Simple screencast to show how this looks in action
 - [ ] Debug option/mode to see raw midi events
