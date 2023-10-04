@@ -200,7 +200,7 @@ The option keys are the exact same as the command line flags but with the leadin
         <td>mode</td>
         <td>m</td>
         <td>Can take all strings and enum variant names in the <a href="./src/lib.rs">list of input modes</a>.</td>
-        <td>How to handle MIDI input? <code>Single</code> will only read one single note at a time as they are pressed. <code>Chord</code> will print a LilyPond chord after all notes were released. <code>Pedal</code> merges both, behaving like <code>Chord</code> when any of the three pedals are pressed, and behaving like <code>Single</code> when all pedals are released.</td>
+        <td>How to handle MIDI input? <code>Single</code> will only read one single note at a time as they are pressed. <code>Chord</code> will print a LilyPond chord after all notes were released. <code>PedalChord</code> merges both, behaving like <code>Chord</code> when any of the three pedals are pressed, and behaving like <code>Single</code> when all pedals are released. <code>PedalSingle</code> inverted the behaviour.</td>
         <td><code>mode=Pedal</code> is equivalent to <code>m=p</code></td>
     </tr>
     <tr>
