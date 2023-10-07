@@ -250,6 +250,7 @@ I have written my own [Neovim plugin][nvim-midi] which uses this tool to allow i
 - [x] List all options for a setting (avoids hardcoding them into editors)
 - [ ] Simple screencast to show how this looks in action
 - [ ] Debug option/mode to see raw midi events
+- [ ] Specify ottavation for alterations (i.e. `0=bis` will cause the note to always be one octave too high)
 
 [lilypond]: https://lilypond.org/
 [frescobaldi]: https://frescobaldi.org/
