@@ -206,14 +206,14 @@ The option keys are the exact same as the command line flags but with the leadin
     <tr>
         <td>alterations</td>
         <td>alt</td>
-        <td>Subkey-subvalue pairs. I.e. <code>key:value</code> or <code>key1:value1,key2:value2,...</code>. The key must be an integer between 0 and 11 inclusive, the value is considered a string (may not contain spaces).</td>
+        <td>Subkey-subvalue pairs. I.e. <code>key:value</code> or <code>key1:value1,key2:value2,...</code>. The key must be an integer between 0 and 11 inclusive, the value is considered a string (may not contain spaces). Trailing <code>+</code> or <code>-</code> in the value can be used to adjust the octave up or down respectively. Multiple consecutive trailing <code>+</code> or <code>-</code> can be used to adjust multiple octaves.</td>
         <td>Set custom alterations within an octave; overrides special considerations for <code>key</code> signatures. Ottavation marks are still being set here. The numbers indicate each note in an octave, starting from C=0, C♯=1, D=2, ..., B=11</td>
-        <td><code>0:hello,10:world</code> will make every note C output <code>hello</code> and every B♭ output <code>world</code>, together with their LilyPond ottavations (<code>'</code> or <code>,</code>).</td>
+        <td><code>0:hello,10:world</code> will make every note C output <code>hello</code> and every B♭ output <code>world</code>, together with their LilyPond ottavations (<code>'</code> or <code>,</code>). An alteration of <code>0:bis</code> will make the note produced by pressing a C always one octave too high; this can be remedied by doing <code>0:bis-</code>.</td>
     </tr>
     <tr>
         <td>global-alterations</td>
         <td>galt</td>
-        <td>Same as <code>alterations</code>, without the integer constraint.</td>
+        <td>Same as <code>alterations</code>, without the integer constraint, and without the ottavation adjustments.</td>
         <td>Set custom alterations over all MIDI notes; further overrides <code>alterations</code> and key signatures. The numbers indicate the MIDI value attributed to said note. No ottavation marks (<code>'</code> or <code>,</code>) are applied.</td>
         <td><code>60:hello</code> will only make middle C print a <code>hello</code>.</td>
     </tr>
@@ -250,7 +250,7 @@ I have written my own [Neovim plugin][nvim-midi] which uses this tool to allow i
 - [x] List all options for a setting (avoids hardcoding them into editors)
 - [ ] Simple screencast to show how this looks in action
 - [ ] Debug option/mode to see raw midi events
-- [ ] Specify ottavation for alterations (i.e. `0=bis` will cause the note to always be one octave too high)
+- [x] Specify ottavation for alterations (i.e. `0=bis` will cause the note to always be one octave too high)
 
 [lilypond]: https://lilypond.org/
 [frescobaldi]: https://frescobaldi.org/

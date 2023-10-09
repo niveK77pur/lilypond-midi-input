@@ -31,12 +31,35 @@ impl<'a> LilyNote<'a> {
                     text
                 }
                 None => match alterations.get(&(value % 12)) {
-                    Some(text) => text,
+                    Some(text) => Self::adjust_ottavation(text, &mut octave),
                     None => Self::note_name(value % 12, parameters).expect("Note within octave"),
                 },
             },
             octave,
             note: value,
+        }
+    }
+
+    /// Function to adjust the `octave` if there are trailing `+` or `-`
+    ///
+    /// # Panics
+    ///
+    /// Panics if a character other than `+` or `-` was matched by the regex to check for
+    /// ottavation adjustments. This panic is not expected to occur.
+    fn adjust_ottavation(note: &'a str, octave: &mut i8) -> &'a str {
+        let re_note_octave =
+            Regex::new(r"(?<note>.*?)(?<ottavation>\++|-+)$").expect("Regex is valid");
+        match re_note_octave.captures(note) {
+            Some(caps) => {
+                *octave += match &caps["ottavation"].chars().next().unwrap() {
+                    '+' => caps["ottavation"].len() as i8,
+                    '-' => -(caps["ottavation"].len() as i8),
+                    _ => panic!("Nothing else should have been matched"),
+                };
+                // get substring for first capture group
+                caps.extract::<2>().1[0]
+            }
+            None => note,
         }
     }
 
