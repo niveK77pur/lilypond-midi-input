@@ -24,6 +24,7 @@ use crate::{echoinfo, output};
 ///
 /// ```no_run
 /// use lilypond_midi_input as lmi;
+/// use lilypond_midi_input::midi::list_input_devices;
 ///
 /// const BUFFER_SIZE: usize = 1024;
 ///
@@ -32,14 +33,14 @@ use crate::{echoinfo, output};
 ///     let context = portmidi::PortMidi::new().expect("At least one MIDI device available.");
 ///     let name = "USB-MIDI MIDI 1";
 ///
-///     lmi::list_devices(&context);
+///     list_input_devices(&context);
 ///
-///     let port = lmi::MidiInputPort::new(name, &context, BUFFER_SIZE)
+///     let port = lmi::midi::MidiInputPort::new(name, &context, BUFFER_SIZE)
 ///         .expect("Port name matches an existing port");
 ///
 ///     port.clear();
 ///
-///     port.listen(|event| println!("{:?}", lmi::MidiMessageType::from(event)))
+///     port.listen(|event| println!("{:?}", lmi::midi::MidiMessageType::from(event)))
 ///         .expect("Polling for new messages works.");
 /// }
 /// ```
@@ -232,9 +233,9 @@ impl<'a> MidiInputPort<'a> {
 /// [portmidi::PortMidi] context must already exist beforehand.
 ///
 /// ```
-/// use lilypond_midi_input as lmi;
+/// use lilypond_midi_input::midi::list_input_devices;
 /// let context = portmidi::PortMidi::new().unwrap();
-/// lmi::list_devices(&context);
+/// list_input_devices(&context);
 /// ```
 ///
 /// # Panics
