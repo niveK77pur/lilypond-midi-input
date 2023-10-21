@@ -37,16 +37,60 @@ Again, the main goal here is to provide translation of MIDI notes into LilyPond 
 
 # Features
 
-- All notes on a keyboard are translated to LilyPond notes with [absolute octave entry](https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#absolute-octave-entry)
-- Specify musical key signatures to influence how accidentals (black keys) are interpreted
-- Specify how to handle accidentals outside a key signature (fall back to sharps or flats)
+*NB: Bullet points with an arrow right after can be clicked on and expanded to show a demo video/gif!*
+
+- <details>
+    <summary>
+      All notes on a keyboard are translated to LilyPond notes with <a href="https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#absolute-octave-entry">absolute octave entry</a>
+    </summary>
+
+    ![image](https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/233cb64e-60c0-4298-8ba0-1405b24f2452)
+  </details>
+- <details>
+    <summary>
+      Specify musical key signatures to influence how accidentals (black keys) are interpreted
+    </summary>
+  
+    Show following keys
+    * C major
+    * A minor (harmonic minor)
+    * B major
+    * G sharp minor (harmonic minor)
+    * C flat major
+    * B flat minor (harmonic minor)
+  </details>
+- <details>
+    <summary>
+      Specify how to handle accidentals outside a key signature (fall back to sharps or flats)
+    </summary>
+
+    * Show *F major* (with `sharps`) and *G major* (with `flats`) keys.
+  </details>
 - Different input modes
-    - **Single**: Input one note at a time
-    - **Chord**: Allow inputting chords by holding down multiple keys at once
-    - **PedalChord**: Behave like **Chord** when any piano pedal is pressed, otherwise behave like **Single**
-    - **PedalSingle**: Behave like **Single** when any piano pedal is pressed, otherwise behave like **Chord** (the opposite of how **PedalChord** behaves)
-- Specify custom alterations for notes within a scale/octave
-- Specify custom alterations across all notes of the MIDI device
+    - <details><summary><b>Single</b>: Input one note at a time</summary>
+
+      - Show scale
+      - Show chord and how it inserts only single notes (even if all are held)
+      - Show long held notes to show notes are inserted as soon as key is pressed
+      </details>
+    - <details><summary><b>Chord</b>: Allow inputting chords by holding down multiple keys at once</summary>
+ 
+      - Show chord and how it inserts after releasing
+      - Show held note and add notes while releasing others, showing it will insert chord when everything is released
+      - Show long held notes to show notes are inserted as soon as all keys are released
+      </details>
+    - <details><summary><b>PedalChord</b>: Behave like <b>Chord</b> when any piano pedal is pressed, otherwise behave like <b>Single</b></summary>
+
+      - Show chord without pedal
+      - Show chord with pedal (show all 3 pedals, possibly even combinations)
+      </details>
+    - <details><summary><b>PedalSingle</b>: Behave like <b>Single</b> when any piano pedal is pressed, otherwise behave like <b>Chord</b> (the opposite of how <b>PedalChord</b> behaves)</summary>
+
+      - Show chord without pedal
+      - Show chord with pedal (show all 3 pedals, possibly even combinations)
+      </details>
+- <details><summary>Specify custom alterations for notes within a scale/octave</summary>TODO</details>
+- <details><summary>Specify custom alterations across all notes of the MIDI device</summary>TODO</details>
 - List all available MIDI input devices
 - Specific handling of input/output for [integration into other editors](#specifications-for-integration-into-editors)
     - **stdout** for relevant ouptut
