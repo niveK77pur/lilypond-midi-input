@@ -37,7 +37,7 @@ Again, the main goal here is to provide translation of MIDI notes into LilyPond 
 
 # Features
 
-*NB: Bullet points with an arrow right after can be clicked on and expanded to show a demo video/gif!*
+*NB: Bullet points with an arrow right after can be clicked on and expanded to show a **demo video**!*
 
 - <details>
     <summary>
