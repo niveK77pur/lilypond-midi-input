@@ -313,6 +313,7 @@ I have written my own [Neovim plugin][nvim-midi] which uses this tool to allow i
 
 # See also
 
+- MIDI input for LilyPond, able to quantize notes on the fly using a metronome: <https://directory.fsf.org/wiki/Rumor>
 - Another LilyPond MIDI input tool: <https://github.com/nicolodavis/lilypond-midi-input>
 - A proper CLI midi player: <https://gitlab.com/dajoha/midiplay>
 
