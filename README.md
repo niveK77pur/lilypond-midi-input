@@ -134,7 +134,12 @@ See also points from [TODO](#todo).
 As of now, you have to clone this repository and install it manually using the following command. You will need [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) and [PortMidi](https://github.com/PortMidi/PortMidi) installed, nothing else should be required.
 
 ```shell
-pacman -S portmidi
+pacman -S portmidi # for arch
+apt install libportmidi0 libportmidi-dev # for ubuntu
+```
+Then finally build/install.
+
+```shell
 cargo install --path . # inside this repository
 ```
 
