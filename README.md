@@ -322,7 +322,7 @@ I have written my own [Neovim plugin][nvim-midi] which uses this tool to allow i
 - [x] [Repeated chords](https://lilypond.org/doc/v2.24/Documentation/notation/single-voice#chord-repetition) should return `q`
 - [x] List all currently set (global) alterations
 - [x] List all options for a setting (avoids hardcoding them into editors)
-- [ ] Simple screencast to show how this looks in action
+- [x] Simple screencast to show how this looks in action (under [features](#features))
 - [ ] Debug option/mode to see raw midi events
 - [x] Specify ottavation for alterations (i.e. `0=bis` will cause the note to always be one octave too high)
 
