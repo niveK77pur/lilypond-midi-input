@@ -1,0 +1,16 @@
+FROM ubuntu:latest
+
+RUN apt update -y
+RUN apt install -y libportmidi0 libportmidi-dev curl gcc
+
+ENV PATH="$HOME/.cargo/bin:${PATH}"
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+# RUN rustup default stable
+
+COPY . /app
+
+WORKDIR /app
+
+RUN ~/.cargo/bin/cargo fmt --check
+RUN ~/.cargo/bin/cargo clippy
+RUN ~/.cargo/bin/cargo install --verbose --path .
