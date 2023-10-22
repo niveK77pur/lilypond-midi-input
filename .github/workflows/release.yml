@@ -21,6 +21,7 @@ jobs:
       - name: Get version
         id: version
         run: |
+          apt install -y libportmidi0
           chmod +x lmi-ubuntu/lilypond-midi-input
           echo "VERSION='v$(lmi-ubuntu/lilypond-midi-input --version | grep -oP '[0-9]+\.[0-9]+\.[0-9]+$')'" >> $GITHUB_OUTPUT
       - name: Create CHANGELOG.latest file
