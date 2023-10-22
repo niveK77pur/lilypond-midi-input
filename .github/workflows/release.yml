@@ -17,6 +17,7 @@ jobs:
       - uses: dawidd6/action-download-artifact@v2
         with:
           workflow: rust.yml
+      - uses: actions/checkout@v3
       - id: version
         run: |
           chmod +x lmi-ubuntu/lilypond-midi-input
