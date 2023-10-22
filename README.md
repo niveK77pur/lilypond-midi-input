@@ -45,8 +45,8 @@ Again, the main goal here is to provide translation of MIDI notes into LilyPond 
     </summary>
 
     A chromatic scale being played across the entire piano, with their corresponding lilypond notes being output.
-    
-    https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/f56b82b0-8d25-43cb-9653-f30012da2df3
+
+    https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/73df64d5-a655-419b-83ac-b1c9ec716c68
   </details>
 - <details>
     <summary>
@@ -61,7 +61,7 @@ Again, the main goal here is to provide translation of MIDI notes into LilyPond 
     * C flat major, note all black keys being flats
     * B flat minor (harmonic minor)
 
-    https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/b6e8df79-0eea-4f27-9adf-79887b6fb876
+    https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/f497f7fb-b359-47de-8989-aebc5b036c00
   </details>
 - <details>
     <summary>
@@ -70,11 +70,12 @@ Again, the main goal here is to provide translation of MIDI notes into LilyPond 
 
     * Example in *F major* which has a B flat
     
-      https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/fa600949-3346-45a9-a2b0-f331e64904ae
-      
-    * Example in *G major* which has an F sharp
-    
-      https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/7db393f2-7eec-40e2-94a7-ec9fb9152306
+      https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/73929e51-cbc8-446d-8134-a693d13d0a5c
+
+    * Example in *G major* which has an F sharp 
+
+      https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/7f6e7d9e-98aa-4542-aeb7-51b9ad6c1644
+
   </details>
 - Different input modes
     - <details><summary><b>Single</b>: Input one note at a time</summary>
@@ -83,7 +84,8 @@ Again, the main goal here is to provide translation of MIDI notes into LilyPond 
       - Shows a chord being played and how it inserts only single notes (even if all are held)
       - Shows long held notes to highlight that notes are inserted as soon as key is **pressed**
 
-      https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/258f9ec6-b509-4982-8600-adbea683df14
+      https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/488a5208-3380-4b0a-a1bf-7a1492855e73
+
       </details>
     - <details><summary><b>Chord</b>: Allow inputting chords by holding down multiple keys at once</summary>
  
@@ -91,35 +93,40 @@ Again, the main goal here is to provide translation of MIDI notes into LilyPond 
       - Shows notes being held, while pressing new ones and releasing others, highlighting that notes will be aggregated until everything is released
       - Shows long held notes to highlight notes are inserted as soon as all keys are **released**
 
-      https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/db2f246e-bd45-42fb-9ab0-37c15a0f7ec2
+      https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/7c90c9f5-005e-42c9-ad3b-84d9c1fdd41f
+
       </details>
     - <details><summary><b>PedalChord</b>: Behave like <b>Chord</b> when any piano pedal is pressed, otherwise behave like <b>Single</b></summary>
 
       - Shows chord being played without pedal, behaving like **Single**
       - Shows chord being with pedal, behaving like **Chord**
       
-      https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/f5e7d09a-3874-4d5d-b533-420e4f4ce08e
+      https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/0d85ebc8-bc4e-45e0-affe-1b81cf1959df
+
       </details>
     - <details><summary><b>PedalSingle</b>: Behave like <b>Single</b> when any piano pedal is pressed, otherwise behave like <b>Chord</b> (the opposite of how <b>PedalChord</b> behaves)</summary>
 
       - Shows chord being played without pedal, behaving like **Chord**
       - Shows chord being played with pedal, behaving like **Single**
       
-      https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/e7476182-4f74-4e8a-91f5-d8d8d5784288
+      https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/c3c95c70-6d19-4f3e-bf65-5b201f04fd1e
+
       </details>
 - <details><summary>Specify custom alterations for notes within a scale/octave</summary>
 
   - Shows every C being replaced by `YO`
   - Shows every B being replaced by `BYE`
-  
-  https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/8e4933a1-9edc-4a48-8d2a-5bbee7f80976
+
+  https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/25768d2f-2940-43b2-9c19-5e5c774723c2
+
   </details>
 - <details><summary>Specify custom alterations across all notes of the MIDI device</summary>
 
   - Shows one specific C being replaced by `YO`
   - Shows one specific B being replaced by `BYE`
 
-  https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/dc6287a6-2146-400e-a8a3-68743d67aeb5
+  https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/1ace10b7-6eea-4b5b-8184-ec2952ff0429
+
   </details>
 - List all available MIDI input devices
 - Specific handling of input/output for [integration into other editors](#specifications-for-integration-into-editors)
