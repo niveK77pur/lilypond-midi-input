@@ -131,13 +131,22 @@ See also points from [TODO](#todo).
 
 # Installation
 
-As of now, you have to clone this repository and install it manually using the following command. You will need [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) and [PortMidi](https://github.com/PortMidi/PortMidi) installed, nothing else should be required.
+You will need [PortMidi](https://github.com/PortMidi/PortMidi) installed, regardless of the installation method. Note the `libportmidi-dev` package should only be needed for Ubuntu when building from source.
 
 ```shell
 pacman -S portmidi # for arch
-apt install libportmidi0 libportmidi-dev # for ubuntu
+apt install libportmidi0 libportmidi-dev # for debian/ubuntu
 ```
-Then finally build/install.
+
+## Pre-built binaries
+
+The [latest release](https://github.com/niveK77pur/lilypond-midi-input/releases/latest) will contain pre-built binaries (different versions due to the PortMidi system library):
+- [Debian](https://github.com/niveK77pur/lilypond-midi-input/releases/download/latest/lilypond-midi-input_debian), should also work on Ubuntu
+- [Arch Linux](https://github.com/niveK77pur/lilypond-midi-input/releases/download/latest/lilypond-midi-input_archlinux)
+
+## Build from source
+
+You will need [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) and [PortMidi](https://github.com/PortMidi/PortMidi) installed to build the project.
 
 ```shell
 cargo install --path . # inside this repository
