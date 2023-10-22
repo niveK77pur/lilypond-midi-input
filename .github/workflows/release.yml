@@ -18,7 +18,7 @@ jobs:
           workflow: rust.yml
       - run: |
           cp lmi-ubuntu/target/release/lilypond-midi-input .
-          cp lmi-ubuntu/changelog .
+          cp -r lmi-ubuntu/changelog .
       - name: Get version
         id: version
         run: |
