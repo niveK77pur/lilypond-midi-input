@@ -6,7 +6,6 @@ on:
     types: [completed]
     branches: [ "master" ]
 
-# TODO: get version for tag (fail if tags exists)
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -24,6 +23,17 @@ jobs:
           sudo apt install -y libportmidi0
           chmod +x lilypond-midi-input
           echo "VERSION=v$(lilypond-midi-input --version | grep -oP '[0-9]+\.[0-9]+\.[0-9]+$')" >> $GITHUB_OUTPUT
+      - uses: mukunku/tag-exists-action@v1.4.0
+        id: checkTag
+        with:
+          tag: ${{ steps.version.outputs.VERSION }}
+      - name: Verify tag does not exist yet
+        run: |
+          case ${{ steps.checkTag.outputs.exists }} in
+            false) echo "Tag does not exist yet";;
+            true) echo "Tag already exists! Did you forget to update it?"; exit 1;;
+            *) echo "Unknown check tag output"; exit 2;;
+          esac
       - name: Create CHANGELOG.latest file
         run: cp "$(ls -v lmi-ubuntu/changelog/* | tail -1)" CHANGELOG.latest
       - name: Release
