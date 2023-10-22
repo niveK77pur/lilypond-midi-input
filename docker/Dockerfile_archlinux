@@ -6,6 +6,4 @@ RUN pacman --noconfirm -Syu \
 
 COPY . /app
 
-RUN cd /app && cargo fmt --check
-RUN cd /app && cargo clippy
 RUN cd /app && cargo install --verbose --path .

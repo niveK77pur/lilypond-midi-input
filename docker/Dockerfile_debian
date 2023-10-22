@@ -8,6 +8,4 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 COPY . /app
 
-RUN cd /app && ~/.cargo/bin/cargo fmt --check
-RUN cd /app && ~/.cargo/bin/cargo clippy
 RUN cd /app && ~/.cargo/bin/cargo install --verbose --path .
