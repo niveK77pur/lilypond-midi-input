@@ -23,7 +23,9 @@ jobs:
     - name: Formatting
       run: cargo fmt --check
     - name: Clippy
-      run: cargo clippy --verbose
+      run: cargo clippy
+    - name: Test
+      run: cargo test
 
   build-debian:
     needs: check
