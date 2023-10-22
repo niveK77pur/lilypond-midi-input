@@ -1,0 +1,13 @@
+FROM archlinux:latest
+
+RUN pacman --noconfirm -Syu \
+    && pacman --noconfirm -S portmidi rustup gcc \
+    && rustup default stable
+
+COPY . /app
+
+RUN cd /app && cargo fmt --check
+RUN cd /app && cargo clippy
+RUN cd /app && cargo install --verbose --path . \
+    && mkdir -p /github/workspace \
+    && ln -s ~/.cargo/bin/lilypond-midi-input /github/workspace/
