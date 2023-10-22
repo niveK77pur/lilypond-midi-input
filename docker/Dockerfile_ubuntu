@@ -5,12 +5,11 @@ RUN apt install -y libportmidi0 libportmidi-dev curl gcc
 
 ENV PATH="$HOME/.cargo/bin:${PATH}"
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-# RUN rustup default stable
 
 COPY . /app
 
-WORKDIR /app
-
-RUN ~/.cargo/bin/cargo fmt --check
-RUN ~/.cargo/bin/cargo clippy
-RUN ~/.cargo/bin/cargo install --verbose --path .
+RUN cd /app && ~/.cargo/bin/cargo fmt --check
+RUN cd /app && ~/.cargo/bin/cargo clippy
+RUN cd /app && ~/.cargo/bin/cargo install --verbose --path . \
+    && mkdir -p /github/workspace \
+    && cp ~/.cargo/bin/lilypond-midi-input /github/workspace/lilypond-midi-input_debian
