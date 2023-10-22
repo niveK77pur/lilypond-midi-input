@@ -6,4 +6,4 @@ RUN pacman --noconfirm -Syu \
 
 COPY . /app
 
-RUN cd /app && cargo install --verbose --path .
+RUN cd /app && cargo install --path .
