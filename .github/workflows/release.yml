@@ -16,7 +16,9 @@ jobs:
       - uses: dawidd6/action-download-artifact@v2
         with:
           workflow: rust.yml
-      - run: cp lmi-ubuntu/target/release/lilypond-midi-input .
+      - run: |
+          cp lmi-ubuntu/target/release/lilypond-midi-input .
+          cp lmi-ubuntu/changelog .
       - name: Get version
         id: version
         run: |
@@ -35,7 +37,7 @@ jobs:
             *) echo "Unknown check tag output"; exit 2;;
           esac
       - name: Create CHANGELOG.latest file
-        run: cp "$(ls -v lmi-ubuntu/changelog/* | tail -1)" CHANGELOG.latest
+        run: cp "$(ls -v changelog/* | tail -1)" CHANGELOG.latest
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
