@@ -12,16 +12,16 @@ env:
 
 jobs:
   check:
-    uses: niveK77pur/lilypond-midi-input/blob/master/.github/workflows/check.yml
+    uses: niveK77pur/lilypond-midi-input/blob/master/.github/workflows/check.yml@master
 
   build-debian:
     needs: check
-    uses: niveK77pur/lilypond-midi-input/blob/master/.github/workflows/docker-build.yml
+    uses: niveK77pur/lilypond-midi-input/blob/master/.github/workflows/docker-build.yml@master
     with:
       arch: debian
 
   build-archlinux:
     needs: check
-    uses: niveK77pur/lilypond-midi-input/blob/master/.github/workflows/docker-build.yml
+    uses: niveK77pur/lilypond-midi-input/blob/master/.github/workflows/docker-build.yml@master
     with:
       arch: archlinux

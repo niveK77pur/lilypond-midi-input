@@ -12,4 +12,4 @@ env:
 
 jobs:
   check:
-    uses: niveK77pur/lilypond-midi-input/blob/master/.github/workflows/check.yml
+    uses: niveK77pur/lilypond-midi-input/blob/master/.github/workflows/check.yml@master
