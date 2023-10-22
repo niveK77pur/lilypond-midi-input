@@ -1,0 +1,14 @@
+on:
+  workflow_call:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Formatting
+        run: cargo fmt --check
+      - name: Clippy
+        run: cargo clippy
+      - name: Test
+        run: cargo test

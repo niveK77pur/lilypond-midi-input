@@ -6,26 +6,13 @@ on:
     paths:
       - 'src/**'
       - 'Cargo.*'
-  pull_request:
-    branches: [ "master" ]
-    paths:
-      - 'src/**'
-      - 'Cargo.*'
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   check:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Formatting
-      run: cargo fmt --check
-    - name: Clippy
-      run: cargo clippy
-    - name: Test
-      run: cargo test
+    uses: niveK77pur/lilypond-midi-input/blob/master/.github/workflows/check.yml
 
   build-debian:
     needs: check
