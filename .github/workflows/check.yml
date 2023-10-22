@@ -11,4 +11,6 @@ jobs:
       - name: Clippy
         run: cargo clippy
       - name: Test
-        run: cargo test
+        run: |
+          sudo apt install libportmidi0 libportmidi-dev
+          cargo test --release
