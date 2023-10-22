@@ -3,9 +3,9 @@ name: Rust
 on:
   push:
     branches: [ "master" ]
-    # paths:
-    #   - 'src/**'
-    #   - 'Cargo.*'
+    paths:
+      - 'src/**'
+      - 'Cargo.*'
   pull_request:
     branches: [ "master" ]
     paths:
