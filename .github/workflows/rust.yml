@@ -16,36 +16,12 @@ jobs:
 
   build-debian:
     needs: check
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build docker image
-      run: docker build -t lmi-debian:latest -f docker/Dockerfile_debian .
-    - name: Get binary from docker container
-      run: |
-          docker create --name lmi lmi-debian:latest
-          docker cp lmi:/root/.cargo/bin/lilypond-midi-input lilypond-midi-input_debian
-    - uses: actions/upload-artifact@v3
-      with:
-        name: lmi-debian
-        path: |
-          lilypond-midi-input_debian
-          changelog
+    uses: niveK77pur/lilypond-midi-input/blob/master/.github/workflows/docker-build.yml
+    with:
+      arch: debian
 
   build-archlinux:
     needs: check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build docker image
-        run: docker build -t lmi-arch:latest -f docker/Dockerfile_archlinux .
-      - name: Get binary from docker container
-        run: |
-          docker create --name lmi lmi-arch:latest
-          docker cp lmi:/root/.cargo/bin/lilypond-midi-input lilypond-midi-input_archlinux
-      - uses: actions/upload-artifact@v3
-        with:
-          name: lmi-archlinux
-          path: |
-            lilypond-midi-input_archlinux
-            changelog
+    uses: niveK77pur/lilypond-midi-input/blob/master/.github/workflows/docker-build.yml
+    with:
+      arch: archlinux

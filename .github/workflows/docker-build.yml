@@ -1,0 +1,26 @@
+---
+
+on:
+  workflow_call:
+    inputs:
+      arch:
+        required: true
+        type: string
+
+jobs:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build docker image
+        run: docker build -t lmi-img:latest -f docker/Dockerfile_${{ inputs.arch }} .
+      - name: Get binary from docker container
+        run: |
+            docker create --name lmi lmi-img:latest
+            docker cp lmi:/root/.cargo/bin/lilypond-midi-input lilypond-midi-input_${{ inputs.arch }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: lmi-${{ inputs.arch }}
+          path: |
+            lilypond-midi-input_${{ inputs.arch }}
+            changelog
