@@ -18,15 +18,15 @@ jobs:
           workflow: rust.yml
       - run: |
           ls -l *
-          cp lmi-ubuntu/target/release/lilypond-midi-input .
+          cp lmi-debian/lilypond-midi-input_debian .
           cp lmi-archlinux/lilypond-midi-input_archlinux .
-          cp -r lmi-ubuntu/changelog .
+          cp -r lmi-archlinux/changelog .
       - name: Get version
         id: version
         run: |
           sudo apt install -y libportmidi0
-          chmod +x lilypond-midi-input
-          echo "VERSION=v$(./lilypond-midi-input --version | grep -oP '[0-9]+\.[0-9]+\.[0-9]+$')" >> $GITHUB_OUTPUT
+          chmod +x lilypond-midi-input_debian
+          echo "VERSION=v$(./lilypond-midi-input_debian --version | grep -oP '[0-9]+\.[0-9]+\.[0-9]+$')" >> $GITHUB_OUTPUT
       - uses: mukunku/tag-exists-action@v1.4.0
         id: checkTag
         with:
@@ -46,6 +46,6 @@ jobs:
           tag_name: ${{ steps.version.outputs.VERSION }}
           body_path: CHANGELOG.latest
           files: |
-            lilypond-midi-input
+            lilypond-midi-input_debian
             lilypond-midi-input_archlinux
 

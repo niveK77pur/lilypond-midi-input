@@ -25,22 +25,22 @@ jobs:
     - name: Clippy
       run: cargo clippy --verbose
 
-  build:
+  build-debian:
     needs: check
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Build
+    - name: Build docker image
+      run: docker build -t lmi-debian:latest -f docker/Dockerfile_debian .
+    - name: Get binary from docker container
       run: |
-        sudo apt install libportmidi0 libportmidi-dev
-        cargo build --release --verbose
-    - name: Run tests
-      run: cargo test --release --verbose
+          docker create --name lmi lmi-debian:latest
+          docker cp lmi:/root/.cargo/bin/lilypond-midi-input lilypond-midi-input_debian
     - uses: actions/upload-artifact@v3
       with:
-        name: lmi-ubuntu
+        name: lmi-debian
         path: |
-          target/release/lilypond-midi-input
+          lilypond-midi-input_debian
           changelog
 
   build-archlinux:
