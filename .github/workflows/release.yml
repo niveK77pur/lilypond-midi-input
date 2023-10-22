@@ -24,7 +24,7 @@ jobs:
         run: |
           sudo apt install -y libportmidi0
           chmod +x lilypond-midi-input
-          echo "VERSION=v$(lilypond-midi-input --version | grep -oP '[0-9]+\.[0-9]+\.[0-9]+$')" >> $GITHUB_OUTPUT
+          echo "VERSION=v$(./lilypond-midi-input --version | grep -oP '[0-9]+\.[0-9]+\.[0-9]+$')" >> $GITHUB_OUTPUT
       - uses: mukunku/tag-exists-action@v1.4.0
         id: checkTag
         with:
