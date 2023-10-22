@@ -141,8 +141,8 @@ apt install libportmidi0 libportmidi-dev # for debian/ubuntu
 ## Pre-built binaries
 
 The [latest release](https://github.com/niveK77pur/lilypond-midi-input/releases/latest) will contain pre-built binaries (different versions due to the PortMidi system library):
-- [Debian](https://github.com/niveK77pur/lilypond-midi-input/releases/download/latest/lilypond-midi-input_debian), should also work on Ubuntu
-- [Arch Linux](https://github.com/niveK77pur/lilypond-midi-input/releases/download/latest/lilypond-midi-input_archlinux)
+- [Debian](https://github.com/niveK77pur/lilypond-midi-input/releases/latest/download/lilypond-midi-input_debian), should also work on Ubuntu
+- [Arch Linux](https://github.com/niveK77pur/lilypond-midi-input/releases/latest/download/lilypond-midi-input_archlinux)
 
 ## Build from source
 
