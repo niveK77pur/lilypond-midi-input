@@ -17,7 +17,6 @@ jobs:
         with:
           workflow: rust.yml
       - run: |
-          ls -l *
           cp lmi-debian/lilypond-midi-input_debian .
           cp lmi-archlinux/lilypond-midi-input_archlinux .
           cp -r lmi-archlinux/changelog .
