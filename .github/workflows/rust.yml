@@ -38,4 +38,6 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: lmi-ubuntu
-        path: target/release/lilypond-midi-input
+        path: |
+          target/release/lilypond-midi-input
+          changelog
