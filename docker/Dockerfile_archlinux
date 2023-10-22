@@ -8,6 +8,4 @@ COPY . /app
 
 RUN cd /app && cargo fmt --check
 RUN cd /app && cargo clippy
-RUN cd /app && cargo install --verbose --path . \
-    && mkdir -p /github/workspace \
-    && cp ~/.cargo/bin/lilypond-midi-input /github/workspace/lilypond-midi-input_archlinux
+RUN cd /app && cargo install --verbose --path .
