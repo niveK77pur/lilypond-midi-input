@@ -17,7 +17,9 @@ jobs:
         with:
           workflow: rust.yml
       - run: |
+          ls -l *
           cp lmi-ubuntu/target/release/lilypond-midi-input .
+          cp lmi-archlinux/lilypond-midi-input_archlinux .
           cp -r lmi-ubuntu/changelog .
       - name: Get version
         id: version
@@ -43,5 +45,7 @@ jobs:
         with:
           tag_name: ${{ steps.version.outputs.VERSION }}
           body_path: CHANGELOG.latest
-          files: lilypond-midi-input
+          files: |
+            lilypond-midi-input
+            lilypond-midi-input_archlinux
 

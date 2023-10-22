@@ -41,3 +41,21 @@ jobs:
         path: |
           target/release/lilypond-midi-input
           changelog
+
+  build-archlinux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build docker image
+        run: docker build -t lmi-arch:latest -f docker/Dockerfile_archlinux .
+      - name: Create docker container
+        run: |
+          ls -l ${{ github.workspace }}
+          docker create --name lmi lmi-arch:latest
+          ls -l ${{ github.workspace }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: lmi-archlinux
+          path: |
+            ${{ github.workspace }}/lilypond-midi-input_archlinux
+            changelog
