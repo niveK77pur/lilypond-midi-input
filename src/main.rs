@@ -304,7 +304,7 @@ fn main() {
                                 }
                                 for galt in galts {
                                     let (note, value) = galt;
-                                    eprintln!(">> Update global-alteration={:?}:{:?}", note, value);
+                                    echoinfo!("Update global-alteration={:?}:{:?}", note, value);
                                     params.add_global_alteration(note, value);
                                 }
                             }
