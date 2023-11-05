@@ -310,7 +310,7 @@ The option keys are the exact same as the command line flags but with the leadin
     <tr>
         <td>global-alterations</td>
         <td>galt</td>
-        <td>Same as <code>alterations</code>, without the integer constraint, and without the ottavation adjustments.</td>
+        <td>Same as <code>alterations</code>, without the integer constraint, and without the ottavation adjustments. You can determine the integers using the flag to display raw midi events.</td>
         <td>Set custom alterations over all MIDI notes; further overrides <code>alterations</code> and key signatures. The numbers indicate the MIDI value attributed to said note. No ottavation marks (<code>'</code> or <code>,</code>) are applied.</td>
         <td><code>60:hello</code> will only make middle C print a <code>hello</code>.</td>
     </tr>
