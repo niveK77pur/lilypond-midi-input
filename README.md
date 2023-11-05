@@ -259,7 +259,7 @@ Using this method to display choices to in the editor should be preferred as it 
 
 All flags and the values they can take are shown when running the program with the `--help` flag. Thus, they will not be further discussed.
 
-Of importance to point out are the values expected by `--alerations` and `--global-alterations`. Both of these take a list of comma-separated subkey-subvalue pairs, which are mentioed in [a previous section](#changing-options). More concrete details are given in [the table](#options-for-stdin).
+Of importance to point out are the values expected by `--alerations` and `--global-alterations`. Both of these take a list of comma-separated subkey-subvalue pairs, which are mentioned in [a previous section](#changing-options). More concrete details are given in [the table](#options-for-stdin).
 
 ## Options for stdin
 
