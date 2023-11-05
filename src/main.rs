@@ -42,6 +42,7 @@ fn main() {
                 .exclusive(true)
                 .action(ArgAction::Set)
                 .value_parser(["key", "accidentals", "mode"]),
+            arg!(--"raw-midi" "Display raw MIDI events instead of LilyPond notes"),
         ])
         .get_matches();
     let re_keyval =
@@ -138,6 +139,13 @@ fn main() {
         let mut pedals: BTreeSet<MidiNote> = BTreeSet::new();
         // track last chord inserted (to insert a 'q' on repetition)
         let mut last_chord: Option<BTreeSet<MidiNote>> = None;
+        if *matches.get_one::<bool>("raw-midi").unwrap_or(&false) {
+            port.listen(|event| {
+                output!("{:?}", event);
+            })
+            .expect("Polling for new messages works.");
+            return;
+        }
         port.listen_mut(|event| {
             let mut params = parameters.lock().expect("Received the mutex lock");
             let use_chords: bool = match params.mode() {
