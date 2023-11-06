@@ -8,6 +8,8 @@
 :u-portmidi: https://github.com/PortMidi/PortMidi
 :u-cargo: https://doc.rust-lang.org/cargo/getting-started/installation.html
 
+:f-macros: link:./src/lily/macros.rs
+
 :videoicon: 🎬
 :videoattr: width=100%, opts=autoplay
 
@@ -264,17 +266,50 @@ KEY1=VALUE1 KEY2=VALUE2 KEY3=SUBKEY1:SUBVALUE1,SUBKEY2:SUBVALUE2
 [#specifications-for-integration-into-editors]
 == Specifications for integration into editors
 
+The interaction with this tool happens fully through stdin, stdout and stderr. Here is how each of these streams are used by this tool, allowing you to properly integrate it into your editor.
+
 [#managing-the-process]
 === Managing the process
+
+Spawning the process is ideally done by your editor, so that it can properly manage all the input and output streams.
+
+Specifics on how to interact with each stream is of course dependent on the editor and its capabilities. You can have a look at <<integrations, existing integrations>> for some examples and inspiration.
+
+IMPORTANT: The tool is not capable of exiting by itself (i.e. there is no `exit` command for example). That said, you should try to kill the process in question, which should ideally be done by your editor.
 
 [#stdin]
 === stdin
 
+As mentioned in <<changing-options>>, the stdin solely takes settings as key-value pairs. Upon successful parsing, the corresponding option will be set/updated internally. A corresponding message will also be written to stderr.
+
+For options and their values, please check the <<options, following section>>; for usage examples please check the section <<changing-options>>.
+
+IMPORTANT: If the program is not responding to inputs being sent through stdin, it is possible that you have provided an invalid option which is simply not being parsed and captured. Or, it is possible that your editor also needs to *add a newline* at the end of the message, in order to trigger Rust to actually read the input line.
+
 [#stdout]
 === stdout
 
+This stream should only output data relevant to the task at hand. In the case of `--list-devices`, it will be the list of devices. In the case of a normal execution, stdout will only have LilyPond notes printed as you input notes through your MIDI keyboard.
+
+That said, stdout can be taken as-is. A user could for example be prompted to pick a MIDI device based on the output of `--list-devices`. Most importantly, during normal execution the outputted LilyPond notes can be taken as-is in order to have them inserted into your text editor.
+
 [#stderr]
 === stderr
+
+This stream contains any other message/information that the tool wants to share but should not be taken as text input by the editor. Currently, this counts general information such as a startup message, and indications that values were updated correctly via stdin. In case an option via stdin was invalid, an error message will also be written to stderr.
+
+Errors are printed using the `echoerr!` macro, while other information is printed using the `echoinfo!` macro, the definition of both are found in {f-macros}[this file]. They prefix each line with a `!!` and `::` respectively. This allows your client/editor to filter the messages from stderr according to actual errors or simple information.
+
+[#providing-a-list-of-options-to-the-user]
+=== Providing a list of options to the user
+
+The program also provides a `--list-options` flag, which list all available values for a given argument to stdout. The options are space separated, and no particular effort is made towards providing a well typeset output (i.e. as a tabular); the editors should decide how to treat the information.
+
+The first value in the line corresponds to the actual enum variant's name in the Rust code. The second value corresponds to the primary string from which the variant can be created. All following values are additional strings -- usually shorthands -- which can also be used to describe an enum variant. (See also <<options-for-stdin, the table>>).
+
+All the values (without any `"` or `'`) can be used as-is to set an option via stdin. The second value can be used to set options via the command line arguments.
+
+Using this method to display choices in the editor should be preferred as it avoids hardcoding the values. Further, if values should change, be added, or removed, it will require no intervention in the editor, as this tool can list its own options.
 
 [#options]
 == Options
