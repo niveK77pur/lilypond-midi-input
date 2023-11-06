@@ -1,0 +1,295 @@
+// :source-highlighter: highlight.js
+:source-highlighter: rouge
+
+:u-lilypond: https://lilypond.org/
+:u-lilypond-absolute-octave: https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#absolute-octave-entry
+:u-frescobaldi: https://frescobaldi.org/
+:u-nvim-midi: https://github.com/niveK77pur/midi-input.nvim
+:u-portmidi: https://github.com/PortMidi/PortMidi
+:u-cargo: https://doc.rust-lang.org/cargo/getting-started/installation.html
+
+:videoicon: 🎬
+:videoattr: width=100%, opts=autoplay
+
+:toc:
+= Real-Time MIDI to LilyPond Notes
+
+Standalone tool reading input from a MIDI device and converting them into LilyPond notes, with integration into other tools as a strong focus.
+
+[#about]
+== About
+
+This is a tool specifically targeted at writing {u-lilypond}[LilyPond] scores. Entering notes using a MIDI keyboard is very handy and can greatly speed up the process, for which I always used {u-frescobaldi}[Frescobaldi]. There was an issue however -- I already had a fully personalized setup for writing LilyPond in my text editor of choice, yet always found myself going back to Frescobaldi for the MIDI input; as a result, I ended up writing my scores in Frescobaldi, even beyond the MIDI input. (Frescobaldi is great though!)
+
+`lilypond-midi-input` aims to bridge the gap between MIDI input for LilyPond notes, and any arbitrary text editor which supports async inputs. The idea is that this tool will listen for MIDI inputs from a device, and will transform them into corresponding LilyPond notes that can directly be inserted into your LilyPond files!
+
+This is a standalone program which does just that: Read MIDI inputs from a device, and spit out LilyPond notes onto stdout. This will hopefully make integration into other editors easier. <<basic-usage, Basic usage>> walks through how the program works. For those wishing to integrate this into their editors, please take a look at the <<specifications-for-integration-into-editors, specifications>> on how to handle the input and output streams.
+
+[#non-goals]
+== Non-goals
+
+Fully automate text input for LilyPond notes is not an objective for this tool. This means for example that adding note durations will not be handled here. Automatically detecting rhythm during playback is therefore also not an objective of this tool. Such features should be provided/created by wrappers.
+
+Again, the main goal here is to provide translation of MIDI notes into LilyPond notes, and as a result make MIDI input easier to integrate into other editors.
+
+[#features]
+== Features
+
+* All notes on a keyboard are translated to LilyPond notes with {u-lilypond-absolute-octave}[absolute octave entry]
++
+[%collapsible]
+.Demo Video {videoicon}
+====
+=====
+A chromatic scale being played across the entire piano, with their corresponding LilyPond notes being output.
+
+video::https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/73df64d5-a655-419b-83ac-b1c9ec716c68[{videoattr}]
+=====
+====
+
+* Specify musical key signatures to influence how accidentals (black keys) are interpreted
++
+[%collapsible]
+.Demo Video {videoicon}
+====
+=====
+Shows the following keys
+
+*** C major
+*** A minor (harmonic minor), note the G sharp note
+*** B major, note all black keys being sharps
+*** G sharp minor (harmonic minor), note the G natural being output as F double-sharp
+*** C flat major, note all black keys being flats
+*** B flat minor (harmonic minor)
+
+video::https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/f497f7fb-b359-47de-8989-aebc5b036c00[{videoattr}]
+=====
+====
+
+* Specify how to handle accidentals outside a key signature (fall back to sharps or flats)
++
+[%collapsible]
+.Demo Video {videoicon}
+====
+=====
+*** Example in *F major* which has a B flat
++
+video::https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/73929e51-cbc8-446d-8134-a693d13d0a5c[{videoattr}]
+
+*** Example in *G major* which has an F sharp 
++
+video::https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/7f6e7d9e-98aa-4542-aeb7-51b9ad6c1644[{videoattr}]
+=====
+====
+
+* Different input modes
+
+** *Single*: Input one note at a time
++
+[%collapsible]
+.Demo Video {videoicon}
+====
+=====
+*** Shows a scale being played
+*** Shows a chord being played and how it inserts only single notes (even if all are held)
+*** Shows long held notes to highlight that notes are inserted as soon as key is *pressed*
+
+video::https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/488a5208-3380-4b0a-a1bf-7a1492855e73[{videoattr}]
+=====
+====
+
+** *Chord*: Allow inputting chords by holding down multiple keys at once
++
+[%collapsible]
+.Demo Video {videoicon}
+====
+=====
+*** Shows a chord being played and how it is inserted after releasing the keys
+*** Shows notes being held, while pressing new ones and releasing others, highlighting that notes will be aggregated until everything is released
+*** Shows long held notes to highlight notes are inserted as soon as all keys are *released*
+
+video::https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/7c90c9f5-005e-42c9-ad3b-84d9c1fdd41f[{videoattr}]
+=====
+====
+
+** *PedalChord*: Behave like *Chord* when any piano pedal is pressed, otherwise behave like *Single*
++
+[%collapsible]
+.Demo Video {videoicon}
+====
+=====
+*** Shows chord being played without pedal, behaving like *Single*
+*** Shows chord being with pedal, behaving like **Chord*
+
+video::https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/0d85ebc8-bc4e-45e0-affe-1b81cf1959df[{videoattr}]
+=====
+====
+
+** *PedalSingle*: Behave like *Single* when any piano pedal is pressed, otherwise behave like *Chord* (the opposite of how *PedalChord* behaves)
++
+[%collapsible]
+.Demo Video {videoicon}
+====
+=====
+*** Shows chord being played without pedal, behaving like **Chord**
+*** Shows chord being played with pedal, behaving like **Single**
+
+video::https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/c3c95c70-6d19-4f3e-bf65-5b201f04fd1e[{videoattr}]
+=====
+====
+
+* Specify custom alterations for notes within a scale/octave
++
+[%collapsible]
+.Demo Video {videoicon}
+====
+=====
+*** Shows every C being replaced by `YO`
+*** Shows every B being replaced by `BYE`
+
+video::https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/25768d2f-2940-43b2-9c19-5e5c774723c2[{videoattr}]
+=====
+====
+
+* Specify custom alterations across all notes of the MIDI device
++
+[%collapsible]
+.Demo Video {videoicon}
+====
+=====
+*** Shows one specific C being replaced by `YO`
+*** Shows one specific B being replaced by `BYE`
+
+video::https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/1ace10b7-6eea-4b5b-8184-ec2952ff0429[{videoattr}]
+=====
+====
+
+* List all available MIDI input devices
+
+* Specific handling of input/output for <<specifications-for-integration-into-editors, integration into other editors>>
+** *stdout* for relevant ouptut
+** *stderr* for sharing messages from the tool
+** *stdin* to asynchronously take options to change <<options-for-stdin, settings>> on-the-fly
+
+
+[#installation]
+== Installation
+
+You will need https://github.com/PortMidi/PortMidi[PortMidi] installed, regardless of the installation method. Note the `libportmidi-dev` package should only be needed for Ubuntu when building from source.
+
+[,sh]
+----
+pacman -S portmidi # for arch
+apt install libportmidi0 libportmidi-dev # for debian/ubuntu
+----
+
+[#pre-built-binaries]
+=== Pre-built binaries
+
+The https://github.com/niveK77pur/lilypond-midi-input/releases/latest[latest release] will contain pre-built binaries (different versions due to the PortMidi system library).
+
+* https://github.com/niveK77pur/lilypond-midi-input/releases/latest/download/lilypond-midi-input_debian[Debian], should also work on Ubuntu
+* https://github.com/niveK77pur/lilypond-midi-input/releases/latest/download/lilypond-midi-input_archlinux[Arch Linux]
+
+NOTE: Be sure to make the binaries available as `lilypond-midi-input` on your system, without the `++_*++` _extension_. That one was only useful to distinguish the different versions in the release assets.
+
+[#build-from-source]
+=== Build from source
+
+You will need {u-cargo}[cargo] and {u-portmidi}[PortMidi] installed to build the project. The binary will be installed as `lilypond-midi-input`.
+
+[,sh]
+----
+cargo install --path . # inside this repository
+----
+
+[#basic-usage]
+== Basic Usage
+
+A comprehensive overview of settings and features can be found using the help page. More information can be found <<options, in a later section>>.
+
+[,sh]
+----
+lilypond-midi-input --help
+----
+
+First, you need to specify which MIDI input device this tool should listen to. You can use the following command to get a list of available input devices. Take note of the name for the device of interest, we need to give it to the program to actually run it.
+
+[,sh]
+----
+$ lilypond-midi-input --list-devices
+1) Input: Midi Through Port-0
+3) Input: USB-MIDI MIDI 1
+4) Input: out
+----
+
+Let's say we are interested in the input device listed as number 3 here. You can finally run the tool as follows.
+
+[,sh]
+----
+lilypond-midi-input "USB-MIDI MIDI 1"
+----
+
+NOTE: The name must be an exact match! Leading and trailing spaces in the name are ignored.
+
+To exit, you can simply press `Ctrl+C`.
+
+[#providing-options]
+=== Providing Options
+
+As indicated by the `--help` page, you can pass various options via command line flags, which shall not be elaborated on further. It should be mentioned that using command line flags will set the options on start-up and also provides a bit more helpful error messages if arguments are invalid.
+
+The next method discussed will launch the program (with its default values), and allow changing options later. Practically speaking, there really is no major difference between the two methods. If your editor cannot write to this program's stdin stream, you can use these flags as a workaround to relaunch with new settings.
+
+[#changing-options]
+=== Changing options
+
+This tool also allows changing/setting the options on-the-fly without restarting the program. To do this, you can directly type into the program's stdin! Meaning that while the program is running, you can simply type commands into the terminal.
+
+Upon successful parsing and execution of the given setting, the program will write a message to stderr, either indicating success or possibly indicating errors. As far as possible, the program tries to inform what has happened (through stderr), as otherwise it is difficult to judge whether the provided settings in stdin where handled correctly or not.
+
+All options here have long and short versions, which the latter are particularly useful when manually typing in the commands into the terminal. A list of options and their values can be found in a <<options, later section>>.
+
+The settings are given in the following form. You can specify one option at a time, or you can provide multiple options at once. A key that takes nested key-value pairs has its value given as `SUBKEY:SUBVALUE` and are comma separated (without spaces). Here are some examples to hopefully clarify.
+
+NOTE: Different options are *space separated*; so currently the values may not contain any spaces. 
+
+----
+KEY1=VALUE1
+KEY3=SUBKEY1:SUBVALUE1,SUBKEY2:SUBVALUE2
+KEY1=VALUE1 KEY2=VALUE2
+KEY1=VALUE1 KEY2=VALUE2 KEY3=SUBKEY1:SUBVALUE1,SUBKEY2:SUBVALUE2
+----
+
+[#specifications-for-integration-into-editors]
+== Specifications for integration into editors
+
+[#managing-the-process]
+=== Managing the process
+
+[#stdin]
+=== stdin
+
+[#stdout]
+=== stdout
+
+[#stderr]
+=== stderr
+
+[#options]
+== Options
+
+[#command-line-arguments]
+=== Command Line Arguments
+
+[#options-for-stdin]
+=== Options for stdin
+
+[#integrations]
+== Integrations
+
+[#see-also]
+== See also
+
+[#todo]
+== TODO
