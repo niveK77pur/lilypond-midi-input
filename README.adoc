@@ -386,8 +386,25 @@ h| Short
 [#integrations]
 == Integrations
 
+[#neovim]
+=== NeoVim
+
+I have written my own {u-nvim-midi}[Neovim plugin] which uses this tool to allow inputting notes asynchronously using a MIDI keyboard in Neovim! It also follows Vim's modal philosophy and only inserts notes in _Insert mode_, and allows replacing notes in _Replace mode_!
+
 [#see-also]
 == See also
 
+* MIDI input for LilyPond, able to quantize notes on the fly using a metronome: https://directory.fsf.org/wiki/Rumor
+* Another LilyPond MIDI input tool: https://github.com/nicolodavis/lilypond-midi-input
+* A proper CLI midi player: https://gitlab.com/dajoha/midiplay
+
 [#todo]
 == TODO
+
+* [ ] Generate notes for https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#relative-octave-entry[relative octave entry]
+* [x] https://lilypond.org/doc/v2.24/Documentation/notation/single-voice#chord-repetition[Repeated chords] should return `q`
+* [x] List all currently set (global) alterations
+* [x] List all options for a setting (avoids hardcoding them into editors)
+* [x] Simple screencast to show how this looks in action (under [features](#features))
+* [x] Debug option/mode to see raw midi events
+* [x] Specify ottavation for alterations (i.e. `0=bis` will cause the note to always be one octave too high)
