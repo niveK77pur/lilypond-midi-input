@@ -340,7 +340,7 @@ The option keys are the exact same as the command line flags but without the lea
 h| Long
 h| Short
 
-| key [[option-key]]
+| key [[options-key]]
 | k
 | Can take all strings and enum variant names in the {f-keysignature}[list of available keysignatures]
 | Affects how accidentals will be printed depending on the given key signature. In GMajor, an F♯/G♭ will always be printed as `fis` no matter the value of `accidentals`. This can be overridden by alterations.
