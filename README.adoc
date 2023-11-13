@@ -8,6 +8,16 @@
 :u-portmidi: https://github.com/PortMidi/PortMidi
 :u-cargo: https://doc.rust-lang.org/cargo/getting-started/installation.html
 
+:u-feature-demo-vim-modes: {u-nvim-midi}#feature-demo-vim-modes
+:u-feature-demo-cursor-placement: {u-nvim-midi}#feature-demo-cursor-placement
+:u-feature-demo-spacing: {u-nvim-midi}#feature-demo-spacing
+:u-feature-demo-replace-q: {u-nvim-midi}#feature-demo-replace-q
+:u-feature-demo-list-devices: {u-nvim-midi}#feature-demo-list-devices
+:u-feature-demo-update-menu: {u-nvim-midi}#feature-demo-update-menu
+:u-feature-demo-previous-chord: {u-nvim-midi}#feature-demo-previous-chord
+:u-feature-demo-previous-key: {u-nvim-midi}#feature-demo-previous-key
+:u-feature-demo-lmi-options: {u-nvim-midi}#feature-demo-lmi-options
+
 :f-macros: link:./src/lily/macros.rs
 :f-keysignature: link:./src/lily/keysignature.rs
 :f-accidentals: link:./src/lily/accidentals.rs
@@ -374,7 +384,7 @@ h| Short
 | pc
 | Colon (`:`) separated list of {u-lilypond-absolute-octave}[absolute LilyPond note] strings. Or `clear` to unset the previous chord.
 | Explicitly specify a chord which will yield `q` upon repeating. Useful when jumping around the file, and the tool does or does not return `q` appropriately.
-| `pc=c,:eis':g` will set `<c, g eis'>` as the previous chord. `pc=clear` will unset/forget the previous chord.
+| `pc=c,:eis':g` will set `<c, g eis'>` as the previous chord. `pc=clear` will unset/forget the previous chord. Also see {u-feature-demo-previous-chord}[demo video].
 
 | list [[options-list]]
 |
