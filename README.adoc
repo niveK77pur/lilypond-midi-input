@@ -18,6 +18,7 @@
 :u-feature-demo-previous-key: {u-nvim-midi}#feature-demo-previous-key
 :u-feature-demo-lmi-options: {u-nvim-midi}#feature-demo-lmi-options
 
+:f-flake: link:./flake.nix
 :f-macros: link:./src/lily/macros.rs
 :f-keysignature: link:./src/lily/keysignature.rs
 :f-accidentals: link:./src/lily/accidentals.rs
@@ -190,7 +191,7 @@ video::https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/1ace10b
 [#installation]
 == Installation
 
-You will need https://github.com/PortMidi/PortMidi[PortMidi] installed, regardless of the installation method. Note the `libportmidi-dev` package should only be needed for Ubuntu when building from source.
+You will need https://github.com/PortMidi/PortMidi[PortMidi] installed, regardless of the installation method (well, except for <<nix>>). Note the `libportmidi-dev` package should only be needed for Ubuntu when building from source.
 
 [,sh]
 ----
@@ -216,6 +217,38 @@ You will need {u-cargo}[cargo] and {u-portmidi}[PortMidi] installed to build the
 [,sh]
 ----
 cargo install --path . # inside this repository
+----
+
+[#nix]
+=== Nix
+
+This project also comes with a {f-flake}[flake.nix], meaning that you can use this program without any additional hassle. For example, with https://nixos.wiki/wiki/Flakes[flakes] you can add it as follows to a dev shell.
+
+[,nix]
+----
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    utils.url = "github:numtide/flake-utils";
+    lmi.url = "github:niveK77pur/lilypond-midi-input";
+  };
+
+  outputs = {
+    nixpkgs,
+    utils,
+    lmi,
+    ...
+  }:
+    utils.lib.eachDefaultSystem (system: let
+      pkgs = nixpkgs.legacyPackages.${system};
+    in {
+      devShell = pkgs.mkShell {
+        packages = [
+          lmi.defaultPackage.${system}
+        ];
+      };
+    });
+}
 ----
 
 [#basic-usage]
