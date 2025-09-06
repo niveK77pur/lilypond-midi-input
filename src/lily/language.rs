@@ -9,6 +9,7 @@ make_lily_str_map!(
     LilypondLanguageError::InvalidLanguageString;
     #[default]
     Nederlands, "nederlands";
+    Catalan, "catalan", "català";
 );
 
 impl Language {
@@ -39,6 +40,32 @@ impl Language {
                 Note::B => "b",
                 Note::BFlat => "bes",
                 Note::BSharp => "bis",
+            },
+            Language::Catalan => match note {
+                Note::C => "do",
+                Note::CFlat => "dob",
+                Note::CSharp => "dod",
+                Note::CSharpSharp => "dodd",
+                Note::D => "re",
+                Note::DFlat => "reb",
+                Note::DSharp => "red",
+                Note::E => "mi",
+                Note::EFlat => "mib",
+                Note::ESharp => "mid",
+                Note::F => "fa",
+                Note::FFlat => "fab",
+                Note::FSharp => "fad",
+                Note::FSharpSharp => "fadd",
+                Note::G => "sol",
+                Note::GFlat => "solb",
+                Note::GSharp => "sold",
+                Note::GSharpSharp => "soldd",
+                Note::A => "la",
+                Note::AFlat => "lab",
+                Note::ASharp => "lad",
+                Note::B => "si",
+                Note::BFlat => "sib",
+                Note::BSharp => "sid",
             },
         }
     }
