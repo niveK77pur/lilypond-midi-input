@@ -4,6 +4,7 @@ use regex::Regex;
 
 use crate::MidiNote;
 
+use super::language::Note;
 use super::{LilyAccidental, LilyKeySignature, LilyParameters, LilypondNoteError};
 
 #[derive(Debug)]
@@ -68,104 +69,119 @@ impl<'a> LilyNote<'a> {
         parameters: &LilyParameters,
     ) -> Result<&'static str, LilypondNoteError> {
         let LilyParameters {
-            key, accidentals, ..
+            key,
+            accidentals,
+            language,
+            ..
         } = parameters;
         use LilyKeySignature::*;
         match note {
             0 => match key {
-                CSharpMajor | ASharpMinor => Ok("bis"),
-                CSharpMinor => Ok("bis"),
-                _ => Ok("c"),
+                CSharpMajor | ASharpMinor => Ok(language.note_to_str(&Note::BSharp)),
+                CSharpMinor => Ok(language.note_to_str(&Note::BSharp)),
+                _ => Ok(language.note_to_str(&Note::C)),
             },
             1 => match key {
                 AFlatMajor | FMinor | DFlatMajor | BFlatMinor | GFlatMajor | EFlatMinor
-                | CFlatMajor | AFlatMinor => Ok("des"),
+                | CFlatMajor | AFlatMinor => Ok(language.note_to_str(&Note::DFlat)),
                 DMajor | BMinor | AMajor | FSharpMinor | EMajor | CSharpMinor | BMajor
-                | GSharpMinor | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => Ok("cis"),
-                DMinor => Ok("cis"),
+                | GSharpMinor | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => {
+                    Ok(language.note_to_str(&Note::CSharp))
+                }
+                DMinor => Ok(language.note_to_str(&Note::CSharp)),
                 _ => match accidentals {
-                    LilyAccidental::Sharps => Ok("cis"),
-                    LilyAccidental::Flats => Ok("des"),
+                    LilyAccidental::Sharps => Ok(language.note_to_str(&Note::CSharp)),
+                    LilyAccidental::Flats => Ok(language.note_to_str(&Note::DFlat)),
                 },
             },
             2 => match key {
-                EFlatMinor => Ok("d"),
-                DSharpMinor => Ok("cisis"),
-                _ => Ok("d"),
+                EFlatMinor => Ok(language.note_to_str(&Note::D)),
+                DSharpMinor => Ok(language.note_to_str(&Note::CSharpSharp)),
+                _ => Ok(language.note_to_str(&Note::D)),
             },
             3 => match key {
                 BFlatMajor | GMinor | EFlatMajor | CMinor | AFlatMajor | FMinor | DFlatMajor
-                | BFlatMinor | GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => Ok("ees"),
+                | BFlatMinor | GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => {
+                    Ok(language.note_to_str(&Note::EFlat))
+                }
                 EMajor | CSharpMinor | BMajor | GSharpMinor | FSharpMajor | DSharpMinor
-                | CSharpMajor | ASharpMinor => Ok("dis"),
-                EMinor => Ok("dis"),
+                | CSharpMajor | ASharpMinor => Ok(language.note_to_str(&Note::DSharp)),
+                EMinor => Ok(language.note_to_str(&Note::DSharp)),
                 _ => match accidentals {
-                    LilyAccidental::Sharps => Ok("dis"),
-                    LilyAccidental::Flats => Ok("ees"),
+                    LilyAccidental::Sharps => Ok(language.note_to_str(&Note::DSharp)),
+                    LilyAccidental::Flats => Ok(language.note_to_str(&Note::EFlat)),
                 },
             },
             4 => match key {
-                CFlatMajor | AFlatMinor => Ok("fes"),
-                FMinor => Ok("e"),
-                _ => Ok("e"),
+                CFlatMajor | AFlatMinor => Ok(language.note_to_str(&Note::FFlat)),
+                FMinor => Ok(language.note_to_str(&Note::E)),
+                _ => Ok(language.note_to_str(&Note::E)),
             },
             5 => match key {
-                FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => Ok("eis"),
-                FSharpMinor => Ok("eis"),
-                _ => Ok("f"),
+                FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => {
+                    Ok(language.note_to_str(&Note::ESharp))
+                }
+                FSharpMinor => Ok(language.note_to_str(&Note::ESharp)),
+                _ => Ok(language.note_to_str(&Note::F)),
             },
             6 => match key {
                 DFlatMajor | BFlatMinor | GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => {
-                    Ok("ges")
+                    Ok(language.note_to_str(&Note::GFlat))
                 }
                 GMajor | EMinor | DMajor | BMinor | AMajor | FSharpMinor | EMajor | CSharpMinor
                 | BMajor | GSharpMinor | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => {
-                    Ok("fis")
+                    Ok(language.note_to_str(&Note::FSharp))
                 }
-                GMinor => Ok("fis"),
+                GMinor => Ok(language.note_to_str(&Note::FSharp)),
                 _ => match accidentals {
-                    LilyAccidental::Sharps => Ok("fis"),
-                    LilyAccidental::Flats => Ok("ges"),
+                    LilyAccidental::Sharps => Ok(language.note_to_str(&Note::FSharp)),
+                    LilyAccidental::Flats => Ok(language.note_to_str(&Note::GFlat)),
                 },
             },
             7 => match key {
-                AFlatMinor => Ok("g"),
-                GSharpMinor => Ok("fisis"),
-                _ => Ok("g"),
+                AFlatMinor => Ok(language.note_to_str(&Note::G)),
+                GSharpMinor => Ok(language.note_to_str(&Note::FSharpSharp)),
+                _ => Ok(language.note_to_str(&Note::G)),
             },
             8 => match key {
                 EFlatMajor | CMinor | AFlatMajor | FMinor | DFlatMajor | BFlatMinor
-                | GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => Ok("aes"),
+                | GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => {
+                    Ok(language.note_to_str(&Note::AFlat))
+                }
                 AMajor | FSharpMinor | EMajor | CSharpMinor | BMajor | GSharpMinor
-                | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => Ok("gis"),
-                AMinor => Ok("gis"),
+                | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => {
+                    Ok(language.note_to_str(&Note::GSharp))
+                }
+                AMinor => Ok(language.note_to_str(&Note::GSharp)),
                 _ => match accidentals {
-                    LilyAccidental::Sharps => Ok("gis"),
-                    LilyAccidental::Flats => Ok("aes"),
+                    LilyAccidental::Sharps => Ok(language.note_to_str(&Note::GSharp)),
+                    LilyAccidental::Flats => Ok(language.note_to_str(&Note::AFlat)),
                 },
             },
             9 => match key {
-                BFlatMinor => Ok("a"),
-                ASharpMinor => Ok("gisis"),
-                _ => Ok("a"),
+                BFlatMinor => Ok(language.note_to_str(&Note::A)),
+                ASharpMinor => Ok(language.note_to_str(&Note::GSharpSharp)),
+                _ => Ok(language.note_to_str(&Note::A)),
             },
             10 => match key {
                 FMajor | DMinor | BFlatMajor | GMinor | EFlatMajor | CMinor | AFlatMajor
                 | FMinor | DFlatMajor | BFlatMinor | GFlatMajor | EFlatMinor | CFlatMajor
-                | AFlatMinor => Ok("bes"),
+                | AFlatMinor => Ok(language.note_to_str(&Note::BFlat)),
                 BMajor | GSharpMinor | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => {
-                    Ok("ais")
+                    Ok(language.note_to_str(&Note::ASharp))
                 }
-                BMinor => Ok("ais"),
+                BMinor => Ok(language.note_to_str(&Note::ASharp)),
                 _ => match accidentals {
-                    LilyAccidental::Sharps => Ok("ais"),
-                    LilyAccidental::Flats => Ok("bes"),
+                    LilyAccidental::Sharps => Ok(language.note_to_str(&Note::ASharp)),
+                    LilyAccidental::Flats => Ok(language.note_to_str(&Note::BFlat)),
                 },
             },
             11 => match key {
-                GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => Ok("ces"),
-                CMinor => Ok("b"),
-                _ => Ok("b"),
+                GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => {
+                    Ok(language.note_to_str(&Note::CFlat))
+                }
+                CMinor => Ok(language.note_to_str(&Note::B)),
+                _ => Ok(language.note_to_str(&Note::B)),
             },
             _ => Err(LilypondNoteError::OutsideOctave(note)),
         }

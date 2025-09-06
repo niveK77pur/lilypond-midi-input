@@ -14,3 +14,9 @@ pub enum LilypondAccidentalError {
     /// The string was not recognized for accidentals
     InvalidAccidentalString(String),
 }
+
+#[derive(Debug)]
+pub enum LilypondLanguageError {
+    /// The string was not recognized for languages
+    InvalidLanguageString(String),
+}

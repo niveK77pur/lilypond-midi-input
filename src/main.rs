@@ -6,7 +6,7 @@ use std::{
 use clap::{arg, command, value_parser, ArgAction};
 use lilypond_midi_input::{
     echoerr, echoinfo,
-    lily::{self, LilyAccidental, LilyKeySignature},
+    lily::{self, Language, LilyAccidental, LilyKeySignature},
     midi::{self, list_input_devices},
     output, InputMode, ListOptions, MidiNote,
 };
@@ -32,6 +32,9 @@ fn main() {
                 .action(ArgAction::Set)
                 .value_parser(value_parser!(InputMode))
                 .default_value("single"),
+            arg!(--language "Note name language to use")
+                .action(ArgAction::Set)
+                .value_parser(value_parser!(Language)),
             arg!(--alterations "Custom alterations within an octave").action(ArgAction::Set),
             arg!(--"global-alterations" <alterations> "Global alterations over all notes")
                 .action(ArgAction::Set),
@@ -41,7 +44,7 @@ fn main() {
             arg!(--"list-options" <argument> "List available options for a given argument")
                 .exclusive(true)
                 .action(ArgAction::Set)
-                .value_parser(["key", "accidentals", "mode"]),
+                .value_parser(["key", "accidentals", "mode", "language"]),
             arg!(--"raw-midi" "Display raw MIDI events instead of LilyPond notes"),
         ])
         .get_matches();
@@ -61,6 +64,7 @@ fn main() {
             "key" => LilyKeySignature::list_options(),
             "accidentals" => LilyAccidental::list_options(),
             "mode" => InputMode::list_options(),
+            "language" => Language::list_options(),
             _ => echoerr!("Invalid argument specified for listing."),
         }
         return;
@@ -80,6 +84,10 @@ fn main() {
                 .get_one::<InputMode>("mode")
                 .expect("accidental style is given and valid")
                 .clone(),
+            match matches.get_one::<Language>("language") {
+                Some(lang) => lang.clone(),
+                None => Language::default(),
+            },
             match matches.get_one::<String>("alterations") {
                 Some(alts) => {
                     let mut result = HashMap::new();
@@ -275,6 +283,18 @@ fn main() {
                             }
                         },
                     }),
+                    "language" => params.set_language(match value.try_into() {
+                        Ok(lang) => {
+                            echoinfo!("Update language={:?}", lang);
+                            lang
+                        }
+                        Err(e) => match e {
+                            lily::LilypondLanguageError::InvalidLanguageString(lang) => {
+                                echoerr!("Invalid language provided: {lang}");
+                                continue;
+                            }
+                        },
+                    }),
                     "alterations" | "alt" => match value {
                         "clear" => {
                             params.clear_alterations();
@@ -353,6 +373,7 @@ fn main() {
                             echoinfo!("Accidentals = {:?}", params.accidentals())
                         }
                         "mode" | "m" => echoinfo!("Mode = {:?}", params.mode()),
+                        "language" => echoinfo!("Language = {:?}", params.language()),
                         "alterations" | "alt" => {
                             echoinfo!("Alterations = {:?}", params.alterations())
                         }
@@ -366,6 +387,7 @@ fn main() {
                             echoinfo!("Key = {:?}", params.key());
                             echoinfo!("Accidentals = {:?}", params.accidentals());
                             echoinfo!("Mode = {:?}", params.mode());
+                            echoinfo!("Language = {:?}", params.language());
                             echoinfo!("Alterations = {:?}", params.alterations());
                             echoinfo!("Global alterations = {:?}", params.global_alterations());
                             echoinfo!("Previous chord = {:?}", params.previous_chord());
