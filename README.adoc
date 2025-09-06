@@ -3,6 +3,7 @@
 
 :u-lilypond: https://lilypond.org/
 :u-lilypond-absolute-octave: https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#absolute-octave-entry
+:u-lilypond-languages: https://lilypond.org/doc/v2.25/Documentation/notation/writing-pitches#note-names-in-other-languages
 :u-frescobaldi: https://frescobaldi.org/
 :u-nvim-midi: https://github.com/niveK77pur/midi-input.nvim
 :u-portmidi: https://github.com/PortMidi/PortMidi
@@ -22,6 +23,7 @@
 :f-macros: link:./src/lily/macros.rs
 :f-keysignature: link:./src/lily/keysignature.rs
 :f-accidentals: link:./src/lily/accidentals.rs
+:f-language: link:./src/lily/language.rs
 :f-lib: link:./src/lib.rs
 
 :videoicon: 🎬
@@ -180,6 +182,8 @@ video::https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/1ace10b
 =====
 ====
 
+* Specify {u-lilypond-languages}[different languages] to output Lilypond notes as
+
 * List all available MIDI input devices
 
 * Specific handling of input/output for <<specifications-for-integration-into-editors, integration into other editors>>
@@ -296,7 +300,7 @@ This tool also allows changing/setting the options on-the-fly without restarting
 
 Upon successful parsing and execution of the given setting, the program will write a message to stderr, either indicating success or possibly indicating errors. As far as possible, the program tries to inform what has happened (through stderr), as otherwise it is difficult to judge whether the provided settings in stdin where handled correctly or not.
 
-All options here have long and short versions, which the latter are particularly useful when manually typing in the commands into the terminal. A list of options and their values can be found in a <<options, later section>>.
+Almost all options here have long and short versions, which the latter are particularly useful when manually typing in the commands into the terminal. A list of options and their values can be found in a <<options, later section>>.
 
 The settings are given in the following form. You can specify one option at a time, or you can provide multiple options at once. A key that takes nested key-value pairs has its value given as `SUBKEY:SUBVALUE` and are comma separated (without spaces). Here are some examples to hopefully clarify.
 
@@ -400,6 +404,12 @@ h| Short
 | Can take all strings and enum variant names in the {f-lib}[list of input modes]
 | How to handle MIDI input? `Single` will only read one single note at a time as they are pressed. `Chord` will print a LilyPond chord after all notes were released. `PedalChord` merges both, behaving like `Chord` when any of the three pedals are pressed, and behaving like `Single` when all pedals are released. `PedalSingle` inverts the behaviour.
 | `mode=Pedal` is equivalent to `m=p`
+
+| language [[options-language]]
+|
+| Can take all strings from the enum variants in the {f-language}[list of languages]
+| What {u-lilypond-languages}[language] to output LilyPond notes as? Currently supports all languages as of LilyPond 2.25.
+| `language=français`, same as what you would pass to `\language "xxx"` in LilyPond!
 
 | alterations [[options-alterations]]
 | alt
