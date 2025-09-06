@@ -17,6 +17,7 @@ make_lily_str_map!(
     Italiano, "italiano";
     Norsk, "norsk";
     Portugues, "portugues", "português";
+    Suomi, "suomi";
 );
 
 impl Language {
@@ -255,6 +256,32 @@ impl Language {
                 Note::B => "si",
                 Note::BFlat => "sib",
                 Note::BSharp => "sis",
+            },
+            Language::Suomi => match note {
+                Note::C => "c",
+                Note::CFlat => "ces",
+                Note::CSharp => "cis",
+                Note::CSharpSharp => "cisis",
+                Note::D => "d",
+                Note::DFlat => "des",
+                Note::DSharp => "dis",
+                Note::E => "e",
+                Note::EFlat => "es",
+                Note::ESharp => "eis",
+                Note::F => "f",
+                Note::FFlat => "fes",
+                Note::FSharp => "fis",
+                Note::FSharpSharp => "fisis",
+                Note::G => "g",
+                Note::GFlat => "ges",
+                Note::GSharp => "gis",
+                Note::GSharpSharp => "gisis",
+                Note::A => "a",
+                Note::AFlat => "as",
+                Note::ASharp => "ais",
+                Note::B => "h",
+                Note::BFlat => "b",
+                Note::BSharp => "his",
             },
         }
     }
