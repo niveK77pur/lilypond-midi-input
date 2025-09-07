@@ -34,7 +34,8 @@ fn main() {
                 .default_value("single"),
             arg!(--language "Note name language to use")
                 .action(ArgAction::Set)
-                .value_parser(value_parser!(Language)),
+                .value_parser(value_parser!(Language))
+                .default_value("nederlands"),
             arg!(--alterations "Custom alterations within an octave").action(ArgAction::Set),
             arg!(--"global-alterations" <alterations> "Global alterations over all notes")
                 .action(ArgAction::Set),
