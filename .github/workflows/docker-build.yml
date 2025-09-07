@@ -18,7 +18,7 @@ jobs:
         run: |
             docker create --name lmi lmi-img:latest
             docker cp lmi:/root/.cargo/bin/lilypond-midi-input lilypond-midi-input_${{ inputs.arch }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: lmi-${{ inputs.arch }}
           path: |
