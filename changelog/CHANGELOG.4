@@ -1,0 +1,18 @@
+# New feature: Relative octave entry
+
+This new release's primary addition is the ability to output notes in relative octave entry, on top of the already existing absolute octave entry!
+
+See: https://lilypond.org/doc/v2.25/Documentation/notation/writing-pitches#relative-octave-entry
+
+To this end, a few additions have been made:
+
+- Additional `--octave-entry` flag, and corresponding `octave-entry` key for stdin to allow switching between absolute and relative mode.
+
+- Additional `previous-absolute-note-reference` with short form `panr` keys for stdin to allow setting the previous note based off which to calculate the relative octave for the next note; useful for editor integration when user jumps around the file. This value can also be unset using `clear`.
+
+- Additional `--octave-check-notes` flag, and corresponding `octave-check-notes` key for stdin to allow adding octave checks to all notes being produced.
+
+- Additional `--octave-check-on-next-note` flag, and corresponding `octave-check-on-next-note` and `oconn` keys for stdin to allow adding an octave check to only the next note being produced; also useful for editor integration for when the user jumps around, and we lost track of the absolute octave.
+
+> [!NOTE]
+> If the `previous-absolute-note-reference` is not given, the relative octave entry will automatically add an octave check to the next note. Most notably, this will be the case upon starting this program.
