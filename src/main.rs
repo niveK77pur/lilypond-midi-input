@@ -6,7 +6,7 @@ use std::{
 use clap::{arg, command, value_parser, ArgAction};
 use lilypond_midi_input::{
     echoerr, echoinfo,
-    lily::{self, Language, LilyAccidental, LilyKeySignature},
+    lily::{self, Language, LilyAccidental, LilyKeySignature, OctaveEntry},
     midi::{self, list_input_devices},
     output, InputMode, ListOptions, MidiNote,
 };
@@ -36,6 +36,10 @@ fn main() {
                 .action(ArgAction::Set)
                 .value_parser(value_parser!(Language))
                 .default_value("nederlands"),
+            arg!(--"octave-entry" "Octave entry mode to use")
+                .action(ArgAction::Set)
+                .value_parser(value_parser!(OctaveEntry))
+                .default_value("absolute"),
             arg!(--alterations "Custom alterations within an octave").action(ArgAction::Set),
             arg!(--"global-alterations" <alterations> "Global alterations over all notes")
                 .action(ArgAction::Set),
@@ -45,7 +49,7 @@ fn main() {
             arg!(--"list-options" <argument> "List available options for a given argument")
                 .exclusive(true)
                 .action(ArgAction::Set)
-                .value_parser(["key", "accidentals", "mode", "language"]),
+                .value_parser(["key", "accidentals", "mode", "language", "octave-entry"]),
             arg!(--"raw-midi" "Display raw MIDI events instead of LilyPond notes"),
         ])
         .get_matches();
@@ -66,6 +70,7 @@ fn main() {
             "accidentals" => LilyAccidental::list_options(),
             "mode" => InputMode::list_options(),
             "language" => Language::list_options(),
+            "octave-entry" => OctaveEntry::list_options(),
             _ => echoerr!("Invalid argument specified for listing."),
         }
         return;
@@ -89,6 +94,10 @@ fn main() {
                 Some(lang) => lang.clone(),
                 None => Language::default(),
             },
+            matches
+                .get_one::<OctaveEntry>("octave-entry")
+                .expect("ocatve entry is given and valid")
+                .clone(),
             match matches.get_one::<String>("alterations") {
                 Some(alts) => {
                     let mut result = HashMap::new();
@@ -296,6 +305,18 @@ fn main() {
                             }
                         },
                     }),
+                    "octave-entry" => params.set_octave_entry(match value.try_into() {
+                        Ok(oe) => {
+                            echoinfo!("Update octave-entry={:?}", oe);
+                            oe
+                        }
+                        Err(e) => match e {
+                            lily::OctaveEntryError::InvalidOctaveEntryString(oe) => {
+                                echoerr!("Invalid octave-entry provided: {oe}");
+                                continue;
+                            }
+                        },
+                    }),
                     "alterations" | "alt" => match value {
                         "clear" => {
                             params.clear_alterations();
@@ -375,6 +396,7 @@ fn main() {
                         }
                         "mode" | "m" => echoinfo!("Mode = {:?}", params.mode()),
                         "language" => echoinfo!("Language = {:?}", params.language()),
+                        "octave-entry" => echoinfo!("Octave entry = {:?}", params.octave_entry()),
                         "alterations" | "alt" => {
                             echoinfo!("Alterations = {:?}", params.alterations())
                         }
@@ -389,6 +411,7 @@ fn main() {
                             echoinfo!("Accidentals = {:?}", params.accidentals());
                             echoinfo!("Mode = {:?}", params.mode());
                             echoinfo!("Language = {:?}", params.language());
+                            echoinfo!("Octave entry = {:?}", params.octave_entry());
                             echoinfo!("Alterations = {:?}", params.alterations());
                             echoinfo!("Global alterations = {:?}", params.global_alterations());
                             echoinfo!("Previous chord = {:?}", params.previous_chord());

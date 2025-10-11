@@ -2,7 +2,7 @@ use std::collections::{BTreeSet, HashMap};
 
 use crate::{InputMode, MidiNote};
 
-use super::{Language, LilyAccidental, LilyKeySignature, LilyNote, LilypondNoteError};
+use super::{Language, LilyAccidental, LilyKeySignature, LilyNote, LilypondNoteError, OctaveEntry};
 
 type Alteration = HashMap<MidiNote, String>;
 
@@ -12,6 +12,7 @@ pub struct LilyParameters {
     pub(super) accidentals: LilyAccidental,
     pub(super) mode: InputMode,
     pub(super) language: Language,
+    pub(super) octave_entry: OctaveEntry,
     /// custom alterations within an octave (0-11)
     pub(super) alterations: Alteration,
     /// custom alterations over all notes
@@ -26,6 +27,7 @@ impl LilyParameters {
         accidentals: LilyAccidental,
         mode: InputMode,
         language: Language,
+        octave_entry: OctaveEntry,
         alterations: Alteration,
         global_alterations: Alteration,
     ) -> Result<Self, LilyParametersError> {
@@ -39,6 +41,7 @@ impl LilyParameters {
             accidentals,
             mode,
             language,
+            octave_entry,
             alterations,
             global_alterations,
             previous_chord: None,
@@ -68,6 +71,12 @@ impl LilyParameters {
     }
     pub fn set_language(&mut self, language: Language) {
         self.language = language
+    }
+    pub fn octave_entry(&self) -> &OctaveEntry {
+        &self.octave_entry
+    }
+    pub fn set_octave_entry(&mut self, octave_entry: OctaveEntry) {
+        self.octave_entry = octave_entry
     }
     pub fn alterations(&self) -> &Alteration {
         &self.alterations

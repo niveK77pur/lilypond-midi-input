@@ -20,3 +20,9 @@ pub enum LilypondLanguageError {
     /// The string was not recognized for languages
     InvalidLanguageString(String),
 }
+
+#[derive(Debug)]
+pub enum OctaveEntryError {
+    /// The string was not recognized for octave entry mode
+    InvalidOctaveEntryString(String),
+}
