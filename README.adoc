@@ -3,6 +3,7 @@
 
 :u-lilypond: https://lilypond.org/
 :u-lilypond-absolute-octave: https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#absolute-octave-entry
+:u-lilypond-relative-octave: https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#relative-octave-entry
 :u-lilypond-languages: https://lilypond.org/doc/v2.25/Documentation/notation/writing-pitches#note-names-in-other-languages
 :u-frescobaldi: https://frescobaldi.org/
 :u-nvim-midi: https://github.com/niveK77pur/midi-input.nvim
@@ -24,6 +25,7 @@
 :f-keysignature: link:./src/lily/keysignature.rs
 :f-accidentals: link:./src/lily/accidentals.rs
 :f-language: link:./src/lily/language.rs
+:f-octave-entry: link:./src/lily/octave_entry.rs
 :f-lib: link:./src/lib.rs
 
 :videoicon: 🎬
@@ -53,13 +55,13 @@ Again, the main goal here is to provide translation of MIDI notes into LilyPond 
 [#features]
 == Features
 
-* All notes on a keyboard are translated to LilyPond notes with {u-lilypond-absolute-octave}[absolute octave entry]
+* All notes on a keyboard are translated to LilyPond notes with either {u-lilypond-absolute-octave}[absolute] or {u-lilypond-relative-octave}[relative] octave entry
 +
 [%collapsible]
 .Demo Video {videoicon}
 ====
 =====
-A chromatic scale being played across the entire piano, with their corresponding LilyPond notes being output.
+A chromatic scale being played across the entire piano, with their corresponding LilyPond notes being output using absolute octave entry.
 
 video::https://github.com/niveK77pur/lilypond-midi-input/assets/10981161/73df64d5-a655-419b-83ac-b1c9ec716c68[{videoattr}]
 =====
@@ -411,6 +413,24 @@ h| Short
 | What {u-lilypond-languages}[language] to output LilyPond notes as? Currently supports all languages as of LilyPond 2.25.
 | `language=français`, same as what you would pass to `\language "xxx"` in LilyPond!
 
+| octave-entry [[options-octave-entry]]
+|
+| Can take all strings from the enum variants in the {f-octave-entry}[list of entries]
+| Whether to output notes with {u-lilypond-absolute-octave}[absolute] or {u-lilypond-relative-octave}[relative] octave entry.
+| `octave-entry=relative`, or `octave-entry=a`
+
+| octave-check-notes [[options-octave-check-notes]]
+|
+| Boolean value with `true` and anything else will be considered `false`
+| Add octave check marks for all notes when set to `true`.
+| `octave-check-notes=true` to enable, and `octave-check-notes=false` or `octave-check-notes=invalid-value` will disable it
+
+| octave-check-on-next-note [[options-octave-check-on-next-note]]
+| oconn
+| Boolean value with `true` and anything else will be considered `false`
+| Add octave check mark only on the next note being output when set to `true`, and will be set to `false` after the next note. Does not clash with <<options-octave-check-notes, octave-check-notes>>, and can be used togehter with, or instead of clearing <<options-previous-absolute-note-reference, previous-absolute-note-reference>>.
+| `octave-check-on-next-note=true` to enable, and `octave-check-on-next-note=false` or `octave-check-on-next-note=invalid-value` will disable it
+
 | alterations [[options-alterations]]
 | alt
 | Subkey-subvalue pairs. I.e. `key:value` or `key1:value1,key2:value2,...`. The key must be an integer between 0 and 11 inclusive, the value is considered a string (may not contain spaces). Trailing `+` or `-` in the value can be used to adjust the octave up or down respectively. Multiple consecutive trailing `+` or `-` can be used to adjust multiple octaves.
@@ -429,12 +449,27 @@ h| Short
 | Explicitly specify a chord which will yield `q` upon repeating. Useful when jumping around the file, and the tool does or does not return `q` appropriately.
 | `pc=c,:eis':g` will set `<c, g eis'>` as the previous chord. `pc=clear` will unset/forget the previous chord. Also see {u-feature-demo-previous-chord}[demo video].
 
+| previous-absolute-note-reference [[options-previous-absolute-note-reference]]
+| panr
+| An {u-lilypond-absolute-octave}[absolute LilyPond note]. Or `clear` to unset the previous absolute note reference.
+| This option is only useful for {u-lilypond-relative-octave}[relative] octave entry. Can be cleared when jumping around in a file, and/or the previous absolute note reference is no longer known for calculating the relative octave.
+| `panr=c''`
+
 | list [[options-list]]
 |
 | Long or short version of all other options. Alternatively `all` will list the all values.
 | Not exactly an option, but allows listing values for options. Useful to see what the current state is.
 | `list=k` or `list=key` list the currently set key signature. `list=all` will list the current values of all options.
 |===
+
+[#note-on-relative-octave-entry]
+== Special note on relative octave entry
+
+A special consideration is given to the (global) alterations that we allow, especially considering we allow entering abritrary text for those. In both cases, to properly calculate the relative octave, we would need the user to somehow additionally specify what MIDI note value (without accidentals) the given alteration corresponds to.
+
+NOTE: Lilypond calculates the relative octave using the base note without accidentals
+
+For local alterations, we would need to have the user specify the relative offset from the given alteration to the base note without accidentals. This intricacy was deemed not so important for the time being, so the simple solution is to include the absolute octave as an octave check when outputting an alteration in relative octave entry. There is a possibility of obtaining plenty of warnings from Lilypond due to this, but at least the output score will have everything where it should be thanks to the octave check.
 
 [#integrations]
 == Integrations
@@ -454,7 +489,7 @@ I have written my own {u-nvim-midi}[Neovim plugin] which uses this tool to allow
 [#todo]
 == TODO
 
-* [ ] Generate notes for https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#relative-octave-entry[relative octave entry]
+* [x] Generate notes for https://lilypond.org/doc/v2.24/Documentation/notation/writing-pitches#relative-octave-entry[relative octave entry]
 * [x] https://lilypond.org/doc/v2.24/Documentation/notation/single-voice#chord-repetition[Repeated chords] should return `q`
 * [x] List all currently set (global) alterations
 * [x] List all options for a setting (avoids hardcoding them into editors)
