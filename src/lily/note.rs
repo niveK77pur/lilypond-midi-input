@@ -32,18 +32,86 @@ impl<'a> LilyNote<'a> {
         let LilyParameters {
             alterations,
             global_alterations,
+            octave_entry,
+            previous_absolute_note_reference,
+            octave_check_on_next_note,
+            octave_check_notes,
             ..
         } = parameters;
-        let mut octave = (value as i16 / 12) as i8 - 4;
+        let note_rendered = Self::render(value, parameters);
+        let absolute_octave = (value as i16 / 12) as i8 - 4;
+        let mut octave = match octave_entry {
+            super::OctaveEntry::Absolute => absolute_octave,
+            super::OctaveEntry::Relative => match previous_absolute_note_reference {
+                Some(panr) => {
+                    let panr_rendered = Self::render(*panr, parameters);
+                    let next_octave_distance = if (
+                        // The previous note is a B
+                        panr_rendered.note_no_accidental % 12 == 11
+                    ) && (
+                        // The current note is an F
+                        note_rendered.note_no_accidental % 12 == 5
+                    ) && (
+                        // Only consider B to F, not F to B
+                        panr_rendered.note_no_accidental < note_rendered.note_no_accidental
+                    ) {
+                        // Handle special tritone case from B to F
+                        5
+                    } else {
+                        // absolute relative distance until an octave mark is needed
+                        6
+                    };
+                    let interval: i16 = (note_rendered.note_no_accidental as i16)
+                        - (panr_rendered.note_no_accidental as i16);
+                    (if interval > next_octave_distance {
+                        // ceil division
+                        (interval - next_octave_distance - 1) / 12 + 1
+                    } else if interval < -next_octave_distance {
+                        // floor division
+                        (interval + next_octave_distance) / 12 - 1
+                    } else {
+                        // we are within the a fifth
+                        0
+                    }) as i8
+                }
+                None => 0, // We cannot determine relative octave, we rely on octave check
+            },
+        };
+        let mut octave_check = match *octave_check_on_next_note || *octave_check_notes {
+            true => Some(absolute_octave),
+            false => match octave_entry {
+                super::OctaveEntry::Absolute => None,
+                super::OctaveEntry::Relative => match previous_absolute_note_reference {
+                    Some(_) => None,
+                    None => Some(absolute_octave),
+                },
+            },
+        };
         LilyNote {
             letter: match global_alterations.get(&value) {
                 Some(text) => {
                     octave = 0; // we do not want octaves for global custom alterations
+                    if let super::OctaveEntry::Relative = octave_entry {
+                        // we cannot determine relative position here, add octave check
+                        octave_check = Some(absolute_octave);
+                    }
                     text
                 }
                 None => match alterations.get(&(value % 12)) {
-                    Some(text) => Self::adjust_ottavation(text, &mut octave),
-                    None => Self::render(value, parameters).note_name,
+                    Some(text) => match octave_entry {
+                        super::OctaveEntry::Absolute => Self::adjust_ottavation(text, &mut octave),
+                        super::OctaveEntry::Relative => {
+                            // we cannot easily determine relative position here, add octave check
+                            octave_check = Some(absolute_octave);
+                            Self::adjust_ottavation(
+                                text,
+                                octave_check
+                                    .as_mut()
+                                    .expect("Octave check has just been set"),
+                            )
+                        }
+                    },
+                    None => note_rendered.note_name,
                 },
             },
             octave,

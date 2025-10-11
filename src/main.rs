@@ -228,16 +228,23 @@ fn main() {
                         match notes.len().cmp(&1) {
                             std::cmp::Ordering::Less => (),
                             std::cmp::Ordering::Equal => {
-                                let lilynote = lily::LilyNote::new(
-                                    notes.pop_first().expect("A note was pressed"),
-                                    &params,
-                                );
-                                output!("{lilynote}")
+                                let note = notes.pop_first().expect("A note was pressed");
+                                let lilynote = lily::LilyNote::new(note, &params);
+                                output!("{lilynote}");
+                                params.set_previous_absolute_note_reference(Some(note));
+                                params.set_octave_check_on_next_note(false);
                             }
                             std::cmp::Ordering::Greater => {
                                 let chord: String = notes
                                     .iter()
-                                    .map(|note| lily::LilyNote::new(*note, &params).to_string())
+                                    .map(|note| {
+                                        let lily_note =
+                                            lily::LilyNote::new(*note, &params).to_string();
+                                        // Need to calculate relative octave among notes in chord
+                                        params.set_previous_absolute_note_reference(Some(*note));
+                                        params.set_octave_check_on_next_note(false);
+                                        lily_note
+                                    })
                                     .collect::<Vec<String>>()
                                     .join(" ");
                                 match last_chord.as_ref() == Some(&notes) {
@@ -247,6 +254,11 @@ fn main() {
                                         last_chord = Some(notes.clone());
                                     }
                                 }
+                                // Set to first note in the chord
+                                params.set_previous_absolute_note_reference(Some(
+                                    *notes.first().expect("At least one note is given"),
+                                ));
+                                params.set_octave_check_on_next_note(false);
                                 notes.clear();
                             }
                         }
@@ -254,11 +266,11 @@ fn main() {
                 }
                 false => {
                     if !notes.is_empty() {
-                        let lilynote = lily::LilyNote::new(
-                            notes.pop_first().expect("A note was pressed"),
-                            &params,
-                        );
-                        output!("{lilynote}")
+                        let note = notes.pop_first().expect("A note was pressed");
+                        let lilynote = lily::LilyNote::new(note, &params);
+                        output!("{lilynote}");
+                        params.set_previous_absolute_note_reference(Some(note));
+                        params.set_octave_check_on_next_note(false);
                     }
                 }
             }
