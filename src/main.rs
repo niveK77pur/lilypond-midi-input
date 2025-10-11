@@ -305,18 +305,25 @@ fn main() {
                             }
                         },
                     }),
-                    "octave-entry" => params.set_octave_entry(match value.try_into() {
-                        Ok(oe) => {
-                            echoinfo!("Update octave-entry={:?}", oe);
-                            oe
-                        }
-                        Err(e) => match e {
-                            lily::OctaveEntryError::InvalidOctaveEntryString(oe) => {
-                                echoerr!("Invalid octave-entry provided: {oe}");
-                                continue;
+                    "octave-entry" => {
+                        match value.try_into() {
+                            Ok(oe) => {
+                                params.set_previous_absolute_note_reference(None);
+                                echoinfo!(
+                                    "Previous absolute note reference set to {:?}",
+                                    params.previous_absolute_note_reference()
+                                );
+                                echoinfo!("Update octave-entry={:?}", oe);
+                                params.set_octave_entry(oe);
                             }
-                        },
-                    }),
+                            Err(e) => match e {
+                                lily::OctaveEntryError::InvalidOctaveEntryString(oe) => {
+                                    echoerr!("Invalid octave-entry provided: {oe}");
+                                    continue;
+                                }
+                            },
+                        };
+                    }
                     "alterations" | "alt" => match value {
                         "clear" => {
                             params.clear_alterations();
@@ -389,6 +396,30 @@ fn main() {
                             }
                         }
                     }
+                    "previous-absolute-note-reference" | "panr" => match value {
+                        "clear" => params.set_previous_absolute_note_reference(None),
+                        _ => match params
+                            .set_previous_absolute_note_reference_lilypond_str(String::from(value))
+                        {
+                            Ok(_) => {
+                                echoinfo!(
+                                    "Previous absolute note reference set to {:?}",
+                                    params.previous_absolute_note_reference().unwrap()
+                                )
+                            }
+                            Err(e) => match e {
+                                lily::LilypondNoteError::OutsideOctave(_) => {
+                                    panic!("This error should not occur here.")
+                                }
+                                lily::LilypondNoteError::InvalidKeyString(_) => {
+                                    panic!("This error should not occur here.")
+                                }
+                                lily::LilypondNoteError::InvalidNoteString(note) => {
+                                    echoerr!("Invalid/Unrecognized LilyPond note provided: {note}")
+                                }
+                            },
+                        },
+                    },
                     "list" => match value {
                         "key" | "k" => echoinfo!("Key = {:?}", params.key()),
                         "accidentals" | "a" => {
@@ -406,6 +437,12 @@ fn main() {
                         "previous-chord" | "pc" => {
                             echoinfo!("Previous chord = {:?}", params.previous_chord())
                         }
+                        "previous-absolute-note-reference" | "panr" => {
+                            echoinfo!(
+                                "Previous absolute note reference = {:?}",
+                                params.previous_absolute_note_reference()
+                            )
+                        }
                         "all" => {
                             echoinfo!("Key = {:?}", params.key());
                             echoinfo!("Accidentals = {:?}", params.accidentals());
@@ -415,6 +452,10 @@ fn main() {
                             echoinfo!("Alterations = {:?}", params.alterations());
                             echoinfo!("Global alterations = {:?}", params.global_alterations());
                             echoinfo!("Previous chord = {:?}", params.previous_chord());
+                            echoinfo!(
+                                "Previous absolute note reference = {:?}",
+                                params.previous_absolute_note_reference()
+                            )
                         }
                         _ => echoerr!("Invalid argument for listing: {value}"),
                     },

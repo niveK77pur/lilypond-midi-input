@@ -19,6 +19,8 @@ pub struct LilyParameters {
     pub(super) global_alterations: Alteration,
     /// manually set the previous chord for generating a 'q' shorthand
     pub(super) previous_chord: Option<BTreeSet<MidiNote>>,
+    /// the previous note in absolute pitch used to calculate the next note in relative pitch
+    pub(super) previous_absolute_note_reference: Option<MidiNote>,
 }
 
 impl LilyParameters {
@@ -45,6 +47,7 @@ impl LilyParameters {
             alterations,
             global_alterations,
             previous_chord: None,
+            previous_absolute_note_reference: None,
         })
     }
 
@@ -144,6 +147,23 @@ impl LilyParameters {
             chord.insert(*LilyNote::from_lilypond_str(note.as_str())?.note());
         }
         self.previous_chord = Some(chord);
+        Ok(())
+    }
+    pub fn previous_absolute_note_reference(&mut self) -> Option<&MidiNote> {
+        self.previous_absolute_note_reference.as_ref()
+    }
+    pub fn set_previous_absolute_note_reference(
+        &mut self,
+        previous_absolute_note_reference: Option<MidiNote>,
+    ) {
+        self.previous_absolute_note_reference = previous_absolute_note_reference;
+    }
+    pub fn set_previous_absolute_note_reference_lilypond_str(
+        &mut self,
+        previous_absolute_note_reference: String,
+    ) -> Result<(), LilypondNoteError> {
+        self.previous_absolute_note_reference =
+            Some(*LilyNote::from_lilypond_str(&previous_absolute_note_reference)?.note());
         Ok(())
     }
 }
