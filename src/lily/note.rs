@@ -19,6 +19,14 @@ pub struct LilyNote<'a> {
     octave_check: Option<i8>,
 }
 
+#[derive(Debug)]
+pub struct LilyNoteRendered {
+    /// The string representation of the note (without octave)
+    note_name: &'static str,
+    /// The midi note value with the accidental removed (needed for calculating relative octave entry)
+    note_no_accidental: MidiNote,
+}
+
 impl<'a> LilyNote<'a> {
     pub fn new(value: MidiNote, parameters: &'a LilyParameters) -> Self {
         let LilyParameters {
@@ -35,7 +43,7 @@ impl<'a> LilyNote<'a> {
                 }
                 None => match alterations.get(&(value % 12)) {
                     Some(text) => Self::adjust_ottavation(text, &mut octave),
-                    None => Self::note_name(value % 12, parameters).expect("Note within octave"),
+                    None => Self::render(value, parameters).note_name,
                 },
             },
             octave,
@@ -67,10 +75,14 @@ impl<'a> LilyNote<'a> {
         }
     }
 
-    fn note_name(
-        note: MidiNote,
-        parameters: &LilyParameters,
-    ) -> Result<&'static str, LilypondNoteError> {
+    /// Function to render the given midi note
+    ///
+    /// # Panics
+    ///
+    /// The given midi note value is put through a modulo 12 to map each note in the scale to a
+    /// specific rendered note. The panic occurs if the value of the module operation falls outside
+    /// of 0..11 (inclusive), which will never occur.
+    fn render(note: MidiNote, parameters: &LilyParameters) -> LilyNoteRendered {
         let LilyParameters {
             key,
             accidentals,
@@ -78,115 +90,245 @@ impl<'a> LilyNote<'a> {
             ..
         } = parameters;
         use LilyKeySignature::*;
-        match note {
+        match note % 12 {
             0 => match key {
-                CSharpMajor | ASharpMinor => Ok(language.note_to_str(&Note::BSharp)),
-                CSharpMinor => Ok(language.note_to_str(&Note::BSharp)),
-                _ => Ok(language.note_to_str(&Note::C)),
+                CSharpMajor | ASharpMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::BSharp),
+                    note_no_accidental: note - 1,
+                },
+                CSharpMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::BSharp),
+                    note_no_accidental: note - 1,
+                },
+                _ => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::C),
+                    note_no_accidental: note,
+                },
             },
             1 => match key {
                 AFlatMajor | FMinor | DFlatMajor | BFlatMinor | GFlatMajor | EFlatMinor
-                | CFlatMajor | AFlatMinor => Ok(language.note_to_str(&Note::DFlat)),
+                | CFlatMajor | AFlatMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::DFlat),
+                    note_no_accidental: note + 1,
+                },
                 DMajor | BMinor | AMajor | FSharpMinor | EMajor | CSharpMinor | BMajor
                 | GSharpMinor | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => {
-                    Ok(language.note_to_str(&Note::CSharp))
+                    LilyNoteRendered {
+                        note_name: language.note_to_str(&Note::CSharp),
+                        note_no_accidental: note - 1,
+                    }
                 }
-                DMinor => Ok(language.note_to_str(&Note::CSharp)),
+                DMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::CSharp),
+                    note_no_accidental: note - 1,
+                },
                 _ => match accidentals {
-                    LilyAccidental::Sharps => Ok(language.note_to_str(&Note::CSharp)),
-                    LilyAccidental::Flats => Ok(language.note_to_str(&Note::DFlat)),
+                    LilyAccidental::Sharps => LilyNoteRendered {
+                        note_name: language.note_to_str(&Note::CSharp),
+                        note_no_accidental: note - 1,
+                    },
+                    LilyAccidental::Flats => LilyNoteRendered {
+                        note_name: language.note_to_str(&Note::DFlat),
+                        note_no_accidental: note + 1,
+                    },
                 },
             },
             2 => match key {
-                EFlatMinor => Ok(language.note_to_str(&Note::D)),
-                DSharpMinor => Ok(language.note_to_str(&Note::CSharpSharp)),
-                _ => Ok(language.note_to_str(&Note::D)),
+                EFlatMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::D),
+                    note_no_accidental: note,
+                },
+                DSharpMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::CSharpSharp),
+                    note_no_accidental: note - 2,
+                },
+                _ => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::D),
+                    note_no_accidental: note,
+                },
             },
             3 => match key {
                 BFlatMajor | GMinor | EFlatMajor | CMinor | AFlatMajor | FMinor | DFlatMajor
                 | BFlatMinor | GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => {
-                    Ok(language.note_to_str(&Note::EFlat))
+                    LilyNoteRendered {
+                        note_name: language.note_to_str(&Note::EFlat),
+                        note_no_accidental: note + 1,
+                    }
                 }
                 EMajor | CSharpMinor | BMajor | GSharpMinor | FSharpMajor | DSharpMinor
-                | CSharpMajor | ASharpMinor => Ok(language.note_to_str(&Note::DSharp)),
-                EMinor => Ok(language.note_to_str(&Note::DSharp)),
+                | CSharpMajor | ASharpMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::DSharp),
+                    note_no_accidental: note - 1,
+                },
+                EMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::DSharp),
+                    note_no_accidental: note - 1,
+                },
                 _ => match accidentals {
-                    LilyAccidental::Sharps => Ok(language.note_to_str(&Note::DSharp)),
-                    LilyAccidental::Flats => Ok(language.note_to_str(&Note::EFlat)),
+                    LilyAccidental::Sharps => LilyNoteRendered {
+                        note_name: language.note_to_str(&Note::DSharp),
+                        note_no_accidental: note - 1,
+                    },
+                    LilyAccidental::Flats => LilyNoteRendered {
+                        note_name: language.note_to_str(&Note::EFlat),
+                        note_no_accidental: note + 1,
+                    },
                 },
             },
             4 => match key {
-                CFlatMajor | AFlatMinor => Ok(language.note_to_str(&Note::FFlat)),
-                FMinor => Ok(language.note_to_str(&Note::E)),
-                _ => Ok(language.note_to_str(&Note::E)),
+                CFlatMajor | AFlatMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::FFlat),
+                    note_no_accidental: note + 1,
+                },
+                FMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::E),
+                    note_no_accidental: note,
+                },
+                _ => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::E),
+                    note_no_accidental: note,
+                },
             },
             5 => match key {
-                FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => {
-                    Ok(language.note_to_str(&Note::ESharp))
-                }
-                FSharpMinor => Ok(language.note_to_str(&Note::ESharp)),
-                _ => Ok(language.note_to_str(&Note::F)),
+                FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::ESharp),
+                    note_no_accidental: note - 1,
+                },
+                FSharpMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::ESharp),
+                    note_no_accidental: note - 1,
+                },
+                _ => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::F),
+                    note_no_accidental: note,
+                },
             },
             6 => match key {
                 DFlatMajor | BFlatMinor | GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => {
-                    Ok(language.note_to_str(&Note::GFlat))
+                    LilyNoteRendered {
+                        note_name: language.note_to_str(&Note::GFlat),
+                        note_no_accidental: note + 1,
+                    }
                 }
                 GMajor | EMinor | DMajor | BMinor | AMajor | FSharpMinor | EMajor | CSharpMinor
                 | BMajor | GSharpMinor | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => {
-                    Ok(language.note_to_str(&Note::FSharp))
+                    LilyNoteRendered {
+                        note_name: language.note_to_str(&Note::FSharp),
+                        note_no_accidental: note - 1,
+                    }
                 }
-                GMinor => Ok(language.note_to_str(&Note::FSharp)),
+                GMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::FSharp),
+                    note_no_accidental: note - 1,
+                },
                 _ => match accidentals {
-                    LilyAccidental::Sharps => Ok(language.note_to_str(&Note::FSharp)),
-                    LilyAccidental::Flats => Ok(language.note_to_str(&Note::GFlat)),
+                    LilyAccidental::Sharps => LilyNoteRendered {
+                        note_name: language.note_to_str(&Note::FSharp),
+                        note_no_accidental: note - 1,
+                    },
+                    LilyAccidental::Flats => LilyNoteRendered {
+                        note_name: language.note_to_str(&Note::GFlat),
+                        note_no_accidental: note + 1,
+                    },
                 },
             },
             7 => match key {
-                AFlatMinor => Ok(language.note_to_str(&Note::G)),
-                GSharpMinor => Ok(language.note_to_str(&Note::FSharpSharp)),
-                _ => Ok(language.note_to_str(&Note::G)),
+                AFlatMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::G),
+                    note_no_accidental: note,
+                },
+                GSharpMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::FSharpSharp),
+                    note_no_accidental: note - 2,
+                },
+                _ => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::G),
+                    note_no_accidental: note,
+                },
             },
             8 => match key {
                 EFlatMajor | CMinor | AFlatMajor | FMinor | DFlatMajor | BFlatMinor
-                | GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => {
-                    Ok(language.note_to_str(&Note::AFlat))
-                }
+                | GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::AFlat),
+                    note_no_accidental: note + 1,
+                },
                 AMajor | FSharpMinor | EMajor | CSharpMinor | BMajor | GSharpMinor
-                | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => {
-                    Ok(language.note_to_str(&Note::GSharp))
-                }
-                AMinor => Ok(language.note_to_str(&Note::GSharp)),
+                | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::GSharp),
+                    note_no_accidental: note - 1,
+                },
+                AMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::GSharp),
+                    note_no_accidental: note - 1,
+                },
                 _ => match accidentals {
-                    LilyAccidental::Sharps => Ok(language.note_to_str(&Note::GSharp)),
-                    LilyAccidental::Flats => Ok(language.note_to_str(&Note::AFlat)),
+                    LilyAccidental::Sharps => LilyNoteRendered {
+                        note_name: language.note_to_str(&Note::GSharp),
+                        note_no_accidental: note - 1,
+                    },
+                    LilyAccidental::Flats => LilyNoteRendered {
+                        note_name: language.note_to_str(&Note::AFlat),
+                        note_no_accidental: note + 1,
+                    },
                 },
             },
             9 => match key {
-                BFlatMinor => Ok(language.note_to_str(&Note::A)),
-                ASharpMinor => Ok(language.note_to_str(&Note::GSharpSharp)),
-                _ => Ok(language.note_to_str(&Note::A)),
+                BFlatMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::A),
+                    note_no_accidental: note,
+                },
+                ASharpMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::GSharpSharp),
+                    note_no_accidental: note - 2,
+                },
+                _ => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::A),
+                    note_no_accidental: note,
+                },
             },
             10 => match key {
                 FMajor | DMinor | BFlatMajor | GMinor | EFlatMajor | CMinor | AFlatMajor
                 | FMinor | DFlatMajor | BFlatMinor | GFlatMajor | EFlatMinor | CFlatMajor
-                | AFlatMinor => Ok(language.note_to_str(&Note::BFlat)),
+                | AFlatMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::BFlat),
+                    note_no_accidental: note + 1,
+                },
                 BMajor | GSharpMinor | FSharpMajor | DSharpMinor | CSharpMajor | ASharpMinor => {
-                    Ok(language.note_to_str(&Note::ASharp))
+                    LilyNoteRendered {
+                        note_name: language.note_to_str(&Note::ASharp),
+                        note_no_accidental: note - 1,
+                    }
                 }
-                BMinor => Ok(language.note_to_str(&Note::ASharp)),
+                BMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::ASharp),
+                    note_no_accidental: note - 1,
+                },
                 _ => match accidentals {
-                    LilyAccidental::Sharps => Ok(language.note_to_str(&Note::ASharp)),
-                    LilyAccidental::Flats => Ok(language.note_to_str(&Note::BFlat)),
+                    LilyAccidental::Sharps => LilyNoteRendered {
+                        note_name: language.note_to_str(&Note::ASharp),
+                        note_no_accidental: note - 1,
+                    },
+                    LilyAccidental::Flats => LilyNoteRendered {
+                        note_name: language.note_to_str(&Note::BFlat),
+                        note_no_accidental: note + 1,
+                    },
                 },
             },
             11 => match key {
-                GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => {
-                    Ok(language.note_to_str(&Note::CFlat))
-                }
-                CMinor => Ok(language.note_to_str(&Note::B)),
-                _ => Ok(language.note_to_str(&Note::B)),
+                GFlatMajor | EFlatMinor | CFlatMajor | AFlatMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::CFlat),
+                    note_no_accidental: note + 1,
+                },
+                CMinor => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::B),
+                    note_no_accidental: note,
+                },
+                _ => LilyNoteRendered {
+                    note_name: language.note_to_str(&Note::B),
+                    note_no_accidental: note,
+                },
             },
-            _ => Err(LilypondNoteError::OutsideOctave(note)),
+            _ => panic!("Note within octave"),
         }
     }
 
