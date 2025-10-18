@@ -40,6 +40,14 @@ fn main() {
                 .action(ArgAction::Set)
                 .value_parser(value_parser!(OctaveEntry))
                 .default_value("absolute"),
+            arg!(--"octave-check-notes" "Whether to add octave checks to the notes")
+                .action(ArgAction::Set)
+                .value_parser(value_parser!(bool))
+                .default_value("false"),
+            arg!(--"octave-check-on-next-note" "Add an octave check to the next note")
+                .action(ArgAction::Set)
+                .value_parser(value_parser!(bool))
+                .default_value("false"),
             arg!(--alterations "Custom alterations within an octave").action(ArgAction::Set),
             arg!(--"global-alterations" <alterations> "Global alterations over all notes")
                 .action(ArgAction::Set),
@@ -49,7 +57,15 @@ fn main() {
             arg!(--"list-options" <argument> "List available options for a given argument")
                 .exclusive(true)
                 .action(ArgAction::Set)
-                .value_parser(["key", "accidentals", "mode", "language", "octave-entry"]),
+                .value_parser([
+                    "key",
+                    "accidentals",
+                    "mode",
+                    "language",
+                    "octave-entry",
+                    "octave-check-notes",
+                    "octave-check-on-next-note",
+                ]),
             arg!(--"raw-midi" "Display raw MIDI events instead of LilyPond notes"),
         ])
         .get_matches();
@@ -71,6 +87,10 @@ fn main() {
             "mode" => InputMode::list_options(),
             "language" => Language::list_options(),
             "octave-entry" => OctaveEntry::list_options(),
+            "octave-check-notes" | "octave-check-on-next-note" => {
+                output!("{} {}", "True", "true");
+                output!("{} {}", "False", "false");
+            }
             _ => echoerr!("Invalid argument specified for listing."),
         }
         return;
@@ -98,6 +118,12 @@ fn main() {
                 .get_one::<OctaveEntry>("octave-entry")
                 .expect("ocatve entry is given and valid")
                 .clone(),
+            *matches
+                .get_one::<bool>("octave-check-on-next-note")
+                .expect("octave check on next note is given and valid"),
+            *matches
+                .get_one::<bool>("octave-check-notes")
+                .expect("octave check notes is given and valid"),
             match matches.get_one::<String>("alterations") {
                 Some(alts) => {
                     let mut result = HashMap::new();
@@ -324,6 +350,28 @@ fn main() {
                             },
                         };
                     }
+                    "octave-check-notes" => {
+                        match value {
+                            "true" => params.set_octave_check_notes(true),
+                            _ => params.set_octave_check_notes(false),
+                        }
+                        echoinfo!(
+                            "Update octave-check-notes={:?}",
+                            params.octave_check_notes()
+                        );
+                    }
+                    "octave-check-on-next-note" | "oconn" => {
+                        match value {
+                            "true" => {
+                                params.set_octave_check_on_next_note(true);
+                            }
+                            _ => params.set_octave_check_on_next_note(false),
+                        }
+                        echoinfo!(
+                            "Update octave-check-on-next-note={:?}",
+                            params.octave_check_on_next_note()
+                        );
+                    }
                     "alterations" | "alt" => match value {
                         "clear" => {
                             params.clear_alterations();
@@ -428,6 +476,15 @@ fn main() {
                         "mode" | "m" => echoinfo!("Mode = {:?}", params.mode()),
                         "language" => echoinfo!("Language = {:?}", params.language()),
                         "octave-entry" => echoinfo!("Octave entry = {:?}", params.octave_entry()),
+                        "octave-check-notes" => {
+                            echoinfo!("Octave check notes = {:?}", params.octave_check_notes())
+                        }
+                        "octave-check-on-next-note" | "oconn" => {
+                            echoinfo!(
+                                "Octave check on next note = {:?}",
+                                params.octave_check_on_next_note()
+                            )
+                        }
                         "alterations" | "alt" => {
                             echoinfo!("Alterations = {:?}", params.alterations())
                         }
@@ -449,6 +506,11 @@ fn main() {
                             echoinfo!("Mode = {:?}", params.mode());
                             echoinfo!("Language = {:?}", params.language());
                             echoinfo!("Octave entry = {:?}", params.octave_entry());
+                            echoinfo!("Octave check notes = {:?}", params.octave_check_notes());
+                            echoinfo!(
+                                "Octave check on next note = {:?}",
+                                params.octave_check_on_next_note()
+                            );
                             echoinfo!("Alterations = {:?}", params.alterations());
                             echoinfo!("Global alterations = {:?}", params.global_alterations());
                             echoinfo!("Previous chord = {:?}", params.previous_chord());

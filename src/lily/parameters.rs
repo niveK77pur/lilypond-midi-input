@@ -13,6 +13,10 @@ pub struct LilyParameters {
     pub(super) mode: InputMode,
     pub(super) language: Language,
     pub(super) octave_entry: OctaveEntry,
+    /// control adding of octave check on the next generated note
+    pub(super) octave_check_on_next_note: bool,
+    /// control adding of octave checks on all generated notes
+    pub(super) octave_check_notes: bool,
     /// custom alterations within an octave (0-11)
     pub(super) alterations: Alteration,
     /// custom alterations over all notes
@@ -30,6 +34,8 @@ impl LilyParameters {
         mode: InputMode,
         language: Language,
         octave_entry: OctaveEntry,
+        octave_check_on_next_note: bool,
+        octave_check_notes: bool,
         alterations: Alteration,
         global_alterations: Alteration,
     ) -> Result<Self, LilyParametersError> {
@@ -44,6 +50,8 @@ impl LilyParameters {
             mode,
             language,
             octave_entry,
+            octave_check_on_next_note,
+            octave_check_notes,
             alterations,
             global_alterations,
             previous_chord: None,
@@ -80,6 +88,18 @@ impl LilyParameters {
     }
     pub fn set_octave_entry(&mut self, octave_entry: OctaveEntry) {
         self.octave_entry = octave_entry
+    }
+    pub fn octave_check_on_next_note(&self) -> &bool {
+        &self.octave_check_on_next_note
+    }
+    pub fn set_octave_check_on_next_note(&mut self, octave_check_on_next_note: bool) {
+        self.octave_check_on_next_note = octave_check_on_next_note
+    }
+    pub fn octave_check_notes(&self) -> &bool {
+        &self.octave_check_notes
+    }
+    pub fn set_octave_check_notes(&mut self, octave_check_notes: bool) {
+        self.octave_check_notes = octave_check_notes
     }
     pub fn alterations(&self) -> &Alteration {
         &self.alterations
