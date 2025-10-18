@@ -15,6 +15,8 @@ pub struct LilyNote<'a> {
     octave: i8,
     /// original midi value
     note: MidiNote,
+    /// absolute octave to include for octave check
+    octave_check: Option<i8>,
 }
 
 impl<'a> LilyNote<'a> {
@@ -38,6 +40,7 @@ impl<'a> LilyNote<'a> {
             },
             octave,
             note: value,
+            octave_check,
         }
     }
 
@@ -225,6 +228,7 @@ impl<'a> LilyNote<'a> {
                     letter,
                     octave,
                     note,
+                    octave_check: None,
                 })
             }
             None => Err(LilypondNoteError::InvalidNoteString(s.into())),
@@ -234,13 +238,28 @@ impl<'a> LilyNote<'a> {
 
 impl<'a> From<&LilyNote<'a>> for String {
     fn from(value: &LilyNote) -> Self {
-        let LilyNote { letter, octave, .. } = value;
+        let LilyNote {
+            letter,
+            octave,
+            octave_check,
+            ..
+        } = value;
         let octave = match octave.cmp(&0) {
             std::cmp::Ordering::Less => ",".repeat(octave.unsigned_abs() as usize),
             std::cmp::Ordering::Equal => "".into(),
             std::cmp::Ordering::Greater => "'".repeat(*octave as usize),
         };
-        format!("{}{}", letter, octave)
+        match octave_check {
+            Some(check) => {
+                let octave_check = match check.cmp(&0) {
+                    std::cmp::Ordering::Less => ",".repeat(check.unsigned_abs() as usize),
+                    std::cmp::Ordering::Equal => "".into(),
+                    std::cmp::Ordering::Greater => "'".repeat(*check as usize),
+                };
+                format!("{}{}={}", letter, octave, octave_check)
+            }
+            None => format!("{}{}", letter, octave),
+        }
     }
 }
 
