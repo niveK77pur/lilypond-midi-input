@@ -41,6 +41,7 @@ pub struct LilyParameters {
 }
 
 impl LilyParameters {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         key: LilyKeySignature,
         accidentals: LilyAccidental,
