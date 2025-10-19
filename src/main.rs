@@ -289,60 +289,68 @@ fn main() {
                 let key = cap.name("key").expect("Valid named group").as_str();
                 let value = cap.name("value").expect("Valid named group").as_str();
                 match key {
-                    "key" | "k" => params.set_key(match value.try_into() {
-                        Ok(v) => {
-                            echoinfo!("Update key={:?}", v);
-                            v
-                        }
-                        Err(e) => match e {
-                            lily::LilypondNoteError::OutsideOctave(_) => {
-                                panic!("This error will not occur here.")
+                    "key" | "k" => {
+                        params.set_key(match value.try_into() {
+                            Ok(v) => {
+                                echoinfo!("Update key={:?}", v);
+                                v
                             }
-                            lily::LilypondNoteError::InvalidKeyString(key) => {
-                                echoerr!("Invalid key provided: {key}");
-                                continue;
+                            Err(e) => match e {
+                                lily::LilypondNoteError::OutsideOctave(_) => {
+                                    panic!("This error will not occur here.")
+                                }
+                                lily::LilypondNoteError::InvalidKeyString(key) => {
+                                    echoerr!("Invalid key provided: {key}");
+                                    continue;
+                                }
+                                lily::LilypondNoteError::InvalidNoteString(_) => {
+                                    panic!("This error should not occur here.")
+                                }
+                            },
+                        });
+                    }
+                    "accidentals" | "a" => {
+                        params.set_accidentals(match value.try_into() {
+                            Ok(v) => {
+                                echoinfo!("Update accidentals={:?}", v);
+                                v
                             }
-                            lily::LilypondNoteError::InvalidNoteString(_) => {
-                                panic!("This error should not occur here.")
+                            Err(e) => match e {
+                                lily::LilypondAccidentalError::InvalidAccidentalString(a) => {
+                                    echoerr!("Invalid accidental provided: {a}");
+                                    continue;
+                                }
+                            },
+                        });
+                    }
+                    "mode" | "m" => {
+                        params.set_mode(match value.try_into() {
+                            Ok(m) => {
+                                echoinfo!("Update mode={:?}", m);
+                                m
                             }
-                        },
-                    }),
-                    "accidentals" | "a" => params.set_accidentals(match value.try_into() {
-                        Ok(v) => {
-                            echoinfo!("Update accidentals={:?}", v);
-                            v
-                        }
-                        Err(e) => match e {
-                            lily::LilypondAccidentalError::InvalidAccidentalString(a) => {
-                                echoerr!("Invalid accidental provided: {a}");
-                                continue;
+                            Err(e) => match e {
+                                lilypond_midi_input::InputModeError::InvalidModeString(mode) => {
+                                    echoerr!("Invalid mode provided: {mode}");
+                                    continue;
+                                }
+                            },
+                        });
+                    }
+                    "language" => {
+                        params.set_language(match value.try_into() {
+                            Ok(lang) => {
+                                echoinfo!("Update language={:?}", lang);
+                                lang
                             }
-                        },
-                    }),
-                    "mode" | "m" => params.set_mode(match value.try_into() {
-                        Ok(m) => {
-                            echoinfo!("Update mode={:?}", m);
-                            m
-                        }
-                        Err(e) => match e {
-                            lilypond_midi_input::InputModeError::InvalidModeString(mode) => {
-                                echoerr!("Invalid mode provided: {mode}");
-                                continue;
-                            }
-                        },
-                    }),
-                    "language" => params.set_language(match value.try_into() {
-                        Ok(lang) => {
-                            echoinfo!("Update language={:?}", lang);
-                            lang
-                        }
-                        Err(e) => match e {
-                            lily::LilypondLanguageError::InvalidLanguageString(lang) => {
-                                echoerr!("Invalid language provided: {lang}");
-                                continue;
-                            }
-                        },
-                    }),
+                            Err(e) => match e {
+                                lily::LilypondLanguageError::InvalidLanguageString(lang) => {
+                                    echoerr!("Invalid language provided: {lang}");
+                                    continue;
+                                }
+                            },
+                        });
+                    }
                     "octave-entry" => {
                         match value.try_into() {
                             Ok(oe) => {
@@ -364,8 +372,12 @@ fn main() {
                     }
                     "octave-check-notes" => {
                         match value {
-                            "true" => params.set_octave_check_notes(true),
-                            _ => params.set_octave_check_notes(false),
+                            "true" => {
+                                params.set_octave_check_notes(true);
+                            }
+                            _ => {
+                                params.set_octave_check_notes(false);
+                            }
                         }
                         echoinfo!(
                             "Update octave-check-notes={:?}",
@@ -377,7 +389,9 @@ fn main() {
                             "true" => {
                                 params.set_octave_check_on_next_note(true);
                             }
-                            _ => params.set_octave_check_on_next_note(false),
+                            _ => {
+                                params.set_octave_check_on_next_note(false);
+                            }
                         }
                         echoinfo!(
                             "Update octave-check-on-next-note={:?}",
@@ -430,7 +444,9 @@ fn main() {
                     },
                     "previous-chord" | "pc" => {
                         match value {
-                            "clear" => params.set_previous_chord(Some(BTreeSet::new())),
+                            "clear" => {
+                                params.set_previous_chord(Some(BTreeSet::new()));
+                            }
                             _ => {
                                 match params.set_previous_chord_lilypond_str(
                                     value.split(':').map(String::from).collect(),
@@ -457,7 +473,9 @@ fn main() {
                         }
                     }
                     "previous-absolute-note-reference" | "panr" => match value {
-                        "clear" => params.set_previous_absolute_note_reference(None),
+                        "clear" => {
+                            params.set_previous_absolute_note_reference(None);
+                        }
                         _ => match params
                             .set_previous_absolute_note_reference_lilypond_str(String::from(value))
                         {

@@ -1,29 +1,42 @@
 use std::collections::{BTreeSet, HashMap};
 
+use getset::{Getters, Setters};
+
 use crate::{InputMode, MidiNote};
 
 use super::{Language, LilyAccidental, LilyKeySignature, LilyNote, LilypondNoteError, OctaveEntry};
 
 type Alteration = HashMap<MidiNote, String>;
 
-#[derive(Debug)]
+#[derive(Debug, Getters, Setters)]
 pub struct LilyParameters {
+    #[getset(get = "pub", set = "pub")]
     pub(super) key: LilyKeySignature,
+    #[getset(get = "pub", set = "pub")]
     pub(super) accidentals: LilyAccidental,
+    #[getset(get = "pub", set = "pub")]
     pub(super) mode: InputMode,
+    #[getset(get = "pub", set = "pub")]
     pub(super) language: Language,
+    #[getset(get = "pub", set = "pub")]
     pub(super) octave_entry: OctaveEntry,
     /// control adding of octave check on the next generated note
+    #[getset(get = "pub", set = "pub")]
     pub(super) octave_check_on_next_note: bool,
     /// control adding of octave checks on all generated notes
+    #[getset(get = "pub", set = "pub")]
     pub(super) octave_check_notes: bool,
     /// custom alterations within an octave (0-11)
+    #[getset(get = "pub")]
     pub(super) alterations: Alteration,
     /// custom alterations over all notes
+    #[getset(get = "pub", set = "pub")]
     pub(super) global_alterations: Alteration,
     /// manually set the previous chord for generating a 'q' shorthand
+    #[getset(set = "pub")]
     pub(super) previous_chord: Option<BTreeSet<MidiNote>>,
     /// the previous note in absolute pitch used to calculate the next note in relative pitch
+    #[getset(set = "pub")]
     pub(super) previous_absolute_note_reference: Option<MidiNote>,
 }
 
@@ -59,66 +72,24 @@ impl LilyParameters {
         })
     }
 
-    pub fn key(&self) -> &LilyKeySignature {
-        &self.key
-    }
-    pub fn set_key(&mut self, key: LilyKeySignature) {
-        self.key = key
-    }
-    pub fn accidentals(&self) -> &LilyAccidental {
-        &self.accidentals
-    }
-    pub fn set_accidentals(&mut self, accidentals: LilyAccidental) {
-        self.accidentals = accidentals
-    }
-    pub fn mode(&self) -> &InputMode {
-        &self.mode
-    }
-    pub fn set_mode(&mut self, mode: InputMode) {
-        self.mode = mode
-    }
-    pub fn language(&self) -> &Language {
-        &self.language
-    }
-    pub fn set_language(&mut self, language: Language) {
-        self.language = language
-    }
-    pub fn octave_entry(&self) -> &OctaveEntry {
-        &self.octave_entry
-    }
-    pub fn set_octave_entry(&mut self, octave_entry: OctaveEntry) {
-        self.octave_entry = octave_entry
-    }
-    pub fn octave_check_on_next_note(&self) -> &bool {
-        &self.octave_check_on_next_note
-    }
-    pub fn set_octave_check_on_next_note(&mut self, octave_check_on_next_note: bool) {
-        self.octave_check_on_next_note = octave_check_on_next_note
-    }
-    pub fn octave_check_notes(&self) -> &bool {
-        &self.octave_check_notes
-    }
-    pub fn set_octave_check_notes(&mut self, octave_check_notes: bool) {
-        self.octave_check_notes = octave_check_notes
-    }
-    pub fn alterations(&self) -> &Alteration {
-        &self.alterations
-    }
-    pub fn set_alterations(&mut self, alterations: Alteration) -> Result<(), LilypondNoteError> {
+    pub fn set_alterations(
+        &mut self,
+        alterations: Alteration,
+    ) -> Result<&mut Self, LilypondNoteError> {
         for alt in &alterations {
             Self::verify_alteration(alt.0)?;
         }
         self.alterations = alterations;
-        Ok(())
+        Ok(self)
     }
     pub fn add_alteration(
         &mut self,
         note: MidiNote,
         value: String,
-    ) -> Result<(), LilypondNoteError> {
+    ) -> Result<&mut Self, LilypondNoteError> {
         Self::verify_alteration(&note)?;
         self.alterations.insert(note, value);
-        Ok(())
+        Ok(self)
     }
     pub fn clear_alterations(&mut self) {
         self.set_alterations(HashMap::new())
@@ -137,12 +108,6 @@ impl LilyParameters {
             Err(LilypondNoteError::OutsideOctave(*note))
         }
     }
-    pub fn global_alterations(&self) -> &Alteration {
-        &self.global_alterations
-    }
-    pub fn set_global_alterations(&mut self, global_alterations: Alteration) {
-        self.global_alterations = global_alterations
-    }
     pub fn add_global_alteration(&mut self, note: MidiNote, value: String) {
         self.global_alterations.insert(note, value);
     }
@@ -155,36 +120,27 @@ impl LilyParameters {
     pub fn previous_chord(&mut self) -> Option<&BTreeSet<MidiNote>> {
         self.previous_chord.as_ref()
     }
-    pub fn set_previous_chord(&mut self, previous_chord: Option<BTreeSet<MidiNote>>) {
-        self.previous_chord = previous_chord;
-    }
     pub fn set_previous_chord_lilypond_str(
         &mut self,
         previous_chord: Vec<String>,
-    ) -> Result<(), LilypondNoteError> {
+    ) -> Result<&mut Self, LilypondNoteError> {
         let mut chord = BTreeSet::new();
         for note in previous_chord.into_iter() {
             chord.insert(*LilyNote::from_lilypond_str(note.as_str())?.note());
         }
         self.previous_chord = Some(chord);
-        Ok(())
+        Ok(self)
     }
     pub fn previous_absolute_note_reference(&mut self) -> Option<&MidiNote> {
         self.previous_absolute_note_reference.as_ref()
     }
-    pub fn set_previous_absolute_note_reference(
-        &mut self,
-        previous_absolute_note_reference: Option<MidiNote>,
-    ) {
-        self.previous_absolute_note_reference = previous_absolute_note_reference;
-    }
     pub fn set_previous_absolute_note_reference_lilypond_str(
         &mut self,
         previous_absolute_note_reference: String,
-    ) -> Result<(), LilypondNoteError> {
+    ) -> Result<&mut Self, LilypondNoteError> {
         self.previous_absolute_note_reference =
             Some(*LilyNote::from_lilypond_str(&previous_absolute_note_reference)?.note());
-        Ok(())
+        Ok(self)
     }
 }
 
