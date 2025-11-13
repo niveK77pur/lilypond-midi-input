@@ -6,7 +6,7 @@ use std::{
 use clap::{arg, command, value_parser, ArgAction};
 use lilypond_midi_input::{
     echoerr, echoinfo,
-    lily::{self, Language, LilyAccidental, LilyKeySignature},
+    lily::{self, Language, LilyAccidental, LilyKeySignature, OctaveEntry},
     midi::{self, list_input_devices},
     output, InputMode, ListOptions, MidiNote,
 };
@@ -36,6 +36,18 @@ fn main() {
                 .action(ArgAction::Set)
                 .value_parser(value_parser!(Language))
                 .default_value("nederlands"),
+            arg!(--"octave-entry" "Octave entry mode to use")
+                .action(ArgAction::Set)
+                .value_parser(value_parser!(OctaveEntry))
+                .default_value("absolute"),
+            arg!(--"octave-check-notes" "Whether to add octave checks to the notes")
+                .action(ArgAction::Set)
+                .value_parser(value_parser!(bool))
+                .default_value("false"),
+            arg!(--"octave-check-on-next-note" "Add an octave check to the next note")
+                .action(ArgAction::Set)
+                .value_parser(value_parser!(bool))
+                .default_value("false"),
             arg!(--alterations "Custom alterations within an octave").action(ArgAction::Set),
             arg!(--"global-alterations" <alterations> "Global alterations over all notes")
                 .action(ArgAction::Set),
@@ -45,7 +57,15 @@ fn main() {
             arg!(--"list-options" <argument> "List available options for a given argument")
                 .exclusive(true)
                 .action(ArgAction::Set)
-                .value_parser(["key", "accidentals", "mode", "language"]),
+                .value_parser([
+                    "key",
+                    "accidentals",
+                    "mode",
+                    "language",
+                    "octave-entry",
+                    "octave-check-notes",
+                    "octave-check-on-next-note",
+                ]),
             arg!(--"raw-midi" "Display raw MIDI events instead of LilyPond notes"),
         ])
         .get_matches();
@@ -66,6 +86,11 @@ fn main() {
             "accidentals" => LilyAccidental::list_options(),
             "mode" => InputMode::list_options(),
             "language" => Language::list_options(),
+            "octave-entry" => OctaveEntry::list_options(),
+            "octave-check-notes" | "octave-check-on-next-note" => {
+                output!("{} {}", "True", "true");
+                output!("{} {}", "False", "false");
+            }
             _ => echoerr!("Invalid argument specified for listing."),
         }
         return;
@@ -89,6 +114,16 @@ fn main() {
                 Some(lang) => lang.clone(),
                 None => Language::default(),
             },
+            matches
+                .get_one::<OctaveEntry>("octave-entry")
+                .expect("ocatve entry is given and valid")
+                .clone(),
+            *matches
+                .get_one::<bool>("octave-check-on-next-note")
+                .expect("octave check on next note is given and valid"),
+            *matches
+                .get_one::<bool>("octave-check-notes")
+                .expect("octave check notes is given and valid"),
             match matches.get_one::<String>("alterations") {
                 Some(alts) => {
                     let mut result = HashMap::new();
@@ -193,16 +228,23 @@ fn main() {
                         match notes.len().cmp(&1) {
                             std::cmp::Ordering::Less => (),
                             std::cmp::Ordering::Equal => {
-                                let lilynote = lily::LilyNote::new(
-                                    notes.pop_first().expect("A note was pressed"),
-                                    &params,
-                                );
-                                output!("{lilynote}")
+                                let note = notes.pop_first().expect("A note was pressed");
+                                let lilynote = lily::LilyNote::new(note, &params);
+                                output!("{lilynote}");
+                                params.set_previous_absolute_note_reference(Some(note));
+                                params.set_octave_check_on_next_note(false);
                             }
                             std::cmp::Ordering::Greater => {
                                 let chord: String = notes
                                     .iter()
-                                    .map(|note| lily::LilyNote::new(*note, &params).to_string())
+                                    .map(|note| {
+                                        let lily_note =
+                                            lily::LilyNote::new(*note, &params).to_string();
+                                        // Need to calculate relative octave among notes in chord
+                                        params.set_previous_absolute_note_reference(Some(*note));
+                                        params.set_octave_check_on_next_note(false);
+                                        lily_note
+                                    })
                                     .collect::<Vec<String>>()
                                     .join(" ");
                                 match last_chord.as_ref() == Some(&notes) {
@@ -212,6 +254,11 @@ fn main() {
                                         last_chord = Some(notes.clone());
                                     }
                                 }
+                                // Set to first note in the chord
+                                params.set_previous_absolute_note_reference(Some(
+                                    *notes.first().expect("At least one note is given"),
+                                ));
+                                params.set_octave_check_on_next_note(false);
                                 notes.clear();
                             }
                         }
@@ -219,11 +266,11 @@ fn main() {
                 }
                 false => {
                     if !notes.is_empty() {
-                        let lilynote = lily::LilyNote::new(
-                            notes.pop_first().expect("A note was pressed"),
-                            &params,
-                        );
-                        output!("{lilynote}")
+                        let note = notes.pop_first().expect("A note was pressed");
+                        let lilynote = lily::LilyNote::new(note, &params);
+                        output!("{lilynote}");
+                        params.set_previous_absolute_note_reference(Some(note));
+                        params.set_octave_check_on_next_note(false);
                     }
                 }
             }
@@ -242,60 +289,115 @@ fn main() {
                 let key = cap.name("key").expect("Valid named group").as_str();
                 let value = cap.name("value").expect("Valid named group").as_str();
                 match key {
-                    "key" | "k" => params.set_key(match value.try_into() {
-                        Ok(v) => {
-                            echoinfo!("Update key={:?}", v);
-                            v
+                    "key" | "k" => {
+                        params.set_key(match value.try_into() {
+                            Ok(v) => {
+                                echoinfo!("Update key={:?}", v);
+                                v
+                            }
+                            Err(e) => match e {
+                                lily::LilypondNoteError::OutsideOctave(_) => {
+                                    panic!("This error will not occur here.")
+                                }
+                                lily::LilypondNoteError::InvalidKeyString(key) => {
+                                    echoerr!("Invalid key provided: {key}");
+                                    continue;
+                                }
+                                lily::LilypondNoteError::InvalidNoteString(_) => {
+                                    panic!("This error should not occur here.")
+                                }
+                            },
+                        });
+                    }
+                    "accidentals" | "a" => {
+                        params.set_accidentals(match value.try_into() {
+                            Ok(v) => {
+                                echoinfo!("Update accidentals={:?}", v);
+                                v
+                            }
+                            Err(e) => match e {
+                                lily::LilypondAccidentalError::InvalidAccidentalString(a) => {
+                                    echoerr!("Invalid accidental provided: {a}");
+                                    continue;
+                                }
+                            },
+                        });
+                    }
+                    "mode" | "m" => {
+                        params.set_mode(match value.try_into() {
+                            Ok(m) => {
+                                echoinfo!("Update mode={:?}", m);
+                                m
+                            }
+                            Err(e) => match e {
+                                lilypond_midi_input::InputModeError::InvalidModeString(mode) => {
+                                    echoerr!("Invalid mode provided: {mode}");
+                                    continue;
+                                }
+                            },
+                        });
+                    }
+                    "language" => {
+                        params.set_language(match value.try_into() {
+                            Ok(lang) => {
+                                echoinfo!("Update language={:?}", lang);
+                                lang
+                            }
+                            Err(e) => match e {
+                                lily::LilypondLanguageError::InvalidLanguageString(lang) => {
+                                    echoerr!("Invalid language provided: {lang}");
+                                    continue;
+                                }
+                            },
+                        });
+                    }
+                    "octave-entry" => {
+                        match value.try_into() {
+                            Ok(oe) => {
+                                params.set_previous_absolute_note_reference(None);
+                                echoinfo!(
+                                    "Previous absolute note reference set to {:?}",
+                                    params.previous_absolute_note_reference()
+                                );
+                                echoinfo!("Update octave-entry={:?}", oe);
+                                params.set_octave_entry(oe);
+                            }
+                            Err(e) => match e {
+                                lily::OctaveEntryError::InvalidOctaveEntryString(oe) => {
+                                    echoerr!("Invalid octave-entry provided: {oe}");
+                                    continue;
+                                }
+                            },
+                        };
+                    }
+                    "octave-check-notes" => {
+                        match value {
+                            "true" => {
+                                params.set_octave_check_notes(true);
+                            }
+                            _ => {
+                                params.set_octave_check_notes(false);
+                            }
                         }
-                        Err(e) => match e {
-                            lily::LilypondNoteError::OutsideOctave(_) => {
-                                panic!("This error will not occur here.")
+                        echoinfo!(
+                            "Update octave-check-notes={:?}",
+                            params.octave_check_notes()
+                        );
+                    }
+                    "octave-check-on-next-note" | "oconn" => {
+                        match value {
+                            "true" => {
+                                params.set_octave_check_on_next_note(true);
                             }
-                            lily::LilypondNoteError::InvalidKeyString(key) => {
-                                echoerr!("Invalid key provided: {key}");
-                                continue;
+                            _ => {
+                                params.set_octave_check_on_next_note(false);
                             }
-                            lily::LilypondNoteError::InvalidNoteString(_) => {
-                                panic!("This error should not occur here.")
-                            }
-                        },
-                    }),
-                    "accidentals" | "a" => params.set_accidentals(match value.try_into() {
-                        Ok(v) => {
-                            echoinfo!("Update accidentals={:?}", v);
-                            v
                         }
-                        Err(e) => match e {
-                            lily::LilypondAccidentalError::InvalidAccidentalString(a) => {
-                                echoerr!("Invalid accidental provided: {a}");
-                                continue;
-                            }
-                        },
-                    }),
-                    "mode" | "m" => params.set_mode(match value.try_into() {
-                        Ok(m) => {
-                            echoinfo!("Update mode={:?}", m);
-                            m
-                        }
-                        Err(e) => match e {
-                            lilypond_midi_input::InputModeError::InvalidModeString(mode) => {
-                                echoerr!("Invalid mode provided: {mode}");
-                                continue;
-                            }
-                        },
-                    }),
-                    "language" => params.set_language(match value.try_into() {
-                        Ok(lang) => {
-                            echoinfo!("Update language={:?}", lang);
-                            lang
-                        }
-                        Err(e) => match e {
-                            lily::LilypondLanguageError::InvalidLanguageString(lang) => {
-                                echoerr!("Invalid language provided: {lang}");
-                                continue;
-                            }
-                        },
-                    }),
+                        echoinfo!(
+                            "Update octave-check-on-next-note={:?}",
+                            params.octave_check_on_next_note()
+                        );
+                    }
                     "alterations" | "alt" => match value {
                         "clear" => {
                             params.clear_alterations();
@@ -342,7 +444,9 @@ fn main() {
                     },
                     "previous-chord" | "pc" => {
                         match value {
-                            "clear" => params.set_previous_chord(Some(BTreeSet::new())),
+                            "clear" => {
+                                params.set_previous_chord(Some(BTreeSet::new()));
+                            }
                             _ => {
                                 match params.set_previous_chord_lilypond_str(
                                     value.split(':').map(String::from).collect(),
@@ -368,6 +472,32 @@ fn main() {
                             }
                         }
                     }
+                    "previous-absolute-note-reference" | "panr" => match value {
+                        "clear" => {
+                            params.set_previous_absolute_note_reference(None);
+                        }
+                        _ => match params
+                            .set_previous_absolute_note_reference_lilypond_str(String::from(value))
+                        {
+                            Ok(_) => {
+                                echoinfo!(
+                                    "Previous absolute note reference set to {:?}",
+                                    params.previous_absolute_note_reference().unwrap()
+                                )
+                            }
+                            Err(e) => match e {
+                                lily::LilypondNoteError::OutsideOctave(_) => {
+                                    panic!("This error should not occur here.")
+                                }
+                                lily::LilypondNoteError::InvalidKeyString(_) => {
+                                    panic!("This error should not occur here.")
+                                }
+                                lily::LilypondNoteError::InvalidNoteString(note) => {
+                                    echoerr!("Invalid/Unrecognized LilyPond note provided: {note}")
+                                }
+                            },
+                        },
+                    },
                     "list" => match value {
                         "key" | "k" => echoinfo!("Key = {:?}", params.key()),
                         "accidentals" | "a" => {
@@ -375,6 +505,16 @@ fn main() {
                         }
                         "mode" | "m" => echoinfo!("Mode = {:?}", params.mode()),
                         "language" => echoinfo!("Language = {:?}", params.language()),
+                        "octave-entry" => echoinfo!("Octave entry = {:?}", params.octave_entry()),
+                        "octave-check-notes" => {
+                            echoinfo!("Octave check notes = {:?}", params.octave_check_notes())
+                        }
+                        "octave-check-on-next-note" | "oconn" => {
+                            echoinfo!(
+                                "Octave check on next note = {:?}",
+                                params.octave_check_on_next_note()
+                            )
+                        }
                         "alterations" | "alt" => {
                             echoinfo!("Alterations = {:?}", params.alterations())
                         }
@@ -384,14 +524,30 @@ fn main() {
                         "previous-chord" | "pc" => {
                             echoinfo!("Previous chord = {:?}", params.previous_chord())
                         }
+                        "previous-absolute-note-reference" | "panr" => {
+                            echoinfo!(
+                                "Previous absolute note reference = {:?}",
+                                params.previous_absolute_note_reference()
+                            )
+                        }
                         "all" => {
                             echoinfo!("Key = {:?}", params.key());
                             echoinfo!("Accidentals = {:?}", params.accidentals());
                             echoinfo!("Mode = {:?}", params.mode());
                             echoinfo!("Language = {:?}", params.language());
+                            echoinfo!("Octave entry = {:?}", params.octave_entry());
+                            echoinfo!("Octave check notes = {:?}", params.octave_check_notes());
+                            echoinfo!(
+                                "Octave check on next note = {:?}",
+                                params.octave_check_on_next_note()
+                            );
                             echoinfo!("Alterations = {:?}", params.alterations());
                             echoinfo!("Global alterations = {:?}", params.global_alterations());
                             echoinfo!("Previous chord = {:?}", params.previous_chord());
+                            echoinfo!(
+                                "Previous absolute note reference = {:?}",
+                                params.previous_absolute_note_reference()
+                            )
                         }
                         _ => echoerr!("Invalid argument for listing: {value}"),
                     },
