@@ -45,7 +45,7 @@ impl<'a> LilyNote<'a> {
             super::OctaveEntry::Relative => match previous_absolute_note_reference {
                 Some(panr) => {
                     let panr_rendered = Self::render(*panr, parameters);
-                    let next_octave_distance = if (
+                    let next_octave_distance = if ((
                         // The previous note is a B
                         panr_rendered.note_no_accidental % 12 == 11
                     ) && (
@@ -54,8 +54,19 @@ impl<'a> LilyNote<'a> {
                     ) && (
                         // Only consider B to F, not F to B
                         panr_rendered.note_no_accidental < note_rendered.note_no_accidental
-                    ) {
-                        // Handle special tritone case from B to F
+                    )) || ((
+                        // The previous note is an F
+                        panr_rendered.note_no_accidental % 12 == 5
+                    ) && (
+                        // The current note is a B
+                        note_rendered.note_no_accidental % 12 == 11
+                    ) && (
+                        // Only consider F to B, not B to F
+                        note_rendered.note_no_accidental < panr_rendered.note_no_accidental
+                    )) {
+                        // Handle special tritone case between the following notes:
+                        // C D E F G A B C D E F G A B C
+                        //             ^       ^
                         5
                     } else {
                         // absolute relative distance until an octave mark is needed
