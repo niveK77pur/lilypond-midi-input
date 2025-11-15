@@ -1,0 +1,12 @@
+# Fix F - B interval
+
+This release fixes the special case of a triton between F and B; concretely the following ones:
+
+```
+C D E F G A B C D E F G A B C
+            ^       ^
+```
+
+B to F and F to B (up the scale) are both tritones, which need special consideration. Only those F and B as marked above in a scale require an octave changing mark.
+
+Prior to this release, only B->F was correctly handled. This release also handles the missing case of the inverse from B<-F.
