@@ -235,6 +235,8 @@ fn main() {
                                 params.set_octave_check_on_next_note(false);
                             }
                             std::cmp::Ordering::Greater => {
+                                let previous_panr =
+                                    params.previous_absolute_note_reference().cloned();
                                 let chord: String = notes
                                     .iter()
                                     .map(|note| {
@@ -248,16 +250,20 @@ fn main() {
                                     .collect::<Vec<String>>()
                                     .join(" ");
                                 match last_chord.as_ref() == Some(&notes) {
-                                    true => output!("q"),
+                                    true => {
+                                        output!("q");
+                                        // q should not modify the panr
+                                        params.set_previous_absolute_note_reference(previous_panr);
+                                    }
                                     false => {
                                         output!("<{}>", chord);
                                         last_chord = Some(notes.clone());
+                                        // Set to first note in the chord
+                                        params.set_previous_absolute_note_reference(Some(
+                                            *notes.first().expect("At least one note is given"),
+                                        ));
                                     }
                                 }
-                                // Set to first note in the chord
-                                params.set_previous_absolute_note_reference(Some(
-                                    *notes.first().expect("At least one note is given"),
-                                ));
                                 params.set_octave_check_on_next_note(false);
                                 notes.clear();
                             }
