@@ -237,6 +237,7 @@ fn main() {
                             std::cmp::Ordering::Greater => {
                                 let previous_panr =
                                     params.previous_absolute_note_reference().cloned();
+                                let previous_oconn = *params.octave_check_on_next_note();
                                 let chord: String = notes
                                     .iter()
                                     .map(|note| {
@@ -254,6 +255,7 @@ fn main() {
                                         output!("q");
                                         // q should not modify the panr
                                         params.set_previous_absolute_note_reference(previous_panr);
+                                        params.set_octave_check_on_next_note(previous_oconn);
                                     }
                                     false => {
                                         output!("<{}>", chord);
@@ -262,9 +264,9 @@ fn main() {
                                         params.set_previous_absolute_note_reference(Some(
                                             *notes.first().expect("At least one note is given"),
                                         ));
+                                        params.set_octave_check_on_next_note(false);
                                     }
                                 }
-                                params.set_octave_check_on_next_note(false);
                                 notes.clear();
                             }
                         }
