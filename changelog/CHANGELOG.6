@@ -1,0 +1,7 @@
+# Fix `q` in relative mode should not affect octave
+
+As can be seen by the examples in the documentation on [chord repetition](https://lilypond.org/doc/v2.23/Documentation/notation/single-voice#chord-repetition), a `q` does not modify the relative octave. Even if the produced chord would require an octave change mark if written out, using a `q` will not require a following note to need an octave changing mark if the `q` were written out.
+
+This fix handles the special case of a `q` in relative octave entry, by effectively leaving the [previous-absolute-note-reference](https://github.com/niveK77pur/lilypond-midi-input?tab=readme-ov-file#options-previous-absolute-note-reference) unchanged after a `q` is inserted.
+
+At the same time, the [octave-check-on-next-note](https://github.com/niveK77pur/lilypond-midi-input?tab=readme-ov-file#options-octave-check-on-next-note) should also not be cleared after a `q` has been output. This fix also makes sure this value remains unchanged after a `q` is inserted.
