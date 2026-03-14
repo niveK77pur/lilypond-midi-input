@@ -67,6 +67,7 @@ fn main() {
                     "octave-check-on-next-note",
                 ]),
             arg!(--"raw-midi" "Display raw MIDI events instead of LilyPond notes"),
+            arg!(--"show-unknown" "Output messages for unknown MIDI events (silenced by default)"),
         ])
         .get_matches();
     let re_keyval =
@@ -220,7 +221,11 @@ fn main() {
                     pedals.remove(&pedal);
                     return;
                 }
-                midi::MidiMessageType::Unknown => echoinfo!("Unknown midi event: {:?}", event),
+                midi::MidiMessageType::Unknown => {
+                    if *matches.get_one::<bool>("show-unknown").unwrap_or(&true) {
+                        echoinfo!("Unknown midi event: {:?}", event)
+                    }
+                }
             }
             match use_chords {
                 true => {
