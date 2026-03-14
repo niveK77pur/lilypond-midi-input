@@ -220,7 +220,7 @@ fn main() {
                     pedals.remove(&pedal);
                     return;
                 }
-                midi::MidiMessageType::Unknown => todo!(),
+                midi::MidiMessageType::Unknown => echoinfo!("Unknown midi event: {:?}", event),
             }
             match use_chords {
                 true => {
