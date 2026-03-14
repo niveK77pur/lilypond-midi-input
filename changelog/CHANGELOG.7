@@ -1,0 +1,17 @@
+# Fix panic caused by `todo!()`
+
+This release addresses #6.
+
+It may happen that MIDI messages are received which are _not expected_ by this program. The `todo!()` clearly indicated unfinished work, however, an unknown message should not imply a critical failure.
+
+If an unknown MIDI event is received it is now silently being ignored by default. In the event where things are not behaving as anticipated though, the additional `--show-unknown` option can be used to output the unknown MIDI messages into the stderr stream (via `echoinfo!()`) as per this release. In the event where the unknown message is actually at the root of misbehaviour, please open an issue with the relevant output!
+
+> [!NOTE]
+> Some MIDI controllers can be very talkative yet provide nothing of relevance for this application, which is why the decision was taken to silence unknown messages by default. See #6 for reference.
+
+> [!TIP]
+> `--raw-midi` and `--show-unknown` lead to quite similar behaviour now but are semantically different.
+>
+> In the case of `--raw-midi`, this applications performs no processing of the MIDI events whatsoever, allowing full visibility into what is arriving (ideal if there are issues in parsing the messages).
+>
+> On the other hand `--show-unknown` will perform all the processing as usual, but spit out the raw MIDI message if it is something this application did not expect or need.
