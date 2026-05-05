@@ -23,9 +23,17 @@ pub enum MidiMessageType {
 impl From<MidiMessage> for MidiMessageType {
     fn from(value: MidiMessage) -> Self {
         match value.status {
-            144 => MidiMessageType::NoteOn {
-                note: value.data1,
-                velocity: value.data2,
+            144 => match value.data2.cmp(&0) {
+                // Velocity may also determine NoteOn / NoteOff
+                std::cmp::Ordering::Less => MidiMessageType::Unknown,
+                std::cmp::Ordering::Equal => MidiMessageType::NoteOff {
+                    note: value.data1,
+                    velocity: value.data2,
+                },
+                std::cmp::Ordering::Greater => MidiMessageType::NoteOn {
+                    note: value.data1,
+                    velocity: value.data2,
+                },
             },
             128 => MidiMessageType::NoteOff {
                 note: value.data1,
