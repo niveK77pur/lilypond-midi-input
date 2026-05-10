@@ -1,0 +1,7 @@
+# Fix Note OFF event not being caught
+
+This release addresses both #8 and #9.
+
+According to the [MIDI 1.0 message list](https://midi.org/expanded-midi-1-0-messages-list), the status `128` corresponds to a Note OFF event. However, it appears that some keyboards re-use the status `144` (i.e. a Note ON) with a velocity of `0` to represent a Note OFF, which this tool has not taken into consideration until now.
+
+This resulted in incorrect note insertion due of a secondary status `144` MIDI message when releasing the key, and also made chord mode dysfunctional because it never sees that the notes were released.
